@@ -10,6 +10,9 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="{{ asset('css/lydo_reg.css') }}" />
   </head>
+  <style>
+  
+  </style>
   <body>
     <div class="banner-grad flex items-center justify-between w-full h-25  px-6 text-white">
       <div class="flex items-center">
