@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="{{ asset('css/lydo_reg.css') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png"') }}">
+     <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
   </head>
   <style>
   .banner-grad {
