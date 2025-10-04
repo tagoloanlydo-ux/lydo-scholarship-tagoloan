@@ -6,6 +6,8 @@
     <title>LYDO Scholarship Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/front-page.css') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('img/LYDO.png') }}">
+
   </head>
   <body class="min-h-screen w-screen flex flex-col items-center justify-between bg-gradient-to-b from-[#2a1e78] via-[#6a4fd4] to-[#7a58f7] text-white overflow-hidden">
 

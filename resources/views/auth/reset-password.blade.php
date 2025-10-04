@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="{{ asset('css/login.css') }}" />
+<link rel="icon" type="image/png" href="{{ asset('img/LYDO.png') }}">
+
   </head>
   <body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- HEADER -->
