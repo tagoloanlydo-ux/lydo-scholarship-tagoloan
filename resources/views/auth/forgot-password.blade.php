@@ -12,11 +12,7 @@
     <body class="bg-gray-50 min-h-screen flex flex-col">
       <!-- HEADER -->
       <header class="banner-grad flex items-center px-6 text-white shadow-md pt-4">
-        <img
-          src="{{ asset('images/lydo.png') }}"
-          alt="LYDO Logo"
-          class="h-10 mr-4"
-        />
+        <img src="/images/LYDO.png" alt="LYDO Logo" class="h-10 mr-4"/>
         <div>
           <h1 class="text-3xl font-extrabold">LYDO SCHOLARSHIP</h1>
           <p class="text-sm tracking-widest">
