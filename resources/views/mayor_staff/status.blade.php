@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scholarship Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
+    <link rel="stylesheet" href="{{ asset('css/mayor_status.css') }}" />
+</head>
+<body class="bg-gray-50">
+    <div class="dashboard-grid">
+        <!-- Header -->
+        <header class="bg-violet-600 shadow-sm p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="{{ asset('images/LYDO.png') }}" alt="Logo" class="h-10 w-auto rounded-lg ">
+                <h1 class="text-lg font-bold text-white ml-4">Lydo Scholarship</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+               <span class="text-white font-semibold">{{ session('lydopers')->lydopers_fname }} {{ session('lydopers')->lydopers_lname }} | Mayor Staff</span>
+             
+            <div class="relative">
+                <!-- 🔔 Bell Icon -->
+                <button id="notifBell" class="relative focus:outline-none">
+                    <i class="fas fa-bell text-white text-2xl cursor-pointer"></i>
+                    @if($notifications->count() > 0)
+                        <span id="notifCount"
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-sm rounded-full h-5 w-5 flex items-center justify-center">
+                            {{ $notifications->count() }}
+                        </span>
+                    @endif
+                </button>
+                <!-- 🔽 Dropdown -->
+                    <div id="notifDropdown"
+                        class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div class="p-3 border-b font-semibold text-gray-700">Notifications</div>
+                        <ul class="max-h-60 overflow-y-auto">
+                            @forelse($notifications as $notif)
+                                <li class="px-4 py-2 hover:bg-gray-50 text-base border-b">
+                                    {{-- New Application --}}
+                                    @if($notif->type === 'application')
+                                        <p class="text-blue-600 font-medium">
+                                            📝 {{ $notif->name }} submitted a new application
+                                        </p>
+                                    {{-- New Remark --}}
+                                    @elseif($notif->type === 'remark')
+                                        <p class="text-purple-600 font-medium">
+                                            💬 New remark for {{ $notif->name }}:
+                                            <b>{{ $notif->remarks }}</b>
+                                        </p>
+                                    @endif
+
+                                    {{-- Time ago --}}
+                                    <p class="text-xs text-gray-500">
+                                        {{ \Carbon\Carbon::parse($notif->created_at)->diffForHumans() }}
+                                    </p>
+                                </li>
+                            @empty
+                                <li class="px-4 py-3 text-gray-500 text-sm">No new notifications</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                 </div>
+            </div>
+        </header>
+        <!-- Main Content -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <div class="w-100 md:w-64 bg-white shadow-md flex flex-col transition-all duration-300">
+                <nav class="flex-1 p-2 md:p-4 space-y-1 overflow-y-auto">
+                    <ul class="side-menu top space-y-4">
+                        <li>
+                        <a href="/mayor_staff/dashboard"  class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-violet-600 hover:text-white focus:outline-none">
+                            <i class="bx bxs-dashboard text-center mx-auto md:mx-0 text-xl"></i>
+                            <span class="ml-4 hidden md:block text-lg">Dashboard</span>
+                        </a>
+                        </li>
+                        <li class="relative">
+                            <button onclick="toggleDropdown('scholarMenu')"
+                                class="w-full flex items-center justify-between p-3 rounded-lg text-gray-700 hover:bg-violet-600 hover:text-white focus:outline-none">
+                                <div class="flex items-center">
+                                    <i class="bx bxs-graduation text-center mx-auto md:mx-0 text-xl"></i>
+                                    <span class="ml-4 hidden md:block text-lg">Applicants</span>
+                                </div>
+                                <i class="bx bx-chevron-down ml-2"></i>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <ul id="scholarMenu" class="ml-10 mt-2 space-y-2 hidden">
+                                <li>
+                                    <a href="/mayor_staff/application"
+                                    class="flex items-center p-2 rounded-lg text-gray-700 hover:bg-violet-600 hover:text-white">
+                                    <i class="bx bx-search-alt mr-2"></i> Review Applications
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/mayor_staff/status"
+                                        class="flex items-center p-2 rounded-lg text-gray-700 bg-violet-600 text-white">
+                                    <i class="bx bx-check-circle mr-2"></i> Update Status
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <ul class="side-menu space-y-1">
+                            <li>
+                                <a href="/mayor_staff/settings" class="w-full flex items-center p-3 rounded-lg text-gray-700 hover:bg-violet-600 hover:text-white">
+                                    <i class="bx bxs-cog text-center mx-auto md:mx-0 text-xl"></i>
+                                    <span class="ml-4 hidden md:block text-base">Settings</span>
+                                </a>
+                            </li>
+                        </ul>
+                </nav>
+                
+               <div class="p-2 md:p-4 border-t">
+                    <form method="POST" action="{{ route('logout') }}" id="logoutForm"> @csrf <button type="submit" class="flex items-center p-2 text-red-600 text-lg hover:bg-violet-600 hover:text-white rounded-lg w-full text-left">
+                            <i class="fas fa-sign-out-alt mx-auto md:mx-0 mr-2 text-red-600"></i>
+                            <span class="hidden md:block text-red-600">Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="flex-1 main-content-area p-4 md:p-5  text-[16px]">
+                <div class="p-4 bg-gray-50 min-h-screen rounded-lg shadow">
+                                    <div class="flex justify-between items-center mb-6">
+                                    <h5 class="text-3xl font-bold text-gray-800">Applicant Status Management</h5>
+                                </div>
+
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                        <div class="bg-white p-6 rounded-lg shadow-lg flex items-center space-x-4">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <span class="text-lg font-medium">Updating status...</span>
+                        </div>
+                    </div>
+
+                    <!-- 🔎 Search & Filter + View Switch -->
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                        <!-- Search & Filter -->
+            <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
+                {{-- Search --}}
+                <input type="text" name="search" 
+                    value="{{ request('search') }}" 
+                    placeholder="Search name..." 
+                    class="border rounded px-3 py-2 w-64"
+                    oninput="document.getElementById('filterForm').submit()">
+
+                {{-- Barangay dropdown --}}
+                <select name="barangay" 
+                    class="border rounded px-3 py-2"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option value="">All Barangays</option>
+                    @foreach($barangays as $brgy)
+                        <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
+                            {{ $brgy }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
+          <!-- Tab Switch -->
+            <div class="flex gap-2">
+                <div class="tab active" onclick="showTable()">Review Applications</div>
+                <div class="tab" onclick="showList()">Processed Applications</div>
+            </div>
+        </div>
+
+        <!-- ✅ Table View (Applicants without remarks) -->
+        <div id="tableView" class="overflow-x-auto">
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <i class="fas fa-clock mr-2"></i>Pending Applications - Awaiting Review and Status Update
+                </h3>
+            </div>
+            <table class="w-full table-auto border-collapse text-[17px] shadow-lg  border border-gray-200">
+            <thead class="bg-gradient-to-r from-blue-600 to-purple-600 text-white uppercase text-sm">
+                <tr>
+                    <th class="px-6 py-4 text-left">#</th>
+                    <th class="px-6 py-4 text-left">Name</th>
+                    <th class="px-6 py-4 text-left">Barangay</th>
+                    <th class="px-6 py-4 text-left">School</th>
+                    <th class="px-6 py-4 text-left">Remarks</th>
+                    <th class="px-6 py-4 text-left">Status</th>
+                </tr>
+            </thead>
+        <tbody class="bg-white">
+        @forelse($applications as $index => $app)
+            @if(in_array($app->remarks, ['Poor', 'Ultra Poor']))
+            <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200">
+                <td class="px-6 py-4">{{ $index + 1 }}</td>
+                <td class="px-6 py-4 font-medium">
+                    {{ $app->fname }} {{ $app->mname }} {{ $app->lname }} {{ $app->suffix }}
+                </td>
+                <td class="px-6 py-4">{{ $app->barangay }}</td>
+                <td class="px-6 py-4">{{ $app->school }}</td>
+        <td class="px-6 py-4">
+            @php
+                $badgeColor = match($app->remarks) {
+                    'Poor' => 'bg-red-100 text-red-800 border border-red-200',
+                    'Non Poor' => 'bg-green-100 text-green-800 border border-green-200',
+                    'Ultra Poor' => 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+                    'Non Indigenous' => 'bg-gray-100 text-gray-800 border border-gray-200',
+                    default => 'bg-blue-100 text-blue-800 border border-blue-200',
+                };
+            @endphp
+
+            <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $badgeColor }}">
+                {{ $app->remarks }}
+            </span>
+        </td>
+
+                <td class="px-6 py-4">
+                    <form method="POST" action="{{ route('MayorStaff.updateStatus', $app->application_personnel_id) }}">
+                        @csrf
+                        <div class="flex flex-col space-y-2">
+                            <select name="status" class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 status-select">
+                            <option >Set Status</option>
+                                <option value="Approved" {{ $app->status == 'Approved' ? 'selected' : '' }}>Approved</option>
+                                <option value="Rejected" {{ $app->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
+                            </select>
+                            <textarea name="reason" rows="3" class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 rejection-reason hidden" placeholder="Please provide a reason for rejection..."></textarea>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            @endif
+        @empty
+            <tr>
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500 bg-gray-50">No pending applications found.</td>
+            </tr>
+        @endforelse
+        </tbody>
+        </table>
+        <div class="mt-4">
+            {{ $applications->appends(request()->query())->links() }}
+        </div>
+    </div>
+        <!-- ✅ List View (Approved and Rejected applications) -->
+    <div id="listView" class="hidden overflow-x-auto">
+        <div class="mb-4">
+            <h3 class="text-lg font-semibold text-gray-700 bg-green-50 p-3 rounded-lg border border-green-200">
+            <i class="fas fa-check-circle mr-2"></i>Processed Applications - Approved and Rejected
+            </h3>
+        </div>
+        <table class="w-full table-auto border-collapse text-[17px] shadow-lg  border border-gray-200">
+            <thead class="bg-gradient-to-r from-green-600 to-teal-600 text-white uppercase text-sm">
+                <tr>
+                    <th class="px-6 py-4 text-left">#</th>
+                    <th class="px-6 py-4 text-left">Name</th>
+                    <th class="px-6 py-4 text-left">Barangay</th>
+                    <th class="px-6 py-4 text-left">School</th>
+                    <th class="px-6 py-4 text-left">Remarks</th>
+                    <th class="px-6 py-4 text-left">Status</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+            @forelse($listApplications as $index => $app)
+                <tr class="border-b border-gray-200 hover:bg-green-50 transition-colors duration-200">
+                    <td class="px-6 py-4">{{ $index + 1 }}</td>
+                    <td class="px-6 py-4 font-medium">{{ $app->fname }} {{ $app->mname }} {{ $app->lname }} {{ $app->suffix }}</td>
+                    <td class="px-6 py-4">{{ $app->barangay }}</td>
+                    <td class="px-6 py-4">{{ $app->school }}</td>
+                    <td class="px-6 py-4">
+                        @php
+                            $badgeColor = match($app->remarks) {
+                                'Poor' => 'bg-red-100 text-red-800 border border-red-200',
+                                'Non Poor' => 'bg-green-100 text-green-800 border border-green-200',
+                                'Ultra Poor' => 'bg-yellow-100 text-yellow-800 border border-yellow-200',
+                                'Non Indigenous' => 'bg-gray-100 text-gray-800 border border-gray-200',
+                                default => 'bg-blue-100 text-blue-800 border border-blue-200',
+                            };
+                        @endphp
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $badgeColor }}">
+                            {{ $app->remarks }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        @php
+                            $statusBadgeColor = match($app->status) {
+                                'Approved' => 'bg-green-100 text-green-800 border border-green-200',
+                                'Rejected' => 'bg-red-100 text-red-800 border border-red-200',
+                                default => 'bg-gray-100 text-gray-800 border border-gray-200',
+                            };
+                        @endphp
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold {{ $statusBadgeColor }}">
+                            {{ $app->status }}
+                        </span>
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 bg-gray-50">No approved or rejected applications found.</td>
+                </tr>
+            @endforelse
+            </tbody>
+        </table>
+        <div class="mt-4">
+        {{ $listApplications->appends(request()->query())->links() }}
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+    function showTable() {
+        document.getElementById("tableView").classList.remove("hidden");
+        document.getElementById("listView").classList.add("hidden");
+        document.querySelector('.tab.active').classList.remove('active');
+        document.querySelectorAll('.tab')[0].classList.add('active');
+        localStorage.setItem("viewMode", "table"); // save preference
+    }
+
+    function showList() {
+        document.getElementById("listView").classList.remove("hidden");
+        document.getElementById("tableView").classList.add("hidden");
+        document.querySelector('.tab.active').classList.remove('active');
+        document.querySelectorAll('.tab')[1].classList.add('active');
+        localStorage.setItem("viewMode", "list"); // save preference
+    }
+
+    // ✅ Kapag nag-load ang page, i-apply yung last view
+    document.addEventListener("DOMContentLoaded", function() {
+        let viewMode = localStorage.getItem("viewMode") || "table"; // default table
+        if(viewMode === "list") {
+            showList();
+        } else {
+            showTable();
+        }
+
+        // Add SweetAlert confirmation for dropdown status changes
+        const statusSelects = document.querySelectorAll('select[name="status"]');
+        statusSelects.forEach(select => {
+            // Remove any existing event listeners to prevent duplicates
+            select.removeEventListener('change', handleStatusChange);
+            select.removeEventListener('change', toggleRejectionReason);
+
+            select.addEventListener('change', handleStatusChange);
+            select.addEventListener('change', toggleRejectionReason);
+
+            // Store original value
+            select.setAttribute('data-original-value', select.value);
+
+            // Initial toggle
+            toggleRejectionReason.call(select);
+        });
+
+        function toggleRejectionReason() {
+            const select = this;
+            const form = select.closest('form');
+            const reasonTextarea = form.querySelector('.rejection-reason');
+            if (select.value === 'Rejected') {
+                reasonTextarea.classList.remove('hidden');
+            } else {
+                reasonTextarea.classList.add('hidden');
+                reasonTextarea.value = ''; // Clear if not rejected
+            }
+        }
+
+        function handleStatusChange(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const select = this;
+            const form = select.closest('form');
+            const selectedValue = select.value;
+            const selectedText = select.options[select.selectedIndex].text;
+            const originalValue = select.getAttribute('data-original-value');
+
+            // Don't show confirmation if value hasn't actually changed
+            if (selectedValue === originalValue) {
+                return;
+            }
+
+            // If Rejected, validate that reason is provided
+            if (selectedValue === 'Rejected') {
+                const reasonTextarea = form.querySelector('.rejection-reason');
+                const reason = reasonTextarea.value.trim();
+
+                if (!reason) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Reason Required',
+                        text: 'Please provide a reason for rejection.',
+                        confirmButtonText: 'OK'
+                    });
+                    // Focus on the textarea
+                    reasonTextarea.focus();
+                    return;
+                }
+
+                // Show confirmation with reason
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `Do you want to update the status to "${selectedText}"?\n\nReason: ${reason}`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Reject Application',
+                    cancelButtonText: 'Cancel',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((confirmResult) => {
+                    if (confirmResult.isConfirmed) {
+                        submitForm(form, selectedValue);
+                    } else {
+                        // Reset to previous value
+                        select.value = originalValue || 'Pending';
+                        toggleRejectionReason.call(select);
+                    }
+                });
+                return; // Exit early for rejected case
+            }
+
+            // For Approved status, show regular confirmation
+            Swal.fire({
+                title: 'Are you sure?',
+                text: `Do you want to update the status to "${selectedText}"?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, update it!',
+                cancelButtonText: 'Cancel',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitForm(form, selectedValue);
+                } else {
+                    // Reset to previous value
+                    select.value = originalValue || 'Pending';
+                    toggleRejectionReason.call(select);
+                }
+            });
+        }
+
+        function submitForm(form, statusValue) {
+            // Show loading spinner
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+
+            // Collect form data
+            const formData = new FormData(form);
+            formData.set('status', statusValue);
+
+            // Do not send reason if status is not Rejected
+            if (statusValue !== 'Rejected') {
+                formData.delete('reason');
+            }
+
+            // Submit via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').classList.add('hidden');
+
+                if (data.success) {
+                    // Show success SweetAlert
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: data.message || 'Status updated successfully!',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        // Reload page to reflect changes
+                        window.location.reload();
+                    });
+                } else {
+                    // Show error if success is false
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message || 'Failed to update status.',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            })
+            .catch(error => {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').classList.add('hidden');
+
+                // Show error SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while updating the status.',
+                    confirmButtonText: 'OK'
+                });
+                console.error('Error:', error);
+            });
+        }
+
+        // Add SweetAlert confirmation for modal form submission
+        const editForm = document.getElementById('editForm');
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const statusSelect = document.getElementById('modalStatus');
+                const selectedValue = statusSelect.value;
+                const selectedText = statusSelect.options[statusSelect.selectedIndex].text;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `Do you want to update the status to "${selectedText}"?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, update it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
+            });
+        }
+    });
+
+</script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '{{ session("success") }}',
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+
+<!-- ⚡ JS -->
+<script>
+    document.getElementById("notifBell").addEventListener("click", function () {
+        let dropdown = document.getElementById("notifDropdown");
+        dropdown.classList.toggle("hidden");
+
+        // remove badge when opened
+        let notifCount = document.getElementById("notifCount");
+        if (notifCount) {
+            notifCount.remove();
+        }
+    });
+</script>
+
+
+<script>
+    // Toggle dropdown and save state
+    function toggleDropdown(id) {
+        const menu = document.getElementById(id);
+        const isHidden = menu.classList.contains("hidden");
+
+        if (isHidden) {
+            menu.classList.remove("hidden");
+            localStorage.setItem(id, "open");
+        } else {
+            menu.classList.add("hidden");
+            localStorage.setItem(id, "closed");
+        }
+    }
+
+    // Restore dropdown state on page load
+    window.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll("ul[id]").forEach(menu => {
+            const state = localStorage.getItem(menu.id);
+            if (state === "open") {
+                menu.classList.remove("hidden");
+            }
+        });
+    });
+</script>
+ <script src="{{ asset('js/logout.js') }}"></script>
+</body>
+</html>
