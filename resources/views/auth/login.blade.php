@@ -8,8 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="{{ asset('css/login.css') }}" />
-<link rel="icon" type="image/png" href="{{ asset('img/LYDO.png') }}">
-
+<link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png"') }}">
   </head>
   <body class="bg-gray-50 min-h-screen flex flex-col">
     <script>
