@@ -11,12 +11,28 @@
     <link rel="stylesheet" href="{{ asset('css/lydo_reg.css') }}" />
   </head>
   <style>
-  
+  .banner-grad {
+    background: #7c3aed; /* solid light purple */
+    height: 100px;
+    clip-path: polygon(0 0, 100% 0, 100% 40%, 55% 45%, 50% 100%, 0 100%);
+    position: relative;
+}
+
+/* Back button */
+.back-btn {
+    background: transparent;
+    border: none;
+    margin-right: 20px;
+    font-size: 28px;
+    color: rgb(0, 0, 0);
+    font-size: 50px;
+    cursor: pointer;
+}
   </style>
   <body>
     <div class="banner-grad flex items-center justify-between w-full h-25  px-6 text-white">
       <div class="flex items-center">
-       <img src="/images/LYDO.png" alt="LYDO Logo" class="h-10 mr-4"/>
+        <img src="{{ asset('images/lydo.png') }}" alt="Logo" class="h-10 mr-4" />
         <div>
           <h1 class="text-2xl font-bold">LYDO SCHOLARSHIP</h1>
           <p class="text-xs tracking-widest">
