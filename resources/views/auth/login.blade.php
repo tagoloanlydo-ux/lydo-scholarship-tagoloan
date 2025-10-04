@@ -56,7 +56,7 @@
         Welcome Back!
       </h2>
 
-      <h3 class="text-5xl font-extrabold mb-2 text-purple-700 leading-tight">
+      <h3 class="text-5xl font-extrabold mb-2 text-blue-700 leading-tight">
         LYDO Team
       </h3>
 
