@@ -8,12 +8,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/scholar.css') }}" />
-    <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
+    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
   </head>
   <body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- HEADER -->
     <header class="banner-grad flex items-center px-6 text-white shadow-md">
-      <img src="{{ asset('images/lydo.png') }}" alt="LYDO Logo" class="h-10 mr-4" />
+         <img src="/images/LYDO.png" alt="LYDO Logo" class="h-10 mr-4"/>
       <div>
         <h1 class="text-3xl font-extrabold">LYDO SCHOLARSHIP</h1>
         <p class="text-sm tracking-widest">

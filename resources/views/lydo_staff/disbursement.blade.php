@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
 </head>
 
 <body class="bg-gray-50">

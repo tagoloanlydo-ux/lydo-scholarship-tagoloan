@@ -9,6 +9,7 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/renewal.css') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
 </head>
 <body class="bg-gray-50">
  <div class="dashboard-grid">

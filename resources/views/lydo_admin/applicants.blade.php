@@ -11,6 +11,7 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
     <style>
         input::placeholder, select::placeholder {
             color: black !important;

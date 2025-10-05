@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
 <html>
 <head>
     <meta charset="utf-8">

@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
 </head>
 
 <body class="bg-gray-50">

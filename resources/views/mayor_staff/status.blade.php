@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
     <link rel="stylesheet" href="{{ asset('css/mayor_status.css') }}" />
+    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
 </head>
 <body class="bg-gray-50">
     <div class="dashboard-grid">
