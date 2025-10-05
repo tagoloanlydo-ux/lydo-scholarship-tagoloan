@@ -15,7 +15,6 @@
   .banner-grad {
     background: #7c3aed; /* solid light purple */
     height: 100px;
-    clip-path: polygon(0 0, 100% 0, 100% 40%, 55% 45%, 50% 100%, 0 100%);
     position: relative;
 }
 
@@ -31,11 +30,11 @@
 }
   </style>
   <body>
-    <div class="banner-grad flex items-center justify-between w-full h-25  px-6 text-white">
+    <div class="banner-grad flex items-center justify-center md:justify-between w-full px-4 md:px-6 text-white">
       <div class="flex items-center">
-        <img src="/images/LYDO.png" alt="LYDO Logo" class="h-10 mr-4"/>
+        <img src="/images/LYDO.png" alt="LYDO Logo" class="h-8 md:h-10 mr-2 md:mr-4"/>
         <div>
-          <h1 class="text-2xl font-bold">LYDO SCHOLARSHIP</h1>
+          <h1 class="text-lg md:text-2xl font-bold">LYDO SCHOLARSHIP</h1>
           <p class="text-xs tracking-widest">
             PARA SA KABATAAN, PARA SA KINABUKASAN.
           </p>
