@@ -402,22 +402,23 @@ class ScholarController extends Controller
 
             // Only update files if new ones are uploaded
             if ($request->hasFile('renewal_cert_of_reg')) {
-                $renewal->renewal_cert_of_reg = $request->file('renewal_cert_of_reg')->store('renewals', 'public');
+                $renewal->renewal_cert_of_reg = $request->file('renewal_cert_of_reg')->store('renewals');
             }
             if ($request->hasFile('renewal_grade_slip')) {
-                $renewal->renewal_grade_slip = $request->file('renewal_grade_slip')->store('renewals', 'public');
+                $renewal->renewal_grade_slip = $request->file('renewal_grade_slip')->store('renewals');
             }
             if ($request->hasFile('renewal_brgy_indigency')) {
-                $renewal->renewal_brgy_indigency = $request->file('renewal_brgy_indigency')->store('renewals', 'public');
+                $renewal->renewal_brgy_indigency = $request->file('renewal_brgy_indigency')->store('renewals');
             }
 
             $renewal->save();
             $message = 'Renewal application updated successfully.';
         } else {
             // Create new renewal record
-            $certOfRegPath = $request->file('renewal_cert_of_reg')->store('renewals', 'public');
-            $gradeSlipPath = $request->file('renewal_grade_slip')->store('renewals', 'public');
-            $brgyIndigencyPath = $request->file('renewal_brgy_indigency')->store('renewals', 'public');
+           $certOfRegPath = $request->file('renewal_cert_of_reg')->store('renewals');
+            $gradeSlipPath = $request->file('renewal_grade_slip')->store('renewals');
+            $brgyIndigencyPath = $request->file('renewal_brgy_indigency')->store('renewals');
+
 
             $renewal = new \App\Models\Renewal();
             $renewal->scholar_id = $scholar->scholar_id;
