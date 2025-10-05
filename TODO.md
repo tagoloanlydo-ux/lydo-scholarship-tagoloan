@@ -1,3 +1,4 @@
--   [x] Update HTML structure in renewal-report.blade.php to wrap logo and header in a flex container for left logo and centered header content
--   [x] Update CSS styles to ensure proper alignment and layout
--   [x] Verify the changes achieve the desired positioning
+-   [x] Add CSS styles for signature-section, signature-table, signature-line to scholars-report.blade.php
+-   [x] Add HTML signature table with Prepared By, Verified By, Approved By after the scholars table
+-   [x] Add CSS styles for signature-section, signature-table, signature-line to applicants-report.blade.php
+-   [x] Add HTML signature table with Prepared By, Verified By, Approved By after the applicants table

@@ -94,6 +94,26 @@
         .remarks-other {
             color: #6c757d;
         }
+        .signature-section {
+            margin-top: 50px;
+            width: 100%;
+        }
+        .signature-table {
+            width: 100%;
+            border: none;
+            border-collapse: collapse;
+            text-align: center;
+        }
+        .signature-table td {
+            padding: 30px 10px;
+            vertical-align: bottom;
+            border: none;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            width: 200px;
+            margin: 0 auto 5px auto;
+        }
     </style>
 </head>
 <body>
@@ -167,6 +187,25 @@
             @endforeach
         </tbody>
     </table>
+
+    <div class="signature-section">
+        <table class="signature-table">
+            <tr>
+                <td>
+                    <div class="signature-line"></div>
+                    <p>Prepared By</p>
+                </td>
+                <td>
+                    <div class="signature-line"></div>
+                    <p>Verified By</p>
+                </td>
+                <td>
+                    <div class="signature-line"></div>
+                    <p>Approved By</p>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <div class="footer">
         <p>Total Applicants: {{ $applicants->count() }}</p>
