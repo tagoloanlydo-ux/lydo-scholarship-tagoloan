@@ -133,7 +133,8 @@ class LydoStaffController extends Controller
                 "tbl_applicant.applicant_school_name as school",
                 "tbl_applicant.created_at",
                 "tbl_application_personnel.remarks",
-            );
+            )
+            ->where("tbl_application_personnel.initial_screening", "=", "Reviewed");
 
         // apply filter if not all
         if ($filter === "all") {
