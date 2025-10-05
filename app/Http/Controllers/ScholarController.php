@@ -726,15 +726,5 @@ public function updateApplication(Request $request, $applicant_id)
 /**
  * Move uploaded files into storage/documents/
  */
-private function moveFileToStorage($file)
-{
-    $fileName = uniqid() . '_' . $file->getClientOriginalName();
-    $destination = storage_path('documents'); // storage/app/documents
-    if (!file_exists($destination)) {
-        mkdir($destination, 0755, true);
-    }
-    $file->move($destination, $fileName);
-    return 'documents/' . $fileName;
-}
 
 }
