@@ -19,6 +19,7 @@
                     <div class="flex items-center">
                         <img src="{{ asset('images/LYDO.png') }}" alt="Logo" class="h-10 w-auto rounded-lg ">
                             <h1 class="text-2xl font-bold text-white ml-4">Lydo Scholarship</h1>
+                    </div>
                                 <div class="flex items-center space-x-4">
                                     <span class="text-white font-semibold">{{ session('lydopers')->lydopers_fname }} {{ session('lydopers')->lydopers_lname }} | Mayor Staff</span>
                                     
