@@ -732,12 +732,18 @@ $listView = DB::table("tbl_renewal as r")
         ]);
 
 
+        $updateData = [
+            "renewal_status" => $request->renewal_status,
+            "updated_at" => now(),
+        ];
+
+        if ($request->renewal_status === "Rejected" && $request->filled('reason')) {
+            $updateData["rejection_reason"] = $request->reason;
+        }
+
         DB::table("tbl_renewal")
             ->where("renewal_id", $id)
-            ->update([
-                "renewal_status" => $request->renewal_status,
-                "updated_at" => now(),
-            ]);
+            ->update($updateData);
 
         $scholarId = DB::table("tbl_renewal")
             ->where("renewal_id", $id)

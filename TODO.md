@@ -1,15 +1,17 @@
-# TODO: Modify Mayor Staff Status Page for Rejection with SweetAlert Input
+# TODO: Fix Renewal Rejection Reason Implementation
 
-## Tasks
+## Completed Tasks
 
--   [ ] Remove the textarea for reason from the form in resources/views/mayor_staff/status.blade.php
--   [ ] Modify JavaScript to show SweetAlert with input field for reason when status is changed to "Rejected"
--   [ ] Update the handleStatusChange function to prompt for reason in SweetAlert instead of checking textarea
--   [ ] Ensure the reason is passed to the submitForm function and included in the AJAX request
--   [ ] Verify that the email is sent with the reason (controller already handles this)
+-   [x] Create migration to add `rejection_reason` column to `tbl_renewal` table
+-   [x] Update `updateRenewalStatus` method in `LydoStaffController.php` to save rejection reason when status is Rejected
+-   [x] Run migration to apply database changes
 
-## Notes
+## Summary
 
--   The controller updateStatus method already validates and sends email with reason for rejections.
--   The email template scholar-status-rejection.blade.php already includes the reason.
--   No changes needed to controller or email template.
+The issue was that the rejection reason was being sent in the email but not saved in the database. The fix involved:
+
+1. Adding a nullable `rejection_reason` text column to the `tbl_renewal` table via migration.
+2. Modifying the `updateRenewalStatus` method to save the reason in the database when rejecting a renewal.
+3. The email template already includes the reason if provided, so no changes were needed there.
+
+The rejection flow now properly saves the reason in the database and includes it in the email sent to the scholar.
