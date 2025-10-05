@@ -347,94 +347,107 @@ class ScholarController extends Controller
 
         return view('scholar.renewal_app', compact('renewal'));
     }
+public function submitRenewal(Request $request)
+{
+    // Check if this is an update or new submission
+    $isUpdate = $request->has('renewal_id') && $request->renewal_id;
 
-    public function submitRenewal(Request $request)
-    {
-        // Check if this is an update or new submission
-        $isUpdate = $request->has('renewal_id') && $request->renewal_id;
-
-        if ($isUpdate) {
-            // For updates, files are optional
-            $request->validate([
-                'renewal_semester' => 'required|string|max:20',
-                'renewal_acad_year' => 'required|string|max:20',
-                'applicant_year_level' => 'required|string|max:50',
-                'renewal_cert_of_reg' => 'nullable|file|mimes:pdf|max:5120',
-                'renewal_grade_slip' => 'nullable|file|mimes:pdf|max:5120',
-                'renewal_brgy_indigency' => 'nullable|file|mimes:pdf|max:5120',
-            ]);
-        } else {
-            // For new submissions, files are required
-            $request->validate([
-                'renewal_semester' => 'required|string|max:20',
-                'renewal_acad_year' => 'required|string|max:20',
-                'applicant_year_level' => 'required|string|max:50',
-                'renewal_cert_of_reg' => 'required|file|mimes:pdf|max:5120',
-                'renewal_grade_slip' => 'required|file|mimes:pdf|max:5120',
-                'renewal_brgy_indigency' => 'required|file|mimes:pdf|max:5120',
-            ]);
-        }
-
-        $scholar = session('scholar');
-        if (!$scholar) {
-            return redirect()->route('scholar.login')->withErrors(['error' => 'Please login to submit renewal.']);
-        }
-
-        // Update applicant year level
-        $applicant = $scholar->applicant;
-        if (!$applicant) {
-            return redirect()->back()->withErrors(['error' => 'Applicant record not found.']);
-        }
-        $applicant->applicant_year_level = $request->input('applicant_year_level');
-        $applicant->save();
-
-        if ($isUpdate) {
-            // Update existing renewal
-            $renewal = \App\Models\Renewal::find($request->renewal_id);
-            if (!$renewal) {
-                return redirect()->back()->withErrors(['error' => 'Renewal record not found.']);
-            }
-
-            $renewal->renewal_semester = $request->input('renewal_semester');
-            $renewal->renewal_acad_year = $request->input('renewal_acad_year');
-            $renewal->date_submitted = now();
-            $renewal->renewal_status = 'Pending';
-
-            // Only update files if new ones are uploaded
-            if ($request->hasFile('renewal_cert_of_reg')) {
-                $renewal->renewal_cert_of_reg = $request->file('renewal_cert_of_reg')->store('renewals');
-            }
-            if ($request->hasFile('renewal_grade_slip')) {
-                $renewal->renewal_grade_slip = $request->file('renewal_grade_slip')->store('renewals');
-            }
-            if ($request->hasFile('renewal_brgy_indigency')) {
-                $renewal->renewal_brgy_indigency = $request->file('renewal_brgy_indigency')->store('renewals');
-            }
-
-            $renewal->save();
-            $message = 'Renewal application updated successfully.';
-        } else {
-            // Create new renewal record
-           $certOfRegPath = $request->file('renewal_cert_of_reg')->store('renewals');
-            $gradeSlipPath = $request->file('renewal_grade_slip')->store('renewals');
-            $brgyIndigencyPath = $request->file('renewal_brgy_indigency')->store('renewals');
-
-
-            $renewal = new \App\Models\Renewal();
-            $renewal->scholar_id = $scholar->scholar_id;
-            $renewal->renewal_semester = $request->input('renewal_semester');
-            $renewal->renewal_acad_year = $request->input('renewal_acad_year');
-            $renewal->renewal_cert_of_reg = $certOfRegPath;
-            $renewal->renewal_grade_slip = $gradeSlipPath;
-            $renewal->renewal_brgy_indigency = $brgyIndigencyPath;
-            $renewal->date_submitted = now();
-            $renewal->renewal_status = 'Pending';
-            $renewal->save();
-            $message = 'Renewal application submitted successfully.';
-        }
-
-        return redirect()->back()->with('success', $message);
+    if ($isUpdate) {
+        // For updates, files are optional
+        $request->validate([
+            'renewal_semester' => 'required|string|max:20',
+            'renewal_acad_year' => 'required|string|max:20',
+            'applicant_year_level' => 'required|string|max:50',
+            'renewal_cert_of_reg' => 'nullable|file|mimes:pdf|max:5120',
+            'renewal_grade_slip' => 'nullable|file|mimes:pdf|max:5120',
+            'renewal_brgy_indigency' => 'nullable|file|mimes:pdf|max:5120',
+        ]);
+    } else {
+        // For new submissions, files are required
+        $request->validate([
+            'renewal_semester' => 'required|string|max:20',
+            'renewal_acad_year' => 'required|string|max:20',
+            'applicant_year_level' => 'required|string|max:50',
+            'renewal_cert_of_reg' => 'required|file|mimes:pdf|max:5120',
+            'renewal_grade_slip' => 'required|file|mimes:pdf|max:5120',
+            'renewal_brgy_indigency' => 'required|file|mimes:pdf|max:5120',
+        ]);
     }
+
+    $scholar = session('scholar');
+    if (!$scholar) {
+        return redirect()->route('scholar.login')->withErrors(['error' => 'Please login to submit renewal.']);
+    }
+
+    // Update applicant year level
+    $applicant = $scholar->applicant;
+    if (!$applicant) {
+        return redirect()->back()->withErrors(['error' => 'Applicant record not found.']);
+    }
+    $applicant->applicant_year_level = $request->input('applicant_year_level');
+    $applicant->save();
+
+    if ($isUpdate) {
+        // Update existing renewal
+        $renewal = \App\Models\Renewal::find($request->renewal_id);
+        if (!$renewal) {
+            return redirect()->back()->withErrors(['error' => 'Renewal record not found.']);
+        }
+
+        $renewal->renewal_semester = $request->input('renewal_semester');
+        $renewal->renewal_acad_year = $request->input('renewal_acad_year');
+        $renewal->date_submitted = now();
+        $renewal->renewal_status = 'Pending';
+
+        // Only update files if new ones are uploaded, move manually to storage/renewals
+        if ($request->hasFile('renewal_cert_of_reg')) {
+            $renewal->renewal_cert_of_reg = $this->moveFileToRenewals($request->file('renewal_cert_of_reg'));
+        }
+        if ($request->hasFile('renewal_grade_slip')) {
+            $renewal->renewal_grade_slip = $this->moveFileToRenewals($request->file('renewal_grade_slip'));
+        }
+        if ($request->hasFile('renewal_brgy_indigency')) {
+            $renewal->renewal_brgy_indigency = $this->moveFileToRenewals($request->file('renewal_brgy_indigency'));
+        }
+
+        $renewal->save();
+        $message = 'Renewal application updated successfully.';
+    } else {
+        // Create new renewal record, move files manually to storage/renewals
+        $certOfRegPath = $this->moveFileToRenewals($request->file('renewal_cert_of_reg'));
+        $gradeSlipPath = $this->moveFileToRenewals($request->file('renewal_grade_slip'));
+        $brgyIndigencyPath = $this->moveFileToRenewals($request->file('renewal_brgy_indigency'));
+
+        $renewal = new \App\Models\Renewal();
+        $renewal->scholar_id = $scholar->scholar_id;
+        $renewal->renewal_semester = $request->input('renewal_semester');
+        $renewal->renewal_acad_year = $request->input('renewal_acad_year');
+        $renewal->renewal_cert_of_reg = $certOfRegPath;
+        $renewal->renewal_grade_slip = $gradeSlipPath;
+        $renewal->renewal_brgy_indigency = $brgyIndigencyPath;
+        $renewal->date_submitted = now();
+        $renewal->renewal_status = 'Pending';
+        $renewal->save();
+        $message = 'Renewal application submitted successfully.';
+    }
+
+    return redirect()->back()->with('success', $message);
+}
+
+/**
+ * Move uploaded files into storage/renewals/
+ */
+private function moveFileToRenewals($file)
+{
+    $fileName = uniqid() . '_' . $file->getClientOriginalName();
+    $destination = storage_path('renewals'); // storage/app/renewals
+    if (!file_exists($destination)) {
+        mkdir($destination, 0755, true); // create folder if it doesn't exist
+    }
+    $file->move($destination, $fileName);
+    return 'renewals/' . $fileName;
+}
+
 
     // Show forgot password form
     public function showForgotPasswordForm() {
@@ -622,137 +635,106 @@ class ScholarController extends Controller
         return view('scholar.update_applicaiton', compact('applicant', 'application', 'issues'));
     }
 
-    public function updateApplication(Request $request, $applicant_id)
-    {
-        $applicant = Applicant::findOrFail($applicant_id);
-        $application = Application::where('applicant_id', $applicant_id)->first();
-        if (!$application) {
-            abort(404, 'Application not found.');
-        }
-
-        // Get issues to determine required files
-        $issues = [];
-        if (request()->has('issues')) {
-            $issues = explode(',', request()->query('issues'));
-            $issues = array_map('trim', $issues);
-        }
-
-        // Base validation for personal fields (optional for update)
-        $personalValidation = [
-            'applicant_fname' => 'sometimes|required|string|max:255',
-            'applicant_mname' => 'sometimes|nullable|string|max:255',
-            'applicant_lname' => 'sometimes|required|string|max:255',
-            'applicant_suffix' => 'sometimes|nullable|string|max:10',
-            'applicant_gender' => 'sometimes|required|in:male,female,other',
-            'applicant_bdate' => 'sometimes|required|date|before:today',
-            'applicant_civil_status' => 'sometimes|required|in:single,married,widowed,divorced',
-            'applicant_brgy' => 'sometimes|required|string|max:255',
-            'applicant_email' => 'sometimes|required|email|unique:tbl_applicant,applicant_email,' . $applicant_id . ',applicant_id',
-            'applicant_contact_number' => 'sometimes|required|string|max:15',
-            'applicant_school_name' => 'sometimes|required|string|max:255',
-            'applicant_school_name_other' => 'sometimes|nullable|string|max:255',
-            'applicant_year_level' => 'sometimes|required|string|max:50',
-            'applicant_course' => 'sometimes|required|string|max:255',
-            'applicant_acad_year' => 'sometimes|required|string|max:20',
-        ];
-
-        // File validation: required only if in issues
-        $fileValidation = [
-            'application_letter' => in_array('application_letter', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
-            'certificate_of_registration' => in_array('cert_of_reg', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
-            'grade_slip' => in_array('grade_slip', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
-            'barangay_indigency' => in_array('brgy_indigency', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
-            'student_id' => in_array('student_id', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
-        ];
-
-        $request->validate(array_merge($personalValidation, $fileValidation));
-
-        // Update personal fields if provided
-        if ($request->filled('applicant_fname')) {
-            $applicant->applicant_fname = $request->input('applicant_fname');
-        }
-        if ($request->filled('applicant_mname')) {
-            $applicant->applicant_mname = $request->input('applicant_mname');
-        }
-        if ($request->filled('applicant_lname')) {
-            $applicant->applicant_lname = $request->input('applicant_lname');
-        }
-        if ($request->filled('applicant_suffix')) {
-            $applicant->applicant_suffix = $request->input('applicant_suffix');
-        }
-        if ($request->filled('applicant_gender')) {
-            $applicant->applicant_gender = $request->input('applicant_gender');
-        }
-        if ($request->filled('applicant_bdate')) {
-            $applicant->applicant_bdate = $request->input('applicant_bdate');
-        }
-        if ($request->filled('applicant_civil_status')) {
-            $applicant->applicant_civil_status = $request->input('applicant_civil_status');
-        }
-        if ($request->filled('applicant_brgy')) {
-            $applicant->applicant_brgy = $request->input('applicant_brgy');
-        }
-        if ($request->filled('applicant_email')) {
-            $applicant->applicant_email = $request->input('applicant_email');
-        }
-        if ($request->filled('applicant_contact_number')) {
-            $applicant->applicant_contact_number = $request->input('applicant_contact_number');
-        }
-        // Handle school name
-        if ($request->filled('applicant_school_name')) {
-            $schoolName = $request->input('applicant_school_name');
-            if ($schoolName === 'Others' && $request->filled('applicant_school_name_other')) {
-                $schoolName = $request->input('applicant_school_name_other');
-            }
-            $applicant->applicant_school_name = $schoolName;
-        }
-        if ($request->filled('applicant_year_level')) {
-            $applicant->applicant_year_level = $request->input('applicant_year_level');
-        }
-        if ($request->filled('applicant_course')) {
-            $applicant->applicant_course = $request->input('applicant_course');
-        }
-        if ($request->filled('applicant_acad_year')) {
-            $applicant->applicant_acad_year = $request->input('applicant_acad_year');
-        }
-
-        $applicant->save();
-
-        // Update files if uploaded
-        if ($request->hasFile('application_letter')) {
-            if ($application->application_letter) {
-                Storage::disk('public')->delete($application->application_letter);
-            }
-            $application->application_letter = $request->file('application_letter')->store('documents', 'public');
-        }
-        if ($request->hasFile('certificate_of_registration')) {
-            if ($application->cert_of_reg) {
-                Storage::disk('public')->delete($application->cert_of_reg);
-            }
-            $application->cert_of_reg = $request->file('certificate_of_registration')->store('documents', 'public');
-        }
-        if ($request->hasFile('grade_slip')) {
-            if ($application->grade_slip) {
-                Storage::disk('public')->delete($application->grade_slip);
-            }
-            $application->grade_slip = $request->file('grade_slip')->store('documents', 'public');
-        }
-        if ($request->hasFile('barangay_indigency')) {
-            if ($application->brgy_indigency) {
-                Storage::disk('public')->delete($application->brgy_indigency);
-            }
-            $application->brgy_indigency = $request->file('barangay_indigency')->store('documents', 'public');
-        }
-        if ($request->hasFile('student_id')) {
-            if ($application->student_id) {
-                Storage::disk('public')->delete($application->student_id);
-            }
-            $application->student_id = $request->file('student_id')->store('documents', 'public');
-        }
-
-        $application->save();
-
-        return redirect()->route('scholar.dashboard')->with('success', 'Application updated successfully!');
+public function updateApplication(Request $request, $applicant_id)
+{
+    $applicant = Applicant::findOrFail($applicant_id);
+    $application = Application::where('applicant_id', $applicant_id)->first();
+    if (!$application) {
+        abort(404, 'Application not found.');
     }
+
+    // Get issues to determine required files
+    $issues = [];
+    if ($request->has('issues')) {
+        $issues = explode(',', $request->query('issues'));
+        $issues = array_map('trim', $issues);
+    }
+
+    // Base validation for personal fields (optional for update)
+    $personalValidation = [
+        'applicant_fname' => 'sometimes|required|string|max:255',
+        'applicant_mname' => 'sometimes|nullable|string|max:255',
+        'applicant_lname' => 'sometimes|required|string|max:255',
+        'applicant_suffix' => 'sometimes|nullable|string|max:10',
+        'applicant_gender' => 'sometimes|required|in:male,female,other',
+        'applicant_bdate' => 'sometimes|required|date|before:today',
+        'applicant_civil_status' => 'sometimes|required|in:single,married,widowed,divorced',
+        'applicant_brgy' => 'sometimes|required|string|max:255',
+        'applicant_email' => 'sometimes|required|email|unique:tbl_applicant,applicant_email,' . $applicant_id . ',applicant_id',
+        'applicant_contact_number' => 'sometimes|required|string|max:15',
+        'applicant_school_name' => 'sometimes|required|string|max:255',
+        'applicant_school_name_other' => 'sometimes|nullable|string|max:255',
+        'applicant_year_level' => 'sometimes|required|string|max:50',
+        'applicant_course' => 'sometimes|required|string|max:255',
+        'applicant_acad_year' => 'sometimes|required|string|max:20',
+    ];
+
+    // File validation: required only if in issues
+    $fileValidation = [
+        'application_letter' => in_array('application_letter', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
+        'certificate_of_registration' => in_array('cert_of_reg', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
+        'grade_slip' => in_array('grade_slip', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
+        'barangay_indigency' => in_array('brgy_indigency', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
+        'student_id' => in_array('student_id', $issues) ? 'required|file|mimes:pdf|max:5120' : 'nullable|file|mimes:pdf|max:5120',
+    ];
+
+    $request->validate(array_merge($personalValidation, $fileValidation));
+
+    // Update personal fields if provided
+    foreach ($personalValidation as $field => $rule) {
+        if ($request->filled($field)) {
+            $applicant->{$field} = $request->input($field);
+        }
+    }
+
+    // Handle school name
+    if ($request->filled('applicant_school_name')) {
+        $schoolName = $request->input('applicant_school_name');
+        if ($schoolName === 'Others' && $request->filled('applicant_school_name_other')) {
+            $schoolName = $request->input('applicant_school_name_other');
+        }
+        $applicant->applicant_school_name = $schoolName;
+    }
+
+    $applicant->save();
+
+    // Update files if uploaded, move manually to storage/documents
+    $fileFields = [
+        'application_letter' => 'application_letter',
+        'certificate_of_registration' => 'cert_of_reg',
+        'grade_slip' => 'grade_slip',
+        'barangay_indigency' => 'brgy_indigency',
+        'student_id' => 'student_id',
+    ];
+
+    foreach ($fileFields as $inputName => $dbField) {
+        if ($request->hasFile($inputName)) {
+            // Delete old file if exists
+            if ($application->{$dbField} && file_exists(storage_path($application->{$dbField}))) {
+                unlink(storage_path($application->{$dbField}));
+            }
+            // Move new file
+            $application->{$dbField} = $this->moveFileToStorage($request->file($inputName));
+        }
+    }
+
+    $application->save();
+
+    return redirect()->route('scholar.dashboard')->with('success', 'Application updated successfully!');
+}
+
+/**
+ * Move uploaded files into storage/documents/
+ */
+private function moveFileToStorage($file)
+{
+    $fileName = uniqid() . '_' . $file->getClientOriginalName();
+    $destination = storage_path('documents'); // storage/app/documents
+    if (!file_exists($destination)) {
+        mkdir($destination, 0755, true);
+    }
+    $file->move($destination, $fileName);
+    return 'documents/' . $fileName;
+}
 
 }
