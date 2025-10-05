@@ -406,6 +406,10 @@ svg {
         width: 100%;
     }
 
+    .input-group[style*="width: 10px"] {
+        width: 100% !important;
+    }
+
     label {
         font-size: 13px;
     }
