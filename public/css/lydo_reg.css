@@ -378,6 +378,14 @@ svg {
     position: relative;
 }
 
+/* Mobile responsiveness for banner */
+@media (max-width: 768px) {
+    .banner-grad {
+        clip-path: none;
+        height: 80px; /* Adjust height for mobile if needed */
+    }
+}
+
 /* Back button */
 .back-btn {
     background: transparent;
