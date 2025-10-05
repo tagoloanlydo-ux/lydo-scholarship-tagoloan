@@ -350,7 +350,7 @@
             <div class="mt-3">
                 <h3 class="text-lg font-medium text-gray-900 mb-4">Sign Application</h3>
                 <div class="border-2 border-gray-300 rounded-lg p-4">
-                    <canvas id="signatureCanvas" width="400" height="200" class="border border-gray-300 w-full"></canvas>
+                    <canvas id="signatureCanvas" width="491" height="404" class="border border-gray-300 w-full"></canvas>
                 </div>
                 <div class="flex justify-between mt-4">
                     <button id="clearSignature" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Clear</button>
