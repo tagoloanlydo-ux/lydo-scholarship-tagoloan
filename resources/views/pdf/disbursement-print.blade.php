@@ -61,20 +61,21 @@
             font-size: 11px;
         }
 
-        th, td {
+        th {
             border: 1px solid #333;
             padding: 8px 6px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        th {
             background-color: #343a40;
             color: white;
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
             font-size: 10px;
+        }
+        td {
+            border: 1px solid #333;
+            padding: 8px 6px;
+            text-align: center;
+            vertical-align: middle;
         }
 
         .text-center {

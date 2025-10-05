@@ -9,21 +9,31 @@
             font-size: 12px;
             line-height: 1.4;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .header p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
+    .header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
+
+.header-content h1 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.header-content p {
+    margin: 2px 0;
+    font-size: 12px;
+}
         .filters {
             margin-bottom: 20px;
             font-size: 11px;
@@ -37,17 +47,19 @@
             border-collapse: collapse;
             margin-top: 20px;
         }
-        th, td {
+        th {
             border: 1px solid #333;
             padding: 6px;
-            text-align: left;
-            vertical-align: top;
-        }
-        th {
             background-color: #f5f5f5;
             font-weight: bold;
             text-align: center;
             font-size: 11px;
+        }
+        td {
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: center;
+            vertical-align: middle;
         }
         .text-center {
             text-align: center;
@@ -79,9 +91,12 @@
 </head>
 <body>
     <div class="header">
+       <img src="{{ public_path('images/LYDO.png') }}" class="logo">
+ <div class="header-content">
         <h1>LYDO Scholarship Scholars Report</h1>
         <p>Tagoloan, Misamis Oriental</p>
         <p>Generated on: {{ date('F d, Y') }}</p>
+      </div>
     </div>
 
     @if(!empty($filters))

@@ -406,20 +406,20 @@
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gray-800 text-white">
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                        <tr class="bg-violet-600 text-white">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Name
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 School
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Barangay
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Year Level
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Status
                                             </th>
                                         </tr>
@@ -511,20 +511,20 @@
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gray-800 text-white">
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                        <tr class="bg-violet-600 text-white">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Applicant Details
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Email
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Contact
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Barangay
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Remarks
                                             </th>
                                         </tr>
@@ -581,14 +581,14 @@
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gray-800 text-white">
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                        <tr class="bg-violet-600 text-white">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Educational Institution
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Scholar Count
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Distribution
                                             </th>
                                         </tr>
@@ -644,14 +644,14 @@
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gray-800 text-white">
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                        <tr class="bg-violet-600 text-white">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Barangay Location
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Applicant Count
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Distribution
                                             </th>
                                         </tr>
@@ -751,23 +751,23 @@
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gray-800 text-white">
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                        <tr class="bg-violet-600 text-white">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Scholar Details
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 School
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Barangay
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Academic Year
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Status
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+                                            <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Date Submitted
                                             </th>
                                         </tr>
