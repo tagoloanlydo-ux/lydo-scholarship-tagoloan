@@ -222,7 +222,6 @@
                                 <option value="Approved" {{ $app->status == 'Approved' ? 'selected' : '' }}>Approved</option>
                                 <option value="Rejected" {{ $app->status == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                             </select>
-                            <textarea name="reason" rows="3" class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 rejection-reason hidden" placeholder="Please provide a reason for rejection..."></textarea>
                         </div>
                     </form>
                 </td>
@@ -336,29 +335,12 @@
         statusSelects.forEach(select => {
             // Remove any existing event listeners to prevent duplicates
             select.removeEventListener('change', handleStatusChange);
-            select.removeEventListener('change', toggleRejectionReason);
 
             select.addEventListener('change', handleStatusChange);
-            select.addEventListener('change', toggleRejectionReason);
 
             // Store original value
             select.setAttribute('data-original-value', select.value);
-
-            // Initial toggle
-            toggleRejectionReason.call(select);
         });
-
-        function toggleRejectionReason() {
-            const select = this;
-            const form = select.closest('form');
-            const reasonTextarea = form.querySelector('.rejection-reason');
-            if (select.value === 'Rejected') {
-                reasonTextarea.classList.remove('hidden');
-            } else {
-                reasonTextarea.classList.add('hidden');
-                reasonTextarea.value = ''; // Clear if not rejected
-            }
-        }
 
         function handleStatusChange(e) {
             e.preventDefault();
@@ -375,28 +357,18 @@
                 return;
             }
 
-            // If Rejected, validate that reason is provided
+            // If Rejected, show SweetAlert with input for reason
             if (selectedValue === 'Rejected') {
-                const reasonTextarea = form.querySelector('.rejection-reason');
-                const reason = reasonTextarea.value.trim();
-
-                if (!reason) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Reason Required',
-                        text: 'Please provide a reason for rejection.',
-                        confirmButtonText: 'OK'
-                    });
-                    // Focus on the textarea
-                    reasonTextarea.focus();
-                    return;
-                }
-
-                // Show confirmation with reason
                 Swal.fire({
-                    title: 'Are you sure?',
-                    text: `Do you want to update the status to "${selectedText}"?\n\nReason: ${reason}`,
-                    icon: 'question',
+                    title: 'Reject Application',
+                    text: 'Please provide a reason for rejection:',
+                    input: 'textarea',
+                    inputPlaceholder: 'Enter the reason for rejection...',
+                    inputValidator: (value) => {
+                        if (!value || value.trim() === '') {
+                            return 'Reason is required!';
+                        }
+                    },
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#6c757d',
@@ -404,13 +376,13 @@
                     cancelButtonText: 'Cancel',
                     allowOutsideClick: false,
                     allowEscapeKey: false
-                }).then((confirmResult) => {
-                    if (confirmResult.isConfirmed) {
-                        submitForm(form, selectedValue);
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const reason = result.value.trim();
+                        submitForm(form, selectedValue, reason);
                     } else {
                         // Reset to previous value
-                        select.value = originalValue || 'Pending';
-                        toggleRejectionReason.call(select);
+                        select.value = originalValue || 'Set Status';
                     }
                 });
                 return; // Exit early for rejected case
@@ -433,13 +405,12 @@
                     submitForm(form, selectedValue);
                 } else {
                     // Reset to previous value
-                    select.value = originalValue || 'Pending';
-                    toggleRejectionReason.call(select);
+                    select.value = originalValue || 'Set Status';
                 }
             });
         }
 
-        function submitForm(form, statusValue) {
+        function submitForm(form, statusValue, reason = null) {
             // Show loading spinner
             document.getElementById('loadingSpinner').classList.remove('hidden');
 
@@ -447,9 +418,9 @@
             const formData = new FormData(form);
             formData.set('status', statusValue);
 
-            // Do not send reason if status is not Rejected
-            if (statusValue !== 'Rejected') {
-                formData.delete('reason');
+            // Set reason if provided
+            if (reason) {
+                formData.set('reason', reason);
             }
 
             // Submit via AJAX
