@@ -515,19 +515,19 @@ function openRenewalModal(scholarId) {
                     <p class="text-sm text-gray-600 mb-3">Note: Please click on all three documents to review them before the Approve/Reject buttons appear.</p>
                     <h4 class="text-gray-800 font-semibold mb-3">Submitted Documents</h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <a href="/storage/${r.renewal_cert_of_reg}" target="_blank" ${index === 0 ? 'onclick="window.documentsClicked++; if(window.documentsClicked >= 3) { document.getElementById(\'actionButtons\').style.display = \'flex\'; }"' : ''}
+                        <a href="/storage/${r.renewal_cert_of_reg}" target="_blank" ${index === 0 ? 'onclick="this.querySelector(\'i\').classList.remove(\'text-violet-600\'); this.querySelector(\'i\').classList.add(\'text-green-600\'); window.documentsClicked++; if(window.documentsClicked >= 3) { document.getElementById(\'actionButtons\').style.display = \'flex\'; }"' : ''}
                            class="flex flex-col items-center justify-center p-4 border rounded-lg bg-gray-50 hover:bg-blue-50 transition">
-                            <i class="fas fa-file-alt text-blue-600 text-2xl mb-2"></i>
+                            <i class="fas fa-file-alt text-violet-600 text-2xl mb-2"></i>
                             <span class="text-sm font-medium text-gray-700 text-center">Certificate of Reg.</span>
                         </a>
-                        <a href="/storage/${r.renewal_grade_slip}" target="_blank" ${index === 0 ? 'onclick="window.documentsClicked++; if(window.documentsClicked >= 3) { document.getElementById(\'actionButtons\').style.display = \'flex\'; }"' : ''}
+                        <a href="/storage/${r.renewal_grade_slip}" target="_blank" ${index === 0 ? 'onclick="this.querySelector(\'i\').classList.remove(\'text-violet-600\'); this.querySelector(\'i\').classList.add(\'text-green-600\'); window.documentsClicked++; if(window.documentsClicked >= 3) { document.getElementById(\'actionButtons\').style.display = \'flex\'; }"' : ''}
                            class="flex flex-col items-center justify-center p-4 border rounded-lg bg-gray-50 hover:bg-green-50 transition">
-                            <i class="fas fa-file-alt text-green-600 text-2xl mb-2"></i>
+                            <i class="fas fa-file-alt text-violet-600 text-2xl mb-2"></i>
                             <span class="text-sm font-medium text-gray-700 text-center">Grade Slip</span>
                         </a>
-                        <a href="/storage/${r.renewal_brgy_indigency}" target="_blank" ${index === 0 ? 'onclick="window.documentsClicked++; if(window.documentsClicked >= 3) { document.getElementById(\'actionButtons\').style.display = \'flex\'; }"' : ''}
+                        <a href="/storage/${r.renewal_brgy_indigency}" target="_blank" ${index === 0 ? 'onclick="this.querySelector(\'i\').classList.remove(\'text-violet-600\'); this.querySelector(\'i\').classList.add(\'text-green-600\'); window.documentsClicked++; if(window.documentsClicked >= 3) { document.getElementById(\'actionButtons\').style.display = \'flex\'; }"' : ''}
                            class="flex flex-col items-center justify-center p-4 border rounded-lg bg-gray-50 hover:bg-purple-50 transition">
-                            <i class="fas fa-file-alt text-purple-600 text-2xl mb-2"></i>
+                            <i class="fas fa-file-alt text-violet-600 text-2xl mb-2"></i>
                             <span class="text-sm font-medium text-gray-700 text-center">Barangay Indigency</span>
                         </a>
                     </div>
