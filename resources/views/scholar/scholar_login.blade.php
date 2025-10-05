@@ -6,6 +6,7 @@
     <title>LYDO Scholarship - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
     <link rel="stylesheet" href="{{ asset('css/scholar.css') }}" />
     <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
   </head>
@@ -40,7 +41,7 @@
   @endif
 </script>
 
-    <header class="banner-grad flex items-center px-6 text-white shadow-md">
+    <header class="banner-grad flex items-center px-6 text-white shadow-xmd">
          <img src="/images/LYDO.png" alt="LYDO Logo" class="h-10 mr-4"/>
         <div>
           <h1 class="text-3xl font-extrabold">LYDO SCHOLARSHIP</h1>
@@ -75,7 +76,7 @@
           @csrf
           <div>
             <label for="scholar_username" class="block text-lg font-medium text-gray-700">Username</label>
-            <input id="scholar_username" name="scholar_username" type="text" value="{{ old('scholar_username') }}" required autofocus class="mt-2 w-full bg-white rounded-lg px-4 py-3 text-gray-700 shadow-sm text-lg border @error('scholar_username') border-red-500 @enderror" placeholder="Enter your username"/>
+            <input id="scholar_username" name="scholar_username" type="text" value="{{ old('scholar_username') }}" required autofocus class="mt-2 w-full bg-white rounded-lg mb-5 px-4 py-3 text-gray-700 shadow-sm text-lg border @error('scholar_username') border-red-500 @enderror" placeholder="Enter your username"/>
             @error('scholar_username')
               <p class="text-red-600 text-sm mt-1">{{ $message == 'Invalid username.' ? "username doesn't exist" : $message }}</p>
             @enderror
@@ -83,13 +84,13 @@
 
           <div class="relative">
             <label for="scholar_pass" class="block text-lg font-medium text-gray-700">Password</label>
-            <input id="scholar_pass" name="scholar_pass" type="password" required class="mt-2 w-full bg-white rounded-lg px-4 py-3 text-gray-700 shadow-sm text-lg border @error('scholar_pass') border-red-500 @enderror" placeholder="Enter your password"/>
-            <span class="absolute right-3 top-11 text-gray-500 toggle-password" onclick="togglePasswordVisibility()" title="Show/Hide Password" >
-              👁️
-            </span>
-            @error('scholar_pass')
-              <p class="text-red-600 text-sm mt-1">{{ $message == 'Incorrect password.' ? 'incorrect password' : $message }}</p>
-            @enderror
+          <input id="scholar_pass" name="scholar_pass" type="password" required class="mt-2 w-full bg-white rounded-lg px-4 pr-10 py-3 text-gray-700 shadow-sm text-lg border @error('scholar_pass') border-red-500 @enderror" placeholder="Enter your password"/>
+          <button type="button" class="absolute right-3 text-gray-500 hover:text-gray-700" style="margin-top:25px;" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+            <i data-feather="eye" id="scholar-pass-eye-icon" class="w-5 h-5"></i>
+          </button>
+          @error('scholar_pass')
+            <p class="text-red-600 text-sm mt-1">{{ $message == 'Incorrect password.' ? 'incorrect password' : $message }}</p>
+          @enderror
           </div>
           <a href="{{ route('scholar.forgot-password') }}" class="text-sm text-purple-600 hover:underline mt-3 block text-right">
             Forgot Password?
@@ -164,11 +165,18 @@
     <script>
       function togglePasswordVisibility() {
         const passwordInput = document.getElementById('scholar_pass');
+        const eyeIcon = document.getElementById('scholar-pass-eye-icon');
+
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
+          eyeIcon.setAttribute('data-feather', 'eye-off');
         } else {
           passwordInput.type = 'password';
+          eyeIcon.setAttribute('data-feather', 'eye');
         }
+
+        // Re-render the icon
+        feather.replace();
       }
 
       // Example SweetAlert usage
@@ -220,6 +228,12 @@
         btnSpinner.classList.remove("hidden");
       });
     </script>
-    
+<script>
+  // Initialize Feather icons
+  document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+  });
+</script>
+
   </body>
 </html>

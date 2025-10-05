@@ -51,7 +51,7 @@
                 type="password"
                 required
                 autofocus
-                class="mt-2 w-full bg-white rounded-lg px-4 py-3 pr-10 text-gray-700 shadow-sm text-lg border @error('password') border-red-500 @enderror"
+                class="mt-2 w-full bg-white rounded-lg px-4 py-3 mb-5 text-gray-700 shadow-sm text-lg border @error('password') border-red-500 @enderror"
                 placeholder="Enter your new password"
               />
               <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center mt-2" onclick="togglePassword('password')">

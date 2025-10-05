@@ -245,7 +245,12 @@
             valid = false;
           }
         }
-
+  if (valid && id === "email") {
+    if (!value.endsWith("@gmail.com")) {
+      errorMsg = "Email must end with @gmail.com";
+      valid = false;
+    }
+  }
         if (valid && id === "pass") {
           let unmet = rules.password.rules
             .filter((r) => !r.regex.test(value))
@@ -277,50 +282,54 @@
         return valid;
       }
 
-      let debounceTimer;
-      function checkDuplicate(input) {
-        const id = input.id;
-        const value = input.value.trim();
-        // Find error message element - for password fields, it's after the relative container
-        let errorEl = input.nextElementSibling;
-        if (input.closest('.password-group')) {
-          // For password fields, error message is after the relative div
-          const relativeDiv = input.closest('.relative');
-          errorEl = relativeDiv.nextElementSibling;
-        }
-        if (!value) return;
+let debounceTimer;
+function checkDuplicate(input) {
+  const id = input.id;
+  const value = input.value.trim();
 
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          const route = id === 'email' ? '/check-email' : '/check-username';
+  // Find the correct error message element
+  let errorEl = input.nextElementSibling;
+  if (input.closest('.password-group')) {
+    const relativeDiv = input.closest('.relative');
+    errorEl = relativeDiv.nextElementSibling;
+  }
+  if (!value) return;
 
-          fetch(route, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ value })
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (!data.available) {
-              input.classList.add("error");
-              input.classList.remove("valid");
-              errorEl.textContent = id === 'email' ? "This email is already used. Please try another one." : "This username is already taken. Please choose another one.";
-            } else {
-              if (!errorEl.textContent) {
-                input.classList.remove("error");
-                input.classList.add("valid");
-              }
-            }
-            toggleButton();
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-        }, 500); // 500ms debounce
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const route = id === 'email' ? '/check-email' : '/check-username';
+
+    fetch(route, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+      },
+      body: JSON.stringify({ value })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (!data.available) {
+        // Show inline error immediately
+        input.classList.add("error");
+        input.classList.remove("valid");
+        errorEl.textContent = id === 'email'
+          ? "This email is already used. Please try another one."
+          : "This username is already taken. Please choose another one.";
+      } else {
+        // Clear the error if now available
+        input.classList.remove("error");
+        input.classList.add("valid");
+        errorEl.textContent = "";
       }
+      toggleButton();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }, 500); // debounce to avoid rapid calls
+}
+
 
       function toggleButton() {
         const requiredInputs = registrationForm.querySelectorAll("input[required], select[required]");

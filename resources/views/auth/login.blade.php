@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
 <link rel="stylesheet" href="{{ asset('css/login.css') }}" />
  <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
   </head>
@@ -84,11 +85,11 @@
           </div>
 
           <div class="relative">
-            <label for="lydopers_pass" class="block text-lg font-medium text-gray-700">Password</label>
-            <input id="lydopers_pass" name="lydopers_pass" type="password" required class="mt-2 w-full bg-white rounded-lg px-4 py-3 text-gray-700 shadow-sm text-lg border @error('lydopers_pass') border-red-500 @enderror" placeholder="Enter your password"/>
-              <span class="absolute right-3 top-11 text-gray-500 toggle-password" onclick="togglePasswordVisibility()" title="Show/Hide Password">
-                👁️
-              </span>
+            <label for="lydopers_pass" class="block text-lg mt-5 font-medium text-gray-700">Password</label>
+            <input id="lydopers_pass" name="lydopers_pass" type="password" required class="mt-2 w-full bg-white rounded-lg px-4 p-10 py-3 text-gray-700 shadow-sm text-lg border @error('lydopers_pass') border-red-500 @enderror" placeholder="Enter your password"/>
+              <button type="button" class="absolute right-3 text-gray-500 hover:text-gray-700" style="margin-top:25px;" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+                <i data-feather="eye" id="lydopers-pass-eye-icon" class="w-5 h-5"></i>
+              </button>
             @error('lydopers_pass')
               <p class="text-red-600 text-sm mt-1">{{ $message == 'Incorrect password.' ? 'incorrect password' : $message }}</p>
             @enderror
@@ -138,11 +139,18 @@
     <script>
       function togglePasswordVisibility() {
         const passwordInput = document.getElementById('lydopers_pass');
+        const eyeIcon = document.getElementById('lydopers-pass-eye-icon');
+
         if (passwordInput.type === 'password') {
           passwordInput.type = 'text';
+          eyeIcon.setAttribute('data-feather', 'eye-off');
         } else {
           passwordInput.type = 'password';
+          eyeIcon.setAttribute('data-feather', 'eye');
         }
+
+        // Re-render the icon
+        feather.replace();
       }
 
       // Example SweetAlert usage
@@ -192,6 +200,42 @@
     // Palitan ang text at ipakita ang spinner
     btnText.textContent = "Logging in...";
     btnSpinner.classList.remove("hidden");
+  });
+</script>
+<script>
+  // Initialize Feather icons
+  document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const rememberCheckbox = document.querySelector('input[name="remember"]');
+    const usernameInput = document.getElementById("lydopers_username");
+    const passwordInput = document.getElementById("lydopers_pass");
+
+    // ✅ Load saved credentials if "Remember Me" was checked
+    if (localStorage.getItem("rememberMe") === "true") {
+      usernameInput.value = localStorage.getItem("savedUsername") || "";
+      // If you want to remember password too, uncomment the next line:
+      // passwordInput.value = localStorage.getItem("savedPassword") || "";
+      rememberCheckbox.checked = true;
+    }
+
+    // ✅ When submitting the form
+    document.querySelector("form").addEventListener("submit", function () {
+      if (rememberCheckbox.checked) {
+        localStorage.setItem("rememberMe", "true");
+        localStorage.setItem("savedUsername", usernameInput.value);
+        // If you want to remember password too, uncomment:
+        // localStorage.setItem("savedPassword", passwordInput.value);
+      } else {
+        // ✅ Clear storage if unchecked
+        localStorage.removeItem("rememberMe");
+        localStorage.removeItem("savedUsername");
+        // localStorage.removeItem("savedPassword");
+      }
+    });
   });
 </script>
 
