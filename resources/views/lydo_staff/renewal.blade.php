@@ -258,15 +258,29 @@
     </button>
 
     <div class="flex gap-3" id="actionButtons" style="display: none;">
-        
-        <button onclick="updateRenewalStatus(selectedRenewalId, 'Approved')" 
-                class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
-            Approve
+
+        <button onclick="updateRenewalStatus(selectedRenewalId, 'Approved')"
+                class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition flex items-center gap-2"
+                id="approveBtn">
+            <span id="approveText">Approve</span>
+            <div id="approveSpinner" class="hidden">
+                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
         </button>
-        
-        <button onclick="updateRenewalStatus(selectedRenewalId, 'Rejected')" 
-                class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition">
-            Reject
+
+        <button onclick="updateRenewalStatus(selectedRenewalId, 'Rejected')"
+                class="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition flex items-center gap-2"
+                id="rejectBtn">
+            <span id="rejectText">Reject</span>
+            <div id="rejectSpinner" class="hidden">
+                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
         </button>
     </div>
     </div>
@@ -544,6 +558,24 @@ function openRenewalModal(scholarId) {
 </script>
 <script>
 function updateRenewalStatus(renewalId, status) {
+    // Show loading spinner and disable buttons
+    const approveBtn = document.getElementById('approveBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
+    const approveText = document.getElementById('approveText');
+    const rejectText = document.getElementById('rejectText');
+    const approveSpinner = document.getElementById('approveSpinner');
+    const rejectSpinner = document.getElementById('rejectSpinner');
+
+    if (status === 'Approved') {
+        approveBtn.disabled = true;
+        approveText.textContent = 'Processing...';
+        approveSpinner.classList.remove('hidden');
+    } else {
+        rejectBtn.disabled = true;
+        rejectText.textContent = 'Processing...';
+        rejectSpinner.classList.remove('hidden');
+    }
+
     if (status === 'Rejected') {
         Swal.fire({
             title: 'Reject Renewal',
@@ -576,6 +608,11 @@ function updateRenewalStatus(renewalId, status) {
                 })
                 .then(res => res.json())
                 .then(data => {
+                    // Hide loading spinner and re-enable buttons
+                    rejectBtn.disabled = false;
+                    rejectText.textContent = 'Reject';
+                    rejectSpinner.classList.add('hidden');
+
                     if (data.success) {
                         Swal.fire({
                             title: "Success!",
@@ -607,9 +644,19 @@ function updateRenewalStatus(renewalId, status) {
                     }
                 })
                 .catch(err => {
+                    // Hide loading spinner and re-enable buttons on error
+                    rejectBtn.disabled = false;
+                    rejectText.textContent = 'Reject';
+                    rejectSpinner.classList.add('hidden');
+
                     console.error(err);
                     Swal.fire("Error", "Something went wrong.", "error");
                 });
+            } else {
+                // User cancelled, hide loading spinner and re-enable buttons
+                rejectBtn.disabled = false;
+                rejectText.textContent = 'Reject';
+                rejectSpinner.classList.add('hidden');
             }
         });
     } else {
@@ -635,6 +682,11 @@ function updateRenewalStatus(renewalId, status) {
                 })
                 .then(res => res.json())
                 .then(data => {
+                    // Hide loading spinner and re-enable buttons
+                    approveBtn.disabled = false;
+                    approveText.textContent = 'Approve';
+                    approveSpinner.classList.add('hidden');
+
                     if (data.success) {
                         Swal.fire({
                             title: "Success!",
@@ -666,9 +718,19 @@ function updateRenewalStatus(renewalId, status) {
                     }
                 })
                 .catch(err => {
+                    // Hide loading spinner and re-enable buttons on error
+                    approveBtn.disabled = false;
+                    approveText.textContent = 'Approve';
+                    approveSpinner.classList.add('hidden');
+
                     console.error(err);
                     Swal.fire("Error", "Something went wrong.", "error");
                 });
+            } else {
+                // User cancelled, hide loading spinner and re-enable buttons
+                approveBtn.disabled = false;
+                approveText.textContent = 'Approve';
+                approveSpinner.classList.add('hidden');
             }
         });
     }
