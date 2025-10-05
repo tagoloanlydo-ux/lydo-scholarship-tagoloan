@@ -210,21 +210,16 @@ public function storeApplicantsReg(Request $request)
         'applicant_acad_year' => $request->applicant_acad_year,
     ]);
 
-    // 📂 Save files directly to public/documents
+    // 📂 Store files in /storage/app/public/documents/
     $applicationData = [
         'applicant_id' => $applicant->applicant_id,
-        'application_letter' => 'documents/' . $request->file('application_letter')->hashName(),
-        'cert_of_reg' => 'documents/' . $request->file('certificate_of_registration')->hashName(),
-        'grade_slip' => 'documents/' . $request->file('grade_slip')->hashName(),
-        'brgy_indigency' => 'documents/' . $request->file('barangay_indigency')->hashName(),
-        'student_id' => 'documents/' . $request->file('student_id')->hashName(),
+        'application_letter' => $request->file('application_letter')->store('documents', 'public'),
+        'cert_of_reg' => $request->file('certificate_of_registration')->store('documents', 'public'),
+        'grade_slip' => $request->file('grade_slip')->store('documents', 'public'),
+        'brgy_indigency' => $request->file('barangay_indigency')->store('documents', 'public'),
+        'student_id' => $request->file('student_id')->store('documents', 'public'),
         'date_submitted' => now(),
     ];
-
-    // Move files to public/documents
-    foreach (['application_letter', 'certificate_of_registration', 'grade_slip', 'barangay_indigency', 'student_id'] as $fileField) {
-        $request->file($fileField)->move(public_path('documents'), $request->file($fileField)->hashName());
-    }
 
     $application = Application::create($applicationData);
 
