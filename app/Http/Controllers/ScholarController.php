@@ -164,80 +164,95 @@ class ScholarController extends Controller
     return view('scholar.scholar_registration', compact('scholar'));
 }
 
-public function storeApplicantsReg(Request $request)
-{
-    $request->validate([
-        'applicant_fname' => 'required|string|max:255',
-        'applicant_mname' => 'nullable|string|max:255',
-        'applicant_lname' => 'required|string|max:255',
-        'applicant_suffix' => 'nullable|string|max:10',
-        'applicant_gender' => 'required|in:male,female,other',
-        'applicant_bdate' => 'required|date|before:today',
-        'applicant_civil_status' => 'required|in:single,married,widowed,divorced',
-        'applicant_brgy' => 'required|string|max:255',
-        'applicant_email' => 'required|email|unique:tbl_applicant,applicant_email',
-        'applicant_contact_number' => 'required|string|max:15',
-        'applicant_school_name' => 'required|string|max:255',
-        'applicant_school_name_other' => 'nullable|string|max:255',
-        'applicant_year_level' => 'required|string|max:50',
-        'applicant_course' => 'required|string|max:255',
-        'applicant_acad_year' => 'required|string|max:20',
-        'application_letter' => 'required|file|mimes:pdf|max:5120',
-        'certificate_of_registration' => 'required|file|mimes:pdf|max:5120',
-        'grade_slip' => 'required|file|mimes:pdf|max:5120',
-        'barangay_indigency' => 'required|file|mimes:pdf|max:5120',
-        'student_id' => 'required|file|mimes:pdf|max:5120',
-    ]);
+    public function storeApplicantsReg(Request $request)
+    {
+        // ✅ Validation
+        $request->validate([
+            'applicant_fname' => 'required|string|max:255',
+            'applicant_mname' => 'nullable|string|max:255',
+            'applicant_lname' => 'required|string|max:255',
+            'applicant_suffix' => 'nullable|string|max:10',
+            'applicant_gender' => 'required|in:male,female,other',
+            'applicant_bdate' => 'required|date|before:today',
+            'applicant_civil_status' => 'required|in:single,married,widowed,divorced',
+            'applicant_brgy' => 'required|string|max:255',
+            'applicant_email' => 'required|email|unique:tbl_applicant,applicant_email',
+            'applicant_contact_number' => 'required|string|max:15',
+            'applicant_school_name' => 'required|string|max:255',
+            'applicant_school_name_other' => 'nullable|string|max:255',
+            'applicant_year_level' => 'required|string|max:50',
+            'applicant_course' => 'required|string|max:255',
+            'applicant_acad_year' => 'required|string|max:20',
+            'application_letter' => 'required|file|mimes:pdf|max:5120',
+            'certificate_of_registration' => 'required|file|mimes:pdf|max:5120',
+            'grade_slip' => 'required|file|mimes:pdf|max:5120',
+            'barangay_indigency' => 'required|file|mimes:pdf|max:5120',
+            'student_id' => 'required|file|mimes:pdf|max:5120',
+        ]);
 
-    $schoolName = $request->applicant_school_name === 'Others'
-        ? $request->applicant_school_name_other
-        : $request->applicant_school_name;
+        // ✅ Determine school name
+        $schoolName = $request->applicant_school_name === 'Others'
+            ? $request->applicant_school_name_other
+            : $request->applicant_school_name;
 
-    $applicant = Applicant::create([
-        'applicant_fname' => $request->applicant_fname,
-        'applicant_mname' => $request->applicant_mname,
-        'applicant_lname' => $request->applicant_lname,
-        'applicant_suffix' => $request->applicant_suffix,
-        'applicant_gender' => $request->applicant_gender,
-        'applicant_bdate' => $request->applicant_bdate,
-        'applicant_civil_status' => $request->applicant_civil_status,
-        'applicant_brgy' => $request->applicant_brgy,
-        'applicant_email' => $request->applicant_email,
-        'applicant_contact_number' => $request->applicant_contact_number,
-        'applicant_school_name' => $schoolName,
-        'applicant_year_level' => $request->applicant_year_level,
-        'applicant_course' => $request->applicant_course,
-        'applicant_acad_year' => $request->applicant_acad_year,
-    ]);
+        // ✅ Create applicant record
+        $applicant = Applicant::create([
+            'applicant_fname' => $request->applicant_fname,
+            'applicant_mname' => $request->applicant_mname,
+            'applicant_lname' => $request->applicant_lname,
+            'applicant_suffix' => $request->applicant_suffix,
+            'applicant_gender' => $request->applicant_gender,
+            'applicant_bdate' => $request->applicant_bdate,
+            'applicant_civil_status' => $request->applicant_civil_status,
+            'applicant_brgy' => $request->applicant_brgy,
+            'applicant_email' => $request->applicant_email,
+            'applicant_contact_number' => $request->applicant_contact_number,
+            'applicant_school_name' => $schoolName,
+            'applicant_year_level' => $request->applicant_year_level,
+            'applicant_course' => $request->applicant_course,
+            'applicant_acad_year' => $request->applicant_acad_year,
+        ]);
 
-    // 📂 Store files in /storage/app/public/documents/
-    $applicationData = [
-        'applicant_id' => $applicant->applicant_id,
-        'application_letter' => $request->file('application_letter')->store('documents', 'public'),
-        'cert_of_reg' => $request->file('certificate_of_registration')->store('documents', 'public'),
-        'grade_slip' => $request->file('grade_slip')->store('documents', 'public'),
-        'brgy_indigency' => $request->file('barangay_indigency')->store('documents', 'public'),
-        'student_id' => $request->file('student_id')->store('documents', 'public'),
-        'date_submitted' => now(),
-    ];
+        // ✅ Store PDF documents in storage/documents (folder already exists)
+        $applicationData = [
+            'applicant_id' => $applicant->applicant_id,
+            'application_letter' => $this->moveFileToStorage($request->file('application_letter')),
+            'cert_of_reg' => $this->moveFileToStorage($request->file('certificate_of_registration')),
+            'grade_slip' => $this->moveFileToStorage($request->file('grade_slip')),
+            'brgy_indigency' => $this->moveFileToStorage($request->file('barangay_indigency')),
+            'student_id' => $this->moveFileToStorage($request->file('student_id')),
+            'date_submitted' => now(),
+        ];
 
-    $application = Application::create($applicationData);
+        // ✅ Create application record
+        $application = Application::create($applicationData);
 
-    $mayorStaff = Lydopers::where('lydopers_role', 'mayor_staff')->first();
-    if (!$mayorStaff) {
-        return redirect()->back()->withErrors(['error' => 'Mayor staff not found.']);
+        // ✅ Assign to Mayor’s staff
+        $mayorStaff = Lydopers::where('lydopers_role', 'mayor_staff')->first();
+        if (!$mayorStaff) {
+            return redirect()->back()->withErrors(['error' => 'Mayor staff not found.']);
+        }
+
+        ApplicationPersonnel::create([
+            'application_id' => $application->application_id,
+            'lydopers_id' => $mayorStaff->lydopers_id,
+            'initial_screening' => 'Pending',
+            'remarks' => 'Waiting',
+            'status' => 'Waiting',
+        ]);
+
+        return redirect()->route('scholar.login')->with('success', 'Application submitted successfully!');
     }
 
-    ApplicationPersonnel::create([
-        'application_id' => $application->application_id,
-        'lydopers_id' => $mayorStaff->lydopers_id,
-        'initial_screening' => 'Pending',
-        'remarks' => 'Waiting',
-        'status' => 'Waiting',
-    ]);
-
-    return redirect()->route('scholar.login')->with('success', 'Application submitted successfully!');
-}
+    /**
+     * ✅ Helper: Move uploaded files into storage/documents/
+     */
+    private function moveFileToStorage($file)
+    {
+        $fileName = uniqid() . '_' . $file->getClientOriginalName();
+        $file->move(storage_path('documents'), $fileName);
+        return 'documents/' . $fileName;
+    }
 
 
     public function registerScholar(Request $request)
