@@ -70,9 +70,13 @@ Route::put('/lydo_admin/announcement/{id}', [LydoAdminController::class, 'update
     Route::get('/lydo_admin/report/pdf/scholars', [LydoAdminController::class, 'generateScholarsPdf'])->name('LydoAdmin.report.pdf.scholars');
     Route::get('/lydo_admin/report/pdf/scholars-by-barangay', [LydoAdminController::class, 'generateScholarsPdfByBarangay'])->name('LydoAdmin.report.pdf.scholarsByBarangay');
     Route::get('/lydo_admin/report/pdf/applicants', [LydoAdminController::class, 'generateApplicantsPdf'])->name('LydoAdmin.report.pdf.applicants');
+    Route::get('/lydo_admin/report/pdf/renewal', [LydoAdminController::class, 'generateRenewalPdf'])->name('LydoAdmin.report.pdf.renewal');
     Route::get('/lydo_admin/report/pdf/summary', [LydoAdminController::class, 'generateSummaryPdf'])->name('LydoAdmin.report.pdf.summary');
     Route::get('/lydo_admin/get-scholars-by-barangay', [LydoAdminController::class, 'getScholarsByBarangay'])->name('LydoAdmin.getScholarsByBarangay');
     Route::get('/lydo_admin/get-scholars-with-disbursement', [LydoAdminController::class, 'getScholarsWithDisbursement'])->name('LydoAdmin.getScholarsWithDisbursement');
+    Route::get('/lydo_admin/disbursement-pdf', [LydoAdminController::class, 'generateDisbursementPdf'])->name('LydoAdmin.disbursement.pdf');
+
+
 
 });
 

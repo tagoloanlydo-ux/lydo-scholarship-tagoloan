@@ -115,37 +115,50 @@ class LydoAdminController extends Controller
             ->where('scholar_status', 'active')
             ->count();
 
-        // Line graph data for approval rate trend over time
-        $years = DB::table('tbl_application_personnel')
-            ->selectRaw('YEAR(created_at) as year')
+        // Line graph data for approved vs rejected applications trend by academic year
+        $years = DB::table('tbl_applicant')
+            ->select('applicant_acad_year')
             ->distinct()
-            ->pluck('year')
+            ->orderBy('applicant_acad_year')
+            ->pluck('applicant_acad_year')
             ->toArray();
 
-        // If no years data, use current year as default
+        // If no years data, use current academic year as default
         if (empty($years)) {
-            $years = [date('Y')];
+            $currentYear = date('Y');
+            $years = [$currentYear . '-' . ($currentYear + 1)];
         }
 
+        $approvedApplicationsTrend = [];
+        $rejectedApplicationsTrend = [];
         $approvalRateTrend = [];
         $activeScholarsTrend = [];
         $inactiveScholarsTrend = [];
 
         foreach ($years as $year) {
-            $totalApplications = DB::table('tbl_application_personnel')
-                ->whereYear('created_at', $year)
-                ->count();
-
             $approvedApplications = DB::table('tbl_application_personnel')
-                ->whereYear('created_at', $year)
-                ->where('status', 'Approved')
+                ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
+                ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
+                ->where('tbl_applicant.applicant_acad_year', $year)
+                ->where('tbl_application_personnel.status', 'Approved')
                 ->count();
 
-            // Calculate approval rate as percentage (avoid division by zero)
-            $approvalRate = $totalApplications > 0 ? round(($approvedApplications / $totalApplications) * 100, 1) : 0;
+            $rejectedApplications = DB::table('tbl_application_personnel')
+                ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
+                ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
+                ->where('tbl_applicant.applicant_acad_year', $year)
+                ->where('tbl_application_personnel.status', 'Rejected')
+                ->count();
+
+            $approvedApplicationsTrend[] = $approvedApplications;
+            $rejectedApplicationsTrend[] = $rejectedApplications;
+
+            // Calculate approval rate percentage
+            $totalApplications = $approvedApplications + $rejectedApplications;
+            $approvalRate = $totalApplications > 0 ? round(($approvedApplications / $totalApplications) * 100, 2) : 0;
             $approvalRateTrend[] = $approvalRate;
 
-            // Calculate active and inactive scholars for each year
+            // Calculate active and inactive scholars for each year (keeping this for the other chart)
             $activeScholars = DB::table('tbl_scholar')
                 ->whereYear('date_activated', $year)
                 ->where('scholar_status', 'active')
@@ -327,6 +340,8 @@ class LydoAdminController extends Controller
             'rejectedApplicantsCount',
             'inactiveScholarsCount',
             'activeScholarsCount',
+            'approvedApplicationsTrend',
+            'rejectedApplicationsTrend',
             'approvalRateTrend',
             'activeScholarsTrend',
             'inactiveScholarsTrend',
@@ -1530,6 +1545,13 @@ class LydoAdminController extends Controller
             ->select('tbl_scholar.*', 'tbl_applicant.*');
 
         // Apply filters
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where(function($q) use ($request) {
+                $q->where('applicant_fname', 'like', '%' . $request->search . '%')
+                  ->orWhere('applicant_lname', 'like', '%' . $request->search . '%');
+            });
+        }
+
         if ($request->has('academic_year') && !empty($request->academic_year)) {
             $query->where('applicant_acad_year', $request->academic_year);
         }
@@ -1538,21 +1560,31 @@ class LydoAdminController extends Controller
             $query->where('applicant_brgy', $request->barangay);
         }
 
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('scholar_status', $request->status);
+        }
+
         $scholars = $query->get();
 
-        // Get filter info for PDF title
+        // Get filter info for page title
         $filters = [];
+        if ($request->search) {
+            $filters[] = 'Search: ' . $request->search;
+        }
         if ($request->academic_year) {
             $filters[] = 'Academic Year: ' . $request->academic_year;
         }
         if ($request->barangay) {
             $filters[] = 'Barangay: ' . $request->barangay;
         }
+        if ($request->status) {
+            $filters[] = 'Status: ' . ucfirst($request->status);
+        }
 
         $pdf = Pdf::loadView('pdf.scholars-report', compact('scholars', 'filters'))
             ->setPaper('a4', 'landscape');
 
-        return $pdf->download('scholars-report-' . date('Y-m-d') . '.pdf');
+        return $pdf->stream('scholars-report-' . date('Y-m-d') . '.pdf');
     }
 
     public function generateScholarsPdfByBarangay(Request $request)
@@ -1607,31 +1639,120 @@ class LydoAdminController extends Controller
         $query = DB::table('tbl_application_personnel')
             ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
-            ->select('tbl_applicant.*', 'tbl_application_personnel.remarks');
+            ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
+            ->where('tbl_application_personnel.initial_screening', 'Approved');
 
-        // Apply filters
+        // Apply search filter
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where(function($q) use ($request) {
+                $q->where('applicant_fname', 'like', '%' . $request->search . '%')
+                  ->orWhere('applicant_lname', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Apply barangay filter
+        if ($request->has('barangay') && !empty($request->barangay)) {
+            $query->where('applicant_brgy', $request->barangay);
+        }
+
+        // Apply academic year filter
         if ($request->has('academic_year') && !empty($request->academic_year)) {
             $query->where('applicant_acad_year', $request->academic_year);
         }
 
-        if ($request->has('barangay') && !empty($request->barangay)) {
-            $query->where('applicant_brgy', $request->barangay);
+        // Apply remarks filter
+        if ($request->has('remarks') && !empty($request->remarks)) {
+            $query->where('tbl_application_personnel.remarks', $request->remarks);
         }
 
         $applicants = $query->get();
 
         $filters = [];
-        if ($request->academic_year) {
-            $filters[] = 'Academic Year: ' . $request->academic_year;
+        if ($request->search) {
+            $filters[] = 'Search: ' . $request->search;
         }
         if ($request->barangay) {
             $filters[] = 'Barangay: ' . $request->barangay;
+        }
+        if ($request->academic_year) {
+            $filters[] = 'Academic Year: ' . $request->academic_year;
+        }
+        if ($request->remarks) {
+            $filters[] = 'Remarks: ' . $request->remarks;
         }
 
         $pdf = Pdf::loadView('pdf.applicants-report', compact('applicants', 'filters'))
             ->setPaper('a4', 'landscape');
 
-        return $pdf->download('applicants-report-' . date('Y-m-d') . '.pdf');
+        return $pdf->stream('applicants-report-' . date('Y-m-d') . '.pdf');
+    }
+
+    public function generateRenewalPdf(Request $request)
+    {
+        $query = DB::table('tbl_renewal')
+            ->join('tbl_scholar', 'tbl_renewal.scholar_id', '=', 'tbl_scholar.scholar_id')
+            ->join('tbl_application', 'tbl_scholar.application_id', '=', 'tbl_application.application_id')
+            ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
+            ->select(
+                'tbl_renewal.renewal_id',
+                'tbl_renewal.renewal_status',
+                'tbl_renewal.date_submitted',
+                'tbl_renewal.renewal_semester',
+                'tbl_renewal.renewal_acad_year',
+                'tbl_applicant.applicant_fname',
+                'tbl_applicant.applicant_mname',
+                'tbl_applicant.applicant_lname',
+                'tbl_applicant.applicant_suffix',
+                'tbl_applicant.applicant_school_name',
+                'tbl_applicant.applicant_brgy',
+                'tbl_applicant.applicant_course',
+                'tbl_applicant.applicant_year_level'
+            )
+            ->where('tbl_renewal.renewal_status', 'Approved');
+
+        // Apply search filter
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where(function($q) use ($request) {
+                $q->where('applicant_fname', 'like', '%' . $request->search . '%')
+                  ->orWhere('applicant_lname', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Apply barangay filter
+        if ($request->has('barangay') && !empty($request->barangay)) {
+            $query->where('applicant_brgy', $request->barangay);
+        }
+
+        // Apply academic year filter
+        if ($request->has('academic_year') && !empty($request->academic_year)) {
+            $query->where('renewal_acad_year', $request->academic_year);
+        }
+
+        // Apply status filter
+        if ($request->has('status') && !empty($request->status)) {
+            $query->where('renewal_status', $request->status);
+        }
+
+        $renewals = $query->get();
+
+        $filters = [];
+        if ($request->search) {
+            $filters[] = 'Search: ' . $request->search;
+        }
+        if ($request->barangay) {
+            $filters[] = 'Barangay: ' . $request->barangay;
+        }
+        if ($request->academic_year) {
+            $filters[] = 'Academic Year: ' . $request->academic_year;
+        }
+        if ($request->status) {
+            $filters[] = 'Status: ' . $request->status;
+        }
+
+        $pdf = Pdf::loadView('pdf.renewal-report', compact('renewals', 'filters'))
+            ->setPaper('a4', 'landscape');
+
+        return $pdf->stream('renewal-report-' . date('Y-m-d') . '.pdf');
     }
 
     public function generateSummaryPdf(Request $request)
@@ -1715,5 +1836,65 @@ class LydoAdminController extends Controller
             'success' => true,
             'scholar_ids' => $scholarIds
         ]);
+    }
+
+    public function generateDisbursementPdf(Request $request)
+    {
+        // Get disbursement records with applicant information
+        $query = DB::table('tbl_disburse as d')
+            ->join('tbl_scholar as s', 'd.scholar_id', '=', 's.scholar_id')
+            ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
+            ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
+            ->select(
+                'd.disburse_semester',
+                'd.disburse_acad_year',
+                'd.disburse_amount',
+                'd.disburse_date',
+                'a.applicant_brgy',
+                DB::raw("CONCAT(a.applicant_fname, ' ', COALESCE(a.applicant_mname, ''), ' ', a.applicant_lname, ' ', COALESCE(a.applicant_suffix, '')) as full_name")
+            );
+
+        // Apply search filter
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where(function($q) use ($request) {
+                $q->where('a.applicant_fname', 'like', '%' . $request->search . '%')
+                  ->orWhere('a.applicant_lname', 'like', '%' . $request->search . '%')
+                  ->orWhere('a.applicant_mname', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Apply barangay filter
+        if ($request->has('barangay') && !empty($request->barangay)) {
+            $query->where('a.applicant_brgy', $request->barangay);
+        }
+
+        // Apply academic year filter
+        if ($request->has('academic_year') && !empty($request->academic_year)) {
+            $query->where('d.disburse_acad_year', $request->academic_year);
+        }
+
+        // Apply semester filter
+        if ($request->has('semester') && !empty($request->semester)) {
+            $query->where('d.disburse_semester', $request->semester);
+        }
+
+        $disbursements = $query->get();
+
+        // Get filter info for page title
+        $filters = [];
+        if ($request->search) {
+            $filters[] = 'Search: ' . $request->search;
+        }
+        if ($request->barangay) {
+            $filters[] = 'Barangay: ' . $request->barangay;
+        }
+        if ($request->academic_year) {
+            $filters[] = 'Academic Year: ' . $request->academic_year;
+        }
+        if ($request->semester) {
+            $filters[] = 'Semester: ' . $request->semester;
+        }
+
+        return view('pdf.disbursement-print', compact('disbursements', 'filters'));
     }
 }

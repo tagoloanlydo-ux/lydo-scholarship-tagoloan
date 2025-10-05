@@ -10,6 +10,7 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -357,14 +358,15 @@
                             <h3 class="text-lg font-semibold mb-4">List of Scholars</h3>
                             <!-- Filter Section -->
                             <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
-                                <div class="flex flex-col md:flex-row gap-4" id="filterForm">
+                                <form id="filterForm" method="GET" action="{{ route('LydoAdmin.report') }}"
+                                    class="flex flex-col md:flex-row gap-4">
                                     <div class="flex-1">
-                                        <input type="text" id="searchInput" placeholder="Search by name..."
+                                        <input type="text" id="searchInput" name="search" placeholder="Search by name..."
                                                value="{{ request('search') }}"
                                                class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                     </div>
                                     <div class="flex-1">
-                                        <select id="barangaySelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                        <select id="barangaySelect" name="barangay" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                             <option value="">All Barangays</option>
                                             @foreach($barangays as $barangay)
                                                 <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>
@@ -374,7 +376,7 @@
                                         </select>
                                     </div>
                                     <div class="flex-1">
-                                        <select id="academicYearSelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                        <select id="academicYearSelect" name="academic_year" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                             <option value="">All Academic Years</option>
                                             @foreach($academicYears as $year)
                                                 <option value="{{ $year }}" {{ request('academic_year') == $year ? 'selected' : '' }}>
@@ -384,7 +386,7 @@
                                         </select>
                                     </div>
 <div class="flex-1">
-    <select id="scholarStatusSelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+    <select id="scholarStatusSelect" name="status" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
         <option value="">All Statuses</option>
         @foreach($statuses as $status)
             <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
@@ -393,68 +395,59 @@
         @endforeach
     </select>
 </div>
+<div class="flex-1">
+    <button type="button" id="printPdfBtn"
+        class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium flex items-center justify-center" title="Generate and print scholars report">
+        <i class="fas fa-print mr-2"></i> Print PDF
+    </button>
+</div>
                                 </div>
                             </div>
-                            <div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gradient-to-r from-violet-600 to-purple-600 text-white">
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Name
+                                        <tr class="bg-gray-800 text-white">
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Name
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>School
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                School
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="mr-2"></i>Barangay
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Barangay
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Year Level
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Year Level
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Status
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Status
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200">
                                         @foreach($scholars as $scholar)
-                                        <tr class="hover:bg-violet-50 transition-colors duration-200 group">
+                                        <tr class="hover:bg-gray-50 transition-colors duration-200">
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-10 w-10">
-                                                        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-violet-400 to-purple-400 flex items-center justify-center text-white font-semibold">
-                                                            {{ strtoupper(substr($scholar->applicant_fname, 0, 1)) }}{{ strtoupper(substr($scholar->applicant_lname, 0, 1)) }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-semibold text-gray-900 group-hover:text-violet-600">
-                                                            {{ $scholar->applicant_fname }} {{ $scholar->applicant_lname }}
-                                                        </div>
-                                                    </div>
+                                                <div class="text-sm font-semibold text-gray-900">
+                                                    {{ $scholar->applicant_fname }} {{ $scholar->applicant_lname }}
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900 font-medium">{{ $scholar->applicant_school_name }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                    {{ $scholar->applicant_brgy }}
-                                                </span>
+                                                <span class="text-sm text-gray-900">{{ $scholar->applicant_brgy }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    {{ $scholar->applicant_year_level }}
-                                                </span>
+                                                <span class="text-sm text-gray-900">{{ $scholar->applicant_year_level }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @if($scholar->scholar_status === 'Approved')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                    <span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
                                                         {{ $scholar->scholar_status }}
                                                     </span>
                                                 @else
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
-                                                        <i class="fas fa-times-circle mr-1"></i>
+                                                    <span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
                                                         {{ $scholar->scholar_status }}
                                                     </span>
                                                 @endif
@@ -499,91 +492,75 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    <div class="flex-1">
-                                        <select id="applicantsRemarksSelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
-                                            <option value="">All Remarks</option>
-                                            <option value="Ultra Poor" {{ request('remarks') == 'Ultra Poor' ? 'selected' : '' }}>Ultra Poor</option>
-                                            <option value="Poor" {{ request('remarks') == 'Poor' ? 'selected' : '' }}>Poor</option>
-                                            <option value="Non Poor" {{ request('remarks') == 'Non Poor' ? 'selected' : '' }}>Non Poor</option>
-                                        </select>
-                                    </div>
+                            <div class="flex-1">
+                                <select id="applicantsRemarksSelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                    <option value="">All Remarks</option>
+                                    <option value="Ultra Poor" {{ request('remarks') == 'Ultra Poor' ? 'selected' : '' }}>Ultra Poor</option>
+                                    <option value="Poor" {{ request('remarks') == 'Poor' ? 'selected' : '' }}>Poor</option>
+                                    <option value="Non Poor" {{ request('remarks') == 'Non Poor' ? 'selected' : '' }}>Non Poor</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <button type="button" id="printApplicantsPdfBtn"
+                                    class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium flex items-center justify-center" title="Generate and print applicants report">
+                                    <i class="fas fa-print mr-2"></i> Print PDF
+                                </button>
+                            </div>
                                 </div>
                             </div>
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Applicant Details
+                                        <tr class="bg-gray-800 text-white">
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Applicant Details
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Email
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Email
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Contact
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Contact
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Barangay
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Barangay
                                             </th>
-                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Remarks
+                                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
+                                                Remarks
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200">
                                         @foreach($applicantsWithRemarks as $applicant)
-                                        <tr class="hover:bg-blue-50 transition-colors duration-200 group">
+                                        <tr class="hover:bg-gray-50 transition-colors duration-200">
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-10 w-10">
-                                                        <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center justify-center text-white font-semibold">
-                                                            {{ strtoupper(substr($applicant->applicant_fname, 0, 1)) }}{{ strtoupper(substr($applicant->applicant_lname, 0, 1)) }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-semibold text-gray-900 group-hover:text-blue-600">
-                                                            {{ $applicant->applicant_fname }} {{ $applicant->applicant_lname }}
-                                                        </div>
-                                                    </div>
+                                                <div class="text-sm font-semibold text-gray-900">
+                                                    {{ $applicant->applicant_fname }} {{ $applicant->applicant_lname }}
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>
-                                                    <span class="text-sm text-gray-900">{{ $applicant->applicant_email }}</span>
-                                                </div>
+                                                <span class="text-sm text-gray-900">{{ $applicant->applicant_email }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <i class="fas fa-phone text-gray-400 mr-2"></i>
-                                                    <span class="text-sm text-gray-900">{{ $applicant->applicant_contact_number }}</span>
-                                                </div>
+                                                <span class="text-sm text-gray-900">{{ $applicant->applicant_contact_number }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                                    {{ $applicant->applicant_brgy }}
-                                                </span>
+                                                <span class="text-sm text-gray-900">{{ $applicant->applicant_brgy }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @if($applicant->remarks === 'Ultra Poor')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
-                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                    <span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
                                                         {{ $applicant->remarks }}
                                                     </span>
                                                 @elseif($applicant->remarks === 'Poor')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">
-                                                        <i class="fas fa-exclamation-circle mr-1"></i>
+                                                    <span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
                                                         {{ $applicant->remarks }}
                                                     </span>
                                                 @elseif($applicant->remarks === 'Non Poor')
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
-                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                    <span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
                                                         {{ $applicant->remarks }}
                                                     </span>
                                                 @else
-                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">
-                                                        <i class="fas fa-question-circle mr-1"></i>
+                                                    <span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
                                                         {{ $applicant->remarks }}
                                                     </span>
                                                 @endif
@@ -604,15 +581,15 @@
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                                        <tr class="bg-gray-800 text-white">
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="fas fa-university mr-2"></i>Educational Institution
+                                                Educational Institution
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="fas fa-graduation-cap mr-2"></i>Scholar Count
+                                                Scholar Count
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="fas fa-chart-bar mr-2"></i>Distribution
+                                                Distribution
                                             </th>
                                         </tr>
                                     </thead>
@@ -667,15 +644,15 @@
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gradient-to-r from-orange-600 to-amber-600 text-white">
+                                        <tr class="bg-gray-800 text-white">
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="fas fa-map-marker-alt mr-2"></i>Barangay Location
+                                                Barangay Location
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="fas fa-users mr-2"></i>Applicant Count
+                                                Applicant Count
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="fas fa-percentage mr-2"></i>Distribution
+                                                Distribution
                                             </th>
                                         </tr>
                                     </thead>
@@ -763,29 +740,35 @@
                                             <option value="Rejected" {{ request('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                         </select>
                                     </div>
+                                    <div class="flex-1">
+                                        <button type="button" id="printRenewalPdfBtn"
+                                            class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium flex items-center justify-center" title="Generate and print renewal report">
+                                            <i class="fas fa-print mr-2"></i> Print PDF
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
+                                        <tr class="bg-gray-800 text-white">
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="r mr-2"></i>Scholar Details
+                                                Scholar Details
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="mr-2"></i>School
+                                                School
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class="mr-2"></i>Barangay
+                                                Barangay
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Academic Year
+                                                Academic Year
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Status
+                                                Status
                                             </th>
                                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">
-                                                <i class=" mr-2"></i>Date Submitted
+                                                Date Submitted
                                             </th>
                                         </tr>
                                     </thead>
@@ -952,6 +935,7 @@
     const barangaySelect = document.getElementById('barangaySelect');
     const academicYearSelect = document.getElementById('academicYearSelect');
     const scholarStatusSelect = document.getElementById('scholarStatusSelect'); // Add this line
+    const printPdfBtn = document.getElementById('printPdfBtn');
     const scholarsTableBody = document.querySelector('#scholars-tab tbody');
 
     // ...existing code...
@@ -974,6 +958,18 @@
         formData.append('_token', '{{ csrf_token() }}');
 
         // ...existing fetch code...
+    }
+
+    // Print PDF functionality
+    if (printPdfBtn) {
+        printPdfBtn.addEventListener('click', function() {
+            const filterForm = document.getElementById('filterForm');
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams(formData);
+
+            // Open PDF in new window/tab
+            window.open(`{{ route("LydoAdmin.report.pdf.scholars") }}?${params.toString()}`, '_blank');
+        });
     }
 
     // ...existing event listeners...
@@ -1021,38 +1017,20 @@
                 }
 
                 applicantsTableBody.innerHTML = results.map(applicant => `
-                    <tr class="hover:bg-blue-50 transition-colors duration-200 group">
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10">
-                                    <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center justify-center text-white font-semibold">
-                                        ${applicant.applicant_fname.charAt(0).toUpperCase()}${applicant.applicant_lname.charAt(0).toUpperCase()}
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-semibold text-gray-900 group-hover:text-blue-600">
-                                        ${applicant.applicant_fname} ${applicant.applicant_lname}
-                                    </div>
-                                </div>
+                            <div class="text-sm font-semibold text-gray-900">
+                                ${applicant.applicant_fname} ${applicant.applicant_lname}
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <i class="fas fa-envelope text-gray-400 mr-2"></i>
-                                <span class="text-sm text-gray-900">${applicant.applicant_email}</span>
-                            </div>
+                            <span class="text-sm text-gray-900">${applicant.applicant_email}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <i class="fas fa-phone text-gray-400 mr-2"></i>
-                                <span class="text-sm text-gray-900">${applicant.applicant_contact_number}</span>
-                            </div>
+                            <span class="text-sm text-gray-900">${applicant.applicant_contact_number}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                <i class="fas fa-map-marker-alt mr-1"></i>
-                                ${applicant.applicant_brgy}
-                            </span>
+                            <span class="text-sm text-gray-900">${applicant.applicant_brgy}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             ${getRemarksBadge(applicant.remarks)}
@@ -1064,23 +1042,19 @@
             // Function to get remarks badge HTML
             function getRemarksBadge(remarks) {
                 if (remarks === 'Ultra Poor') {
-                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
-                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-800 border border-gray-300">
                         ${remarks}
                     </span>`;
                 } else if (remarks === 'Poor') {
-                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-200">
-                        <i class="fas fa-exclamation-circle mr-1"></i>
+                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-800 border border-gray-300">
                         ${remarks}
                     </span>`;
                 } else if (remarks === 'Non Poor') {
-                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
-                        <i class="fas fa-check-circle mr-1"></i>
+                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-800 border border-gray-300">
                         ${remarks}
                     </span>`;
                 } else {
-                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">
-                        <i class="fas fa-question-circle mr-1"></i>
+                    return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-800 border border-gray-300">
                         ${remarks}
                     </span>`;
                 }
@@ -1171,6 +1145,27 @@ if (applicantsRemarksSelect) {
         filterApplicants();
     });
 }
+
+            // Print PDF functionality for applicants
+            const printApplicantsPdfBtn = document.getElementById('printApplicantsPdfBtn');
+            if (printApplicantsPdfBtn) {
+                printApplicantsPdfBtn.addEventListener('click', function() {
+                    const search = applicantsSearchInput.value;
+                    const barangay = applicantsBarangaySelect.value;
+                    const academicYear = applicantsAcademicYearSelect.value;
+                    const remarks = applicantsRemarksSelect.value;
+
+                    const params = new URLSearchParams({
+                        search: search,
+                        barangay: barangay,
+                        academic_year: academicYear,
+                        remarks: remarks
+                    });
+
+                    // Open PDF in new window/tab
+                    window.open(`{{ route("LydoAdmin.report.pdf.applicants") }}?${params.toString()}`, '_blank');
+                });
+            }
         });
 
         // AJAX filtering functionality for Renewal
@@ -1342,6 +1337,27 @@ if (applicantsRemarksSelect) {
             if (renewalStatusSelect) {
                 renewalStatusSelect.addEventListener('change', function() {
                     filterRenewals();
+                });
+            }
+
+            // Print PDF functionality for renewal
+            const printRenewalPdfBtn = document.getElementById('printRenewalPdfBtn');
+            if (printRenewalPdfBtn) {
+                printRenewalPdfBtn.addEventListener('click', function() {
+                    const search = renewalSearchInput.value;
+                    const barangay = renewalBarangaySelect.value;
+                    const academicYear = renewalAcademicYearSelect.value;
+                    const status = renewalStatusSelect.value;
+
+                    const params = new URLSearchParams({
+                        search: search,
+                        barangay: barangay,
+                        academic_year: academicYear,
+                        status: status
+                    });
+
+                    // Open PDF in new window/tab
+                    window.open(`{{ route("LydoAdmin.report.pdf.renewal") }}?${params.toString()}`, '_blank');
                 });
             }
         });
