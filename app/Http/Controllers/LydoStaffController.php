@@ -290,21 +290,27 @@ class LydoStaffController extends Controller
             ->orderBy("applicant_acad_year", "desc")
             ->value("applicant_acad_year");
 
-        $pendingScreening = DB::table("tbl_application_personnel")
+        $pendingScreening = DB::table("tbl_applicant")
             ->join(
                 "tbl_application",
-                "tbl_application_personnel.application_id",
+                "tbl_applicant.applicant_id",
                 "=",
                 "tbl_application.application_id",
             )
             ->join(
-                "tbl_applicant",
-                "tbl_application.applicant_id",
+                "tbl_application_personnel",
+                "tbl_application.application_id",
                 "=",
-                "tbl_applicant.applicant_id",
+                "tbl_application_personnel.application_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.remarks", "Pending")
+            ->where("tbl_application_personnel.initial_screening", "Approved")
+            ->whereNotIn("tbl_application_personnel.remarks", [
+                "Poor",
+                "Non Poor",
+                "Ultra Poor",
+                "Non Indigenous",
+            ])
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -556,21 +562,27 @@ $listApplicants = DB::table("tbl_applicant as a")
             ->orderBy("applicant_acad_year", "desc")
             ->value("applicant_acad_year");
 
-        $pendingScreening = DB::table("tbl_application_personnel")
+        $pendingScreening = DB::table("tbl_applicant")
             ->join(
                 "tbl_application",
-                "tbl_application_personnel.application_id",
+                "tbl_applicant.applicant_id",
                 "=",
                 "tbl_application.application_id",
             )
             ->join(
-                "tbl_applicant",
-                "tbl_application.applicant_id",
+                "tbl_application_personnel",
+                "tbl_application.application_id",
                 "=",
-                "tbl_applicant.applicant_id",
+                "tbl_application_personnel.application_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.remarks", "Pending")
+            ->where("tbl_application_personnel.initial_screening", "Approved")
+            ->whereNotIn("tbl_application_personnel.remarks", [
+                "Poor",
+                "Non Poor",
+                "Ultra Poor",
+                "Non Indigenous",
+            ])
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -849,24 +861,24 @@ $listView = DB::table("tbl_renewal as r")
 
         return redirect("/login");
     }
-public function updateApplicantsRemarks(Request $request)
-{
-    // Validate the request
-    $request->validate([
-        'id' => 'required|exists:tbl_application_personnel,application_personnel_id',
-        'remarks' => 'required|in:Poor,Non Poor,Ultra Poor,Non Indigenous',
-    ]);
-
-    // Update the existing record in tbl_application_personnel without creating a new row
-    DB::table('tbl_application_personnel')
-        ->where('application_personnel_id', $request->id)
-        ->update([
-            'remarks' => $request->remarks,
-            'updated_at' => now(),
+    public function updateApplicantsRemarks(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'id' => 'required|exists:tbl_application_personnel,application_personnel_id',
+            'remarks' => 'required|in:Poor,Non Poor,Ultra Poor,Non Indigenous',
         ]);
 
-    return redirect()->back()->with('success', 'Remarks updated successfully.');
-}
+        // Update the existing record in tbl_application_personnel without creating a new row
+        DB::table('tbl_application_personnel')
+            ->where('application_personnel_id', $request->id)
+            ->update([
+                'remarks' => $request->remarks,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->back()->with('success', 'Remarks updated successfully.');
+    }
 
 
     public function reports(Request $request)
@@ -907,21 +919,27 @@ public function updateApplicantsRemarks(Request $request)
             ->orderBy("applicant_acad_year", "desc")
             ->value("applicant_acad_year");
 
-        $pendingScreening = DB::table("tbl_application_personnel")
+        $pendingScreening = DB::table("tbl_applicant")
             ->join(
                 "tbl_application",
-                "tbl_application_personnel.application_id",
+                "tbl_applicant.applicant_id",
                 "=",
                 "tbl_application.application_id",
             )
             ->join(
-                "tbl_applicant",
-                "tbl_application.applicant_id",
+                "tbl_application_personnel",
+                "tbl_application.application_id",
                 "=",
-                "tbl_applicant.applicant_id",
+                "tbl_application_personnel.application_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.remarks", "Pending")
+            ->where("tbl_application_personnel.initial_screening", "Approved")
+            ->whereNotIn("tbl_application_personnel.remarks", [
+                "Poor",
+                "Non Poor",
+                "Ultra Poor",
+                "Non Indigenous",
+            ])
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -1196,21 +1214,27 @@ public function reviewedApplicants(Request $request)
             ->orderBy("applicant_acad_year", "desc")
             ->value("applicant_acad_year");
 
-        $pendingScreening = DB::table("tbl_application_personnel")
+        $pendingScreening = DB::table("tbl_applicant")
             ->join(
                 "tbl_application",
-                "tbl_application_personnel.application_id",
+                "tbl_applicant.applicant_id",
                 "=",
                 "tbl_application.application_id",
             )
             ->join(
-                "tbl_applicant",
-                "tbl_application.applicant_id",
+                "tbl_application_personnel",
+                "tbl_application.application_id",
                 "=",
-                "tbl_applicant.applicant_id",
+                "tbl_application_personnel.application_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.remarks", "Pending")
+            ->where("tbl_application_personnel.initial_screening", "Approved")
+            ->whereNotIn("tbl_application_personnel.remarks", [
+                "Poor",
+                "Non Poor",
+                "Ultra Poor",
+                "Non Indigenous",
+            ])
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -1401,21 +1425,27 @@ public function reviewedApplicants(Request $request)
             ->orderBy("applicant_acad_year", "desc")
             ->value("applicant_acad_year");
 
-        $pendingScreening = DB::table("tbl_application_personnel")
+        $pendingScreening = DB::table("tbl_applicant")
             ->join(
                 "tbl_application",
-                "tbl_application_personnel.application_id",
+                "tbl_applicant.applicant_id",
                 "=",
                 "tbl_application.application_id",
             )
             ->join(
-                "tbl_applicant",
-                "tbl_application.applicant_id",
+                "tbl_application_personnel",
+                "tbl_application.application_id",
                 "=",
-                "tbl_applicant.applicant_id",
+                "tbl_application_personnel.application_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.remarks", "Pending")
+            ->where("tbl_application_personnel.initial_screening", "Approved")
+            ->whereNotIn("tbl_application_personnel.remarks", [
+                "Poor",
+                "Non Poor",
+                "Ultra Poor",
+                "Non Indigenous",
+            ])
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
