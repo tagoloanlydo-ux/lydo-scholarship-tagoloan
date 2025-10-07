@@ -19,9 +19,12 @@ return new class extends Migration
     $table->text('renewal_brgy_indigency');
     $table->string('renewal_semester', 20);
     $table->string('renewal_acad_year', 20);
+    $table->date('renewal_start_date')->nullable();
+    $table->date('renewal_deadline')->nullable();
     $table->date('date_submitted');
     $table->string('renewal_status', 50)->default('Pending');
     $table->text('rejection_reason')->nullable();
+    
     $table->timestamps();
 
     $table->foreign('scholar_id')->references('scholar_id')->on('tbl_scholar')->onDelete('cascade');

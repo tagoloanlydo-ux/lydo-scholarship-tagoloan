@@ -17,6 +17,7 @@ return new class extends Migration
             $table->date('application_deadline')->nullable();
             $table->date('renewal_start_date')->nullable();
             $table->date('renewal_deadline')->nullable();
+            $table->string('renewal_semester', 20)->nullable();
         });
     }
 

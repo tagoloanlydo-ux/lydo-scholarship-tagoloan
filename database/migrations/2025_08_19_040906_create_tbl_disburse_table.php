@@ -17,7 +17,7 @@ return new class extends Migration
     $table->unsignedBigInteger('lydopers_id');
     $table->string('disburse_semester', 20);
     $table->string('disburse_acad_year', 20);
-    $table->decimal('dirburse_amount', 10, 2);
+    $table->decimal('disburse_amount', 10, 2);
     $table->text('disburse_signature')->nullable();
     $table->date('disburse_date');
     $table->timestamps();
