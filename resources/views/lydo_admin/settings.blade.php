@@ -272,7 +272,7 @@
   <!-- Profile Picture -->
   <img 
     id="profileImage"
-    src="{{ asset('images/default-profile.png') }}" 
+    src="{{ asset('images/LYDO.png') }}" 
     alt="Profile Picture"
     class="rounded-full object-cover w-full h-full ring-4 ring-orange-100 hover:ring-orange-400 transition"
   />

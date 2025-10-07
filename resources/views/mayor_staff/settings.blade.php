@@ -137,9 +137,9 @@
                 <!-- Profile Picture -->
                 <img 
                   id="profileImage"
-                  src="{{ asset('images/default-profile.png') }}" 
+                  src="{{ asset('images/LYDO.png') }}" 
                   alt="Profile Picture"
-                  class="rounded-full object-cover w-full h-full ring-4 ring-violet-100 hover:ring-violet-400 transition"
+     x             class="rounded-full object-cover w-full h-full ring-4 ring-violet-100 hover:ring-violet-400 transition"
                 />
 
                 <!-- Hidden file input -->
