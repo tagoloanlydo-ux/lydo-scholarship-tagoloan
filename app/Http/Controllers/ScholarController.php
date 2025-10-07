@@ -323,6 +323,7 @@ class ScholarController extends Controller
     {
         $scholar = session('scholar');
         $renewal = null;
+        $settings = \App\Models\Settings::first();
 
         if ($scholar) {
             // Ensure applicant relationship is loaded
@@ -345,7 +346,7 @@ class ScholarController extends Controller
                 ->first();
         }
 
-        return view('scholar.renewal_app', compact('renewal'));
+        return view('scholar.renewal_app', compact('renewal', 'settings'));
     }
 public function submitRenewal(Request $request)
 {
@@ -377,6 +378,20 @@ public function submitRenewal(Request $request)
     $scholar = session('scholar');
     if (!$scholar) {
         return redirect()->route('scholar.login')->withErrors(['error' => 'Please login to submit renewal.']);
+    }
+
+    // Check renewal deadline
+    $settings = \App\Models\Settings::first();
+    $now = now();
+    if ($settings && $settings->renewal_deadline) {
+        if ($now->isAfter($settings->renewal_deadline)) {
+            return redirect()->back()->withErrors(['error' => 'Renewal submission deadline has passed.']);
+        }
+    }
+    if ($settings && $settings->renewal_start_date) {
+        if ($now->isBefore($settings->renewal_start_date)) {
+            return redirect()->back()->withErrors(['error' => 'Renewal submission has not started yet.']);
+        }
     }
 
     // Update applicant year level

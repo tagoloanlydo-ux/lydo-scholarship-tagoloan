@@ -11,11 +11,14 @@ class Settings extends Model
 
     protected $table = 'tbl_settings';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'application_start_date',
         'application_deadline',
         'renewal_start_date',
         'renewal_deadline',
+        'renewal_semester',
     ];
 
     protected $casts = [

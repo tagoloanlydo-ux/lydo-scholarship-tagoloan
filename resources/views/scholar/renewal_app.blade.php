@@ -93,6 +93,35 @@
                         </div>
 
                         <div class="text-center">
+                            @php
+                                $now = now();
+                                $isWithinRenewalPeriod = true;
+                                $deadlineMessage = '';
+
+                                if ($settings && $settings->renewal_deadline && $now->isAfter($settings->renewal_deadline)) {
+                                    $isWithinRenewalPeriod = false;
+                                    $deadlineMessage = 'Renewal submission deadline has passed.';
+                                } elseif ($settings && $settings->renewal_start_date && $now->isBefore($settings->renewal_start_date)) {
+                                    $isWithinRenewalPeriod = false;
+                                    $deadlineMessage = 'Renewal submission has not started yet.';
+                                }
+                            @endphp
+
+                            @if(!$isWithinRenewalPeriod)
+                                <div class="mb-4">
+                                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                                        <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+                                        {{ $deadlineMessage }}
+                                        @if($settings && $settings->renewal_start_date)
+                                            <br><small>Renewal period starts: {{ $settings->renewal_start_date->format('M d, Y') }}</small>
+                                        @endif
+                                        @if($settings && $settings->renewal_deadline)
+                                            <br><small>Deadline: {{ $settings->renewal_deadline->format('M d, Y') }}</small>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+
                             @if($renewal && $renewal->renewal_status == 'Approved')
                                 <div class="mb-4">
                                     <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4">
@@ -100,20 +129,41 @@
                                         Congratulations! Your renewal application has been approved. You can apply for the next renewal when ready.
                                     </div>
                                 </div>
-                                <button onclick="openModal()" id="renewalButton" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
-                                    <i class="fa-solid fa-plus-circle mr-2"></i>
-                                    Apply for Renewal
-                                </button>
+                                @if($isWithinRenewalPeriod)
+                                    <button onclick="openModal()" id="renewalButton" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
+                                        <i class="fa-solid fa-plus-circle mr-2"></i>
+                                        Apply for Renewal
+                                    </button>
+                                @else
+                                    <button disabled id="renewalButton" class="bg-gray-400 cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl shadow-lg">
+                                        <i class="fa-solid fa-plus-circle mr-2"></i>
+                                        Apply for Renewal
+                                    </button>
+                                @endif
                             @elseif($renewal)
-                                <button onclick="openModal()" id="renewalButton" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
-                                    <i class="fa-solid fa-edit mr-2"></i>
-                                    Your Application Is Pending
-                                </button>
+                                @if($isWithinRenewalPeriod)
+                                    <button onclick="openModal()" id="renewalButton" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
+                                        <i class="fa-solid fa-edit mr-2"></i>
+                                        Your Application Is Pending
+                                    </button>
+                                @else
+                                    <button disabled id="renewalButton" class="bg-gray-400 cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl shadow-lg">
+                                        <i class="fa-solid fa-edit mr-2"></i>
+                                        Your Application Is Pending
+                                    </button>
+                                @endif
                             @else
-                                <button onclick="openModal()" id="renewalButton" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
-                                    <i class="fa-solid fa-plus-circle mr-2"></i>
-                                    Apply for Renewal
-                                </button>
+                                @if($isWithinRenewalPeriod)
+                                    <button onclick="openModal()" id="renewalButton" class="bg-violet-600 hover:bg-violet-700 text-white font-bold py-4 px-8 rounded-xl transition duration-300 transform hover:scale-105 shadow-lg">
+                                        <i class="fa-solid fa-plus-circle mr-2"></i>
+                                        Apply for Renewal
+                                    </button>
+                                @else
+                                    <button disabled id="renewalButton" class="bg-gray-400 cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl shadow-lg">
+                                        <i class="fa-solid fa-plus-circle mr-2"></i>
+                                        Apply for Renewal
+                                    </button>
+                                @endif
                             @endif
                         </div>
                     </div>
@@ -177,9 +227,9 @@
                             <label for="renewal_semester" class="block text-sm font-semibold text-gray-800 mb-2">Semester</label>
                             <select name="renewal_semester" id="renewal_semester" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent bg-white shadow-sm">
                                 <option value="">Select Semester</option>
-                                <option value="1st Semester" {{ $renewal && $renewal->renewal_semester == '1st Semester' ? 'selected' : '' }}>1st Semester</option>
-                                <option value="2nd Semester" {{ $renewal && $renewal->renewal_semester == '2nd Semester' ? 'selected' : '' }}>2nd Semester</option>
-                                <option value="Summer" {{ $renewal && $renewal->renewal_semester == 'Summer' ? 'selected' : '' }}>Summer</option>
+                                <option value="1st Semester" {{ ($renewal ? $renewal->renewal_semester : $settings->renewal_semester) == '1st Semester' ? 'selected' : '' }}>1st Semester</option>
+                                <option value="2nd Semester" {{ ($renewal ? $renewal->renewal_semester : $settings->renewal_semester) == '2nd Semester' ? 'selected' : '' }}>2nd Semester</option>
+                                <option value="Summer" {{ ($renewal ? $renewal->renewal_semester : $settings->renewal_semester) == 'Summer' ? 'selected' : '' }}>Summer</option>
                             </select>
                         </div>
 

@@ -438,7 +438,16 @@
 
   <div class="mb-8">
     <h2 class="text-lg font-medium text-gray-700 mb-4">Scholar Renewal</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div>
+        <label class="block text-base text-gray-600 mb-1">Renewal Semester</label>
+        <select name="renewal_semester" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition">
+          <option value="">Select Semester</option>
+          <option value="1st Semester" {{ $settings->renewal_semester == '1st Semester' ? 'selected' : '' }}>1st Semester</option>
+          <option value="2nd Semester" {{ $settings->renewal_semester == '2nd Semester' ? 'selected' : '' }}>2nd Semester</option>
+          <option value="Summer" {{ $settings->renewal_semester == 'Summer' ? 'selected' : '' }}>Summer</option>
+        </select>
+      </div>
       <div>
         <label class="block text-base text-gray-600 mb-1">Renewal Start Date</label>
         <input type="date" name="renewal_start_date" value="{{ $settings->renewal_start_date ? $settings->renewal_start_date->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>

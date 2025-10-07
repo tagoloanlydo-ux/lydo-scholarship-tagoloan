@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Announce;
 use App\Models\Disburse;
@@ -1094,11 +1095,12 @@ class LydoAdminController extends Controller
     public function updateDeadlines(Request $request)
     {
         try {
-            $validator = \Validator::make($request->all(), [
+            $validator = Validator::make($request->all(), [
                 'application_start_date' => 'nullable|date',
                 'application_deadline' => 'nullable|date',
                 'renewal_start_date' => 'nullable|date',
                 'renewal_deadline' => 'nullable|date',
+                'renewal_semester' => 'nullable|string|in:1st Semester,2nd Semester,Summer',
             ]);
 
             // Custom validation for date relationships
@@ -1141,6 +1143,7 @@ class LydoAdminController extends Controller
                 'application_deadline',
                 'renewal_start_date',
                 'renewal_deadline',
+                'renewal_semester',
             ]));
             $settings->save();
 
