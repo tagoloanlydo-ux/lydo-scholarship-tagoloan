@@ -407,7 +407,7 @@
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-violet-600 text-white">
+                                        <tr class="bg-violet-600 text-green-600">
                                             <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Name
                                             </th>
@@ -512,7 +512,7 @@
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-violet-600 text-white">
+                                        <tr class="bg-violet-600 text-green-600">
                                             <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider border-b border-gray-300">
                                                 Applicant Details
                                             </th>
@@ -582,7 +582,7 @@
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-violet-600 text-white">
+                                        <tr class="bg-violet-600 text-green-600">
                                             <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Educational Institution
                                             </th>
@@ -645,7 +645,7 @@
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-violet-600 text-white">
+                                        <tr class="bg-violet-600 text-green-600">
                                             <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Barangay Location
                                             </th>
@@ -752,7 +752,7 @@
                             <div class="overflow-x-auto bg-white  shadow-sm border border-gray-200">
                                 <table class="w-full">
                                     <thead>
-                                        <tr class="bg-violet-600 text-white">
+                                        <tr class="bg-violet-600 text-green-600">
                                             <th class="px-6 py-4 text-center text-sm font-semibold uppercase tracking-wider">
                                                 Scholar Details
                                             </th>
