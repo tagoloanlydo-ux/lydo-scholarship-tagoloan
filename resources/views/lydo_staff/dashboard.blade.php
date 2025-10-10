@@ -260,12 +260,25 @@
 
                     </div>
                 </div>
+                @if($notifications->count() > 0)
                 <script>
-                    let notifCount = document.getElementById("notifCount");
-                    if (notifCount) {
-                        notifCount.style.display = "none"; // mawawala yung badge
+                    if (localStorage.getItem('notificationsViewed') !== 'true') {
+                        const audio = new Audio('/notification/blade.wav');
+                        audio.play().catch(e => console.log('Audio play failed', e));
                     }
                 </script>
+                @endif
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (localStorage.getItem('notificationsViewed') === 'true') {
+                            let notifCount = document.getElementById("notifCount");
+                            if (notifCount) {
+                                notifCount.style.display = 'none';
+                            }
+                        }
+                    });
+                </script>
+
                 <script>
                     // Welcome modal using SweetAlert2 with user name and role, auto-dismiss after 4 seconds
                     @if(session('show_welcome'))
@@ -360,9 +373,10 @@
               <script>
                     document.getElementById("notifBell").addEventListener("click", function() {
                         document.getElementById("notifDropdown").classList.toggle("hidden");
+                        localStorage.setItem('notificationsViewed', 'true');
                         let notifCount = document.getElementById("notifCount");
                         if (notifCount) {
-                            notifCount.remove(); // mawawala dayun
+                            notifCount.style.display = 'none';
                         }
                     });
                 </script>

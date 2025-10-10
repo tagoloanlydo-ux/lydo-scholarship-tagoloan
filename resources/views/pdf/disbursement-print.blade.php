@@ -35,12 +35,6 @@
             font-weight: normal;
         }
 
-        .header .date {
-            font-size: 14px;
-            margin-top: 10px;
-            font-style: italic;
-        }
-
         .filters {
             margin-bottom: 20px;
             padding: 10px;
@@ -72,6 +66,7 @@
             text-transform: uppercase;
             font-size: 10px;
         }
+
         td {
             border: 1px solid #333;
             padding: 8px 6px;
@@ -99,10 +94,10 @@
         .footer {
             margin-top: 40px;
             text-align: center;
-            font-size: 10px;
+            font-size: 11px;
             color: #666;
-            border-top: 1px solid #ccc;
             padding-top: 20px;
+            border-top: 1px solid #ccc;
         }
 
         .no-data {
@@ -143,124 +138,112 @@
     </style>
 </head>
 <body>
-  <div class="header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; border-bottom: 3px solid #333; padding-bottom: 20px;">
-    
-    <!-- LEFT: Logo -->
-    <div style="flex: 1; display: flex; justify-content: flex-start;">
-        <img src="/images/LYDO.png" alt="LYDO Logo" style="height: 90px;">
-    </div>
 
-    <!-- CENTER: Text -->
-    <div style="flex: 1.5; text-align: center;">
-        <h1 style="margin: 0 0 10px 0; font-size: 24px; font-weight: bold; text-transform: uppercase;">
-            LYDO Scholarship Disbursement Report
-        </h1>
-        <div class="subtitle" style="font-size: 16px; margin: 5px 0;">Tagoloan, Misamis Oriental</div>
-        <div class="subtitle" style="font-size: 16px; margin: 5px 0;">Local Youth Development Office</div>
-        <div class="date" style="font-size: 14px; margin-top: 10px; font-style: italic;">
-            Generated on: {{ date('F d, Y \a\t h:i A') }}
-        </div>
-    </div>
-
-    <!-- RIGHT: Empty for balance -->
-    <div style="flex: 1;"></div>
+<div class="header" style="text-align: center; margin-bottom: 30px; border-bottom: 3px solid #333; padding-bottom: 20px;">
+    <h1 style="margin: 0 0 10px 0; font-size: 24px; font-weight: bold; text-transform: uppercase;">
+        LYDO Scholarship Disbursement Report
+    </h1>
+    <div class="subtitle" style="font-size: 16px; margin: 5px 0;">Tagoloan, Misamis Oriental</div>
+    <div class="subtitle" style="font-size: 16px; margin: 5px 0;">Local Youth Development Office</div>
 </div>
 
+@if(!empty($filters))
+<div class="filters">
+    <strong>Applied Filters:</strong>
+    {{ implode(' | ', $filters) }}
+</div>
+@endif
 
+@if($disbursements->count() > 0)
+<table>
+    <thead>
+        <tr>
+            <th style="width: 5%;">#</th>
+            <th style="width: 25%;">Scholar Name</th>
+            <th style="width: 15%;">Barangay</th>
+            <th style="width: 12%;">Academic Year</th>
+            <th style="width: 13%;">Semester</th>
+            <th style="width: 15%;">Amount</th>
+            <th style="width: 15%;">Disbursement Date</th>
+            <th style="width: 15%;">Signature</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($disbursements as $index => $disbursement)
+        <tr>
+            <td class="text-center">{{ $index + 1 }}</td>
+            <td>{{ $disbursement->full_name }}</td>
+            <td class="text-center">{{ $disbursement->applicant_brgy }}</td>
+            <td class="text-center">{{ $disbursement->disburse_acad_year }}</td>
+            <td class="text-center">{{ $disbursement->disburse_semester }}</td>
+            <td class="text-right">₱{{ number_format($disbursement->disburse_amount, 2) }}</td>
+            <td class="text-center">{{ \Carbon\Carbon::parse($disbursement->disburse_date)->format('M d, Y') }}</td>
+            <td style="padding: 15px 6px; text-align: center;">
+                <div style="border-bottom: 1px solid #ffffff; width: 120px; margin: 0 auto;"></div>
+            </td>
+        </tr>
+        @endforeach
 
-    @if(!empty($filters))
-    <div class="filters">
-        <strong>Applied Filters:</strong>
-        {{ implode(' | ', $filters) }}
-    </div>
-    @endif
+        <tr class="total-row">
+            <td colspan="6" class="text-right" style="font-weight: bold; font-size: 12px;">TOTAL AMOUNT:</td>
+            <td class="text-right" style="font-weight: bold; font-size: 12px;">
+                ₱{{ number_format($disbursements->sum('disburse_amount'), 2) }}
+            </td>
+            <td class="text-center" style="font-weight: bold; font-size: 12px;">-</td>
+        </tr>
+    </tbody>
+</table>
 
-    @if($disbursements->count() > 0)
-    <table>
-        <thead>
-            <tr>
-                <th style="width: 5%;">#</th>
-                <th style="width: 25%;">Scholar Name</th>
-                <th style="width: 15%;">Barangay</th>
-                <th style="width: 12%;">Academic Year</th>
-                <th style="width: 13%;">Semester</th>
-                <th style="width: 15%;">Amount</th>
-                <th style="width: 15%;">Disbursement Date</th>
-                <th style="width: 15%;">Signature</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($disbursements as $index => $disbursement)
-            <tr>
-                <td class="text-center">{{ $index + 1 }}</td>
-                <td>{{ $disbursement->full_name }}</td>
-                <td class="text-center">{{ $disbursement->applicant_brgy }}</td>
-                <td class="text-center">{{ $disbursement->disburse_acad_year }}</td>
-                <td class="text-center">{{ $disbursement->disburse_semester }}</td>
-                <td class="text-right">₱{{ number_format($disbursement->disburse_amount, 2) }}</td>
-                <td class="text-center">{{ \Carbon\Carbon::parse($disbursement->disburse_date)->format('M d, Y') }}</td>
-                <td style="padding: 15px 6px; text-align: center;">
-                <div style="border-bottom: 1px solid #ffffffff; width: 120px; margin: 0 auto;"></div> 
-            </tr>
-            @endforeach
-            <!-- Total Row -->
-            <tr class="total-row">
-                <td colspan="6" class="text-right" style="font-weight: bold; font-size: 12px;">TOTAL AMOUNT:</td>
-                <td class="text-right" style="font-weight: bold; font-size: 12px;">₱{{ number_format($disbursements->sum('disburse_amount'), 2) }}</td>
-                <td class="text-center" style="font-weight: bold; font-size: 12px;">-</td>
-            </tr>
-        </tbody>
+<!-- Signature Section -->
+<div class="signature-section" style="margin-top: 60px; page-break-inside: avoid;">
+    <table style="width: 100%; border: none; margin-top: 40px;">
+        <tr>
+            <td style="width: 33%; text-align: center; border: none; padding: 20px;">
+                <div style="border-bottom: 1px solid #333; width: 200px; margin: 0 auto 10px auto;"></div>
+                <p style="margin: 5px 0; font-size: 11px; font-weight: bold;">Verified By:</p>
+                <p style="margin: 5px 0; font-size: 10px;">LYDO Administrator</p>
+                <p style="margin: 5px 0; font-size: 10px;">Date: ________________</p>
+            </td>
+            <td style="width: 33%; text-align: center; border: none; padding: 20px;">
+                <div style="border-bottom: 1px solid #333; width: 200px; margin: 0 auto 10px auto;"></div>
+                <p style="margin: 5px 0; font-size: 11px; font-weight: bold;">Approved By:</p>
+                <p style="margin: 5px 0; font-size: 10px;">Municipal Mayor</p>
+                <p style="margin: 5px 0; font-size: 10px;">Date: ________________</p>
+            </td>
+        </tr>
     </table>
+</div>
 
-    <!-- Signature Section -->
-    <div class="signature-section" style="margin-top: 60px; page-break-inside: avoid;">
-        <table style="width: 100%; border: none; margin-top: 40px;">
-            <tr>
-                <td style="width: 33%; text-align: center; border: none; padding: 20px;">
-                    <div style="border-bottom: 1px solid #333; width: 200px; margin: 0 auto 10px auto;"></div>
-                    <p style="margin: 5px 0; font-size: 11px; font-weight: bold;">Prepared By:</p>
-                    <p style="margin: 5px 0; font-size: 10px;">LYDO Staff</p>
-                    <p style="margin: 5px 0; font-size: 10px;">Date: ________________</p>
-                </td>
-                <td style="width: 33%; text-align: center; border: none; padding: 20px;">
-                    <div style="border-bottom: 1px solid #333; width: 200px; margin: 0 auto 10px auto;"></div>
-                    <p style="margin: 5px 0; font-size: 11px; font-weight: bold;">Verified By:</p>
-                    <p style="margin: 5px 0; font-size: 10px;">LYDO Administrator</p>
-                    <p style="margin: 5px 0; font-size: 10px;">Date: ________________</p>
-                </td>
-                <td style="width: 33%; text-align: center; border: none; padding: 20px;">
-                    <div style="border-bottom: 1px solid #333; width: 200px; margin: 0 auto 10px auto;"></div>
-                    <p style="margin: 5px 0; font-size: 11px; font-weight: bold;">Approved By:</p>
-                    <p style="margin: 5px 0; font-size: 10px;">Municipal Mayor</p>
-                    <p style="margin: 5px 0; font-size: 10px;">Date: ________________</p>
-                </td>
-            </tr>
-        </table>
-    </div>
+<!-- ✅ ONLY the NEW footer remains -->
+<div class="footer" style="text-align: center; margin-top: 20px; font-size: 11px;">
+    <p style="margin: 5px 0; font-weight: bold;">Lydo Scholarship System</p>
+    <p style="margin: 5px 0;">
+        Generated on: {{ date('F d, Y \a\t h:i A') }}
+    </p>
+    <p style="margin: 5px 0;">
+        Page <span class="page-number"></span>
+    </p>
+</div>
 
-    <div class="footer">
-        <p><strong>Total Records:</strong> {{ $disbursements->count() }} | <strong>Report Period:</strong> All disbursements matching applied filters</p>
-        <p>This is an official document of the LYDO Scholarship Program. Generated by the LYDO Scholarship Management System.</p>
-        <p>For verification, please contact the Local Youth Development Office at Tagoloan, Misamis Oriental.</p>
-    </div>
-    @else
-    <div class="no-data">
-        <p>No disbursement records found matching the specified criteria.</p>
-        <p>Please adjust your filters and try again.</p>
-    </div>
-    @endif
+@else
+<div class="no-data">
+    <p>No disbursement records found matching the specified criteria.</p>
+    <p>Please adjust your filters and try again.</p>
+</div>
+@endif
 
-    <script>
-        // Auto-print when page loads
-        window.onload = function() {
-            window.print();
-        }
+<script>
+    window.onload = function() {
+        window.print();
+    };
 
-        // Close window after printing (optional)
-        window.onafterprint = function() {
-            // Uncomment the line below if you want the window to close after printing
-            // window.close();
-        }
-    </script>
+    window.onbeforeprint = function() {
+        const spans = document.querySelectorAll('.page-number');
+        spans.forEach((span, index) => {
+            span.textContent = index + 1;
+        });
+    };
+</script>
+
 </body>
 </html>

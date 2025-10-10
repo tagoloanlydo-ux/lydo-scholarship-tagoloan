@@ -280,6 +280,9 @@
                 <button id="tab-records" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm" data-tab="records">
                     Disbursement Records
                 </button>
+                <button id="tab-signed" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 border-transparent text-gray-500 font-medium text-sm" data-tab="signed">
+                    Signed Disbursements
+                </button>
             </nav>
         </div>
     </div>
@@ -544,6 +547,122 @@
     </div>
 </div>
 
+<div id="tab-content-signed" class="tab-content hidden">
+    <!-- Search and Filter Section -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <form id="signedFilterForm" method="GET" action="{{ route('LydoAdmin.disbursement') }}"
+            class="grid grid-cols-1 md:grid-cols-5 gap-4">
+
+            <!-- Search -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Search by Name</label>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Enter name..."
+                    class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+            </div>
+
+            <!-- Barangay -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Barangay</label>
+                <select name="barangay"
+                        class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                    <option value="">All Barangays</option>
+                    @foreach($barangays as $barangay)
+                        <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>
+                            {{ $barangay }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Academic Year -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Academic Year</label>
+                <select name="academic_year"
+                        class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                    <option value="">All Academic Years</option>
+                    @foreach($academicYears as $year)
+                        <option value="{{ $year }}" {{ request('academic_year') == $year ? 'selected' : '' }}>
+                            {{ $year }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Semester -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Semester</label>
+                <select name="semester"
+                        class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                    <option value="">All Semesters</option>
+                    @foreach($semesters as $semester)
+                        <option value="{{ $semester }}" {{ request('semester') == $semester ? 'selected' : '' }}>
+                            {{ $semester }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Print Button -->
+            <div class="flex items-end">
+                <button type="button" id="signedPrintPdfBtn"
+                    class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium">
+                    <i class="fas fa-print"></i> Print PDF
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- Signed Disbursement Table -->
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Signed Disbursement List</h2>
+
+        @if($signedDisbursements->count() > 0)
+            <div class="overflow-hidden border border-gray-200 shadow-lg">
+                <table class="w-full table-fixed border-collapse text-[17px]">
+                    <thead class="bg-gradient-to-r from-green-600 to-teal-600 text-white uppercase text-sm">
+                        <tr>
+                            <th class="w-2/12 px-4 py-3 border border-gray-200 text-center">Full Name</th>
+                            <th class="w-2/12 px-4 py-3 border border-gray-200 text-center">Barangay</th>
+                            <th class="w-2/12 px-4 py-3 border border-gray-200 text-center">Semester</th>
+                            <th class="w-2/12 px-4 py-3 border border-gray-200 text-center">Academic Year</th>
+                            <th class="w-2/12 px-4 py-3 border border-gray-200 text-center">Amount</th>
+                            <th class="w-2/12 px-4 py-3 border border-gray-200 text-center">Disburse Date</th>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="h-auto overflow-y-auto">
+                    <table class="w-full table-fixed border-collapse text-[17px]">
+                        <tbody id="signedDisbursementTableBody">
+                            @foreach($signedDisbursements as $disburse)
+                                <tr class="hover:bg-gray-50 border-b">
+                                    <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">{{ $disburse->full_name }}</td>
+                                    <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">{{ $disburse->applicant_brgy }}</td>
+                                    <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">{{ $disburse->disburse_semester }}</td>
+                                    <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">{{ $disburse->disburse_acad_year }}</td>
+                                    <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">₱{{ number_format($disburse->disburse_amount, 2) }}</td>
+                                    <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">{{ \Carbon\Carbon::parse($disburse->disburse_date)->format('F d, Y') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-6">
+                {{ $signedDisbursements->links() }}
+            </div>
+        @else
+            <div class="text-center py-8">
+                <p class="text-gray-500 text-lg">No signed disbursement records found.</p>
+            </div>
+        @endif
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -606,6 +725,72 @@ document.addEventListener("DOMContentLoaded", function () {
             input.addEventListener("input", debounce(loadDisbursements, 400));
         } else {
             input.addEventListener("change", loadDisbursements);
+        }
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const signedFilterForm = document.getElementById("signedFilterForm");
+    const signedTableBody = document.getElementById("signedDisbursementTableBody");
+
+    // debounce function para hindi sobrang dami ng request habang nagta-type
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // function para mag-load ng filtered signed records
+    function loadSignedDisbursements() {
+        const formData = new FormData(signedFilterForm);
+        const params = new URLSearchParams(formData);
+        params.append('type', 'signed');
+
+        fetch(`/lydo_admin/disbursement?${params.toString()}`, {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(res => res.json())
+        .then(data => {
+            signedTableBody.innerHTML = "";
+
+            if (data.length > 0) {
+                data.forEach(row => {
+                    signedTableBody.innerHTML += `
+                        <tr class="hover:bg-gray-50 border-b">
+                            <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">${row.full_name}</td>
+                            <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">${row.applicant_brgy}</td>
+                            <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">${row.disburse_semester}</td>
+                            <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">${row.disburse_acad_year}</td>
+                            <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">₱${parseFloat(row.disburse_amount).toFixed(2)}</td>
+                            <td class="w-2/12 px-4 border border-gray-200 py-2 text-center">${row.disburse_date}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                signedTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-gray-500 py-4">
+                            No signed disbursement records found.
+                        </td>
+                    </tr>
+                `;
+            }
+        })
+        .catch(err => {
+            console.error("Error fetching signed disbursements:", err);
+        });
+    }
+
+    // auto filter habang nagta-type o nagbabago ang select
+    signedFilterForm.querySelectorAll("input, select").forEach(input => {
+        if (input.type === "text") {
+            input.addEventListener("input", debounce(loadSignedDisbursements, 400));
+        } else {
+            input.addEventListener("change", loadSignedDisbursements);
         }
     });
 });
@@ -885,6 +1070,17 @@ function validateDisbursementDate() {
         const filterForm = document.getElementById('filterForm');
         const formData = new FormData(filterForm);
         const params = new URLSearchParams(formData);
+
+        // Open PDF in new window/tab
+        window.open(`/lydo_admin/disbursement-pdf?${params.toString()}`, '_blank');
+    });
+
+    // Print PDF functionality for signed disbursements
+    document.getElementById('signedPrintPdfBtn').addEventListener('click', function() {
+        const signedFilterForm = document.getElementById('signedFilterForm');
+        const formData = new FormData(signedFilterForm);
+        const params = new URLSearchParams(formData);
+        params.append('type', 'signed');
 
         // Open PDF in new window/tab
         window.open(`/lydo_admin/disbursement-pdf?${params.toString()}`, '_blank');

@@ -299,11 +299,6 @@
     </div>
 
     <script>
-        let notifCount = document.getElementById("notifCount");
-        if (notifCount) {
-            notifCount.style.display = "none";
-        }
-
         // Tab switching functionality
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
@@ -331,6 +326,15 @@
                 const tabId = button.getAttribute('data-tab');
                 document.getElementById(tabId + 'TabContent').style.display = 'block';
             });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('notificationsViewed') === 'true') {
+                let notifCount = document.getElementById("notifCount");
+                if (notifCount) {
+                    notifCount.style.display = 'none';
+                }
+            }
         });
     </script>
 

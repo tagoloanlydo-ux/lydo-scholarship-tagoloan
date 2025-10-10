@@ -44,12 +44,31 @@
                             </li> @empty <li class="px-4 py-3 text-gray-500 text-sm">No new notifications</li> @endforelse </ul>
                     </div>
                 </div>
+                @if($notifications->count() > 0)
+                <script>
+                    if (localStorage.getItem('notificationsViewed') !== 'true') {
+                        const audio = new Audio('/notification/blade.wav');
+                        audio.play().catch(e => console.log('Audio play failed', e));
+                    }
+                </script>
+                @endif
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (localStorage.getItem('notificationsViewed') === 'true') {
+                            let notifCount = document.getElementById("notifCount");
+                            if (notifCount) {
+                                notifCount.style.display = 'none';
+                            }
+                        }
+                    });
+                </script>
                 <script>
                     document.getElementById("notifBell").addEventListener("click", function() {
                         document.getElementById("notifDropdown").classList.toggle("hidden");
+                        localStorage.setItem('notificationsViewed', 'true');
                         let notifCount = document.getElementById("notifCount");
                         if (notifCount) {
-                            notifCount.remove(); // mawawala dayun
+                            notifCount.style.display = 'none';
                         }
                     });
                 </script>
@@ -480,12 +499,7 @@
                 }
             });
         </script>
-                        <script>
-                    let notifCount = document.getElementById("notifCount");
-                    if (notifCount) {
-                        notifCount.style.display = "none"; // mawawala yung badge
-                    }
-                </script>
+
         <script>
             function confirmRemarksChange(selectElement) {
                 const selectedValue = selectElement.value;

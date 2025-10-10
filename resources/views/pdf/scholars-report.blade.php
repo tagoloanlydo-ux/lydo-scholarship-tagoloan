@@ -10,44 +10,49 @@
             font-size: 12px;
             line-height: 1.4;
         }
-    .header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 15px;
-    margin-bottom: 20px;
-}
 
-.logo {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-}
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-.header-content h1 {
-    font-size: 16px;
-    font-weight: bold;
-    margin: 0;
-}
+        .logo {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
 
-.header-content p {
-    margin: 2px 0;
-    font-size: 12px;
-}
+        .header-content h1 {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .header-content p {
+            margin: 2px 0;
+            font-size: 12px;
+        }
+
         .filters {
             margin-bottom: 20px;
             font-size: 11px;
         }
+
         .filters strong {
             display: inline-block;
             margin-right: 10px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
+
         th {
             border: 1px solid #333;
             padding: 6px;
@@ -56,68 +61,87 @@
             text-align: center;
             font-size: 11px;
         }
+
         td {
             border: 1px solid #333;
             padding: 6px;
             text-align: center;
             vertical-align: middle;
         }
+
         .text-center {
             text-align: center;
         }
+
         .text-right {
             text-align: right;
         }
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-        }
+
         .no-data {
             text-align: center;
             padding: 50px;
             font-size: 14px;
             color: #666;
         }
+
         .status-active {
             color: #28a745;
             font-weight: bold;
         }
+
         .status-inactive {
             color: #dc3545;
             font-weight: bold;
         }
+
+        /* Signature section */
         .signature-section {
             margin-top: 50px;
             width: 100%;
         }
+
         .signature-table {
             width: 100%;
-            border: none;
             border-collapse: collapse;
             text-align: center;
+            border: 1px solid #fff; /* white border */
         }
+
         .signature-table td {
-            padding: 30px 10px;
-            vertical-align: bottom;
-            border: none;
+            border: 1px solid #fff; /* white border for cells */
+            padding: 5px;
         }
+
+
         .signature-line {
             border-top: 1px solid #000;
             width: 200px;
             margin: 0 auto 5px auto;
         }
+
+        /* Footer style */
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            font-size: 10px;
+            color: #000;
+        }
+
+        .footer p {
+            margin: 3px 0;
+        }
+
+        .footer strong {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-       <img src="{{ public_path('images/LYDO.png') }}" class="logo">
- <div class="header-content">
-        <h1>LYDO Scholarship Scholars Report</h1>
-        <p>Tagoloan, Misamis Oriental</p>
-        <p>Generated on: {{ date('F d, Y') }}</p>
-      </div>
+        <div class="header-content">
+            <h1>LYDO Scholarship Scholars Report</h1>
+            <p>Tagoloan, Misamis Oriental</p>
+        </div>
     </div>
 
     @if(!empty($filters))
@@ -139,7 +163,6 @@
                 <th style="width: 10%;">Barangay</th>
                 <th style="width: 10%;">Academic Year</th>
                 <th style="width: 8%;">Status</th>
-                <th style="width: 14%;">Date Activated</th>
             </tr>
         </thead>
         <tbody>
@@ -166,25 +189,14 @@
                         {{ ucfirst($scholar->scholar_status) }}
                     </span>
                 </td>
-                <td class="text-center">
-                    @if($scholar->date_activated)
-                        {{ \Carbon\Carbon::parse($scholar->date_activated)->format('M d, Y') }}
-                    @else
-                        -
-                    @endif
-                </td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
     <div class="signature-section">
-        <table class="signature-table">
+        <table class="signature-table" >
             <tr>
-                <td>
-                    <div class="signature-line"></div>
-                    <p>Prepared By</p>
-                </td>
                 <td>
                     <div class="signature-line"></div>
                     <p>Verified By</p>
@@ -198,9 +210,11 @@
     </div>
 
     <div class="footer">
-        <p>Total Scholars: {{ $scholars->count() }}</p>
-        <p>Report generated by LYDO Scholarship System</p>
+        <strong>Lydo Scholarship System</strong><br>
+        Generated on: {{ date('F d, Y') }} at {{ date('h:i A') }}<br>
+        Page 1
     </div>
+
     @else
     <div class="no-data">
         <p>No scholar records found matching the specified criteria.</p>

@@ -1056,7 +1056,28 @@ class LydoAdminController extends Controller
             ->where('s.scholar_status', 'active')
             ->get();
 
-        return view('lydo_admin.disbursement', compact('notifications', 'disbursements', 'barangays', 'academicYears', 'semesters', 'scholars'));
+        // Get signed disbursements
+        $signedDisbursements = DB::table('tbl_disburse as d')
+            ->join('tbl_scholar as s', 'd.scholar_id', '=', 's.scholar_id')
+            ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
+            ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
+            ->select(
+                'd.disburse_id',
+                'd.disburse_semester',
+                'd.disburse_acad_year',
+                'd.disburse_amount',
+                'd.disburse_date',
+                'a.applicant_fname',
+                'a.applicant_mname',
+                'a.applicant_lname',
+                'a.applicant_suffix',
+                'a.applicant_brgy',
+                DB::raw("CONCAT(a.applicant_fname, ' ', COALESCE(a.applicant_mname, ''), ' ', a.applicant_lname, ' ', COALESCE(a.applicant_suffix, '')) as full_name")
+            )
+            ->whereNotNull('d.disburse_signature')
+            ->paginate(10);
+
+        return view('lydo_admin.disbursement', compact('notifications', 'disbursements', 'barangays', 'academicYears', 'semesters', 'scholars', 'signedDisbursements'));
     }
     public function settings()
     {
@@ -1856,6 +1877,11 @@ class LydoAdminController extends Controller
                 'a.applicant_brgy',
                 DB::raw("CONCAT(a.applicant_fname, ' ', COALESCE(a.applicant_mname, ''), ' ', a.applicant_lname, ' ', COALESCE(a.applicant_suffix, '')) as full_name")
             );
+
+        // Filter for signed disbursements if type is 'signed'
+        if ($request->input('type') === 'signed') {
+            $query->whereNotNull('d.disburse_signature');
+        }
 
         // Apply search filter
         if ($request->has('search') && !empty($request->search)) {
