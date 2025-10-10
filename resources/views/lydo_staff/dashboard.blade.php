@@ -225,7 +225,7 @@
                      <!-- Applicants List -->
                     <div class="overflow-y-auto divide-y divide-gray-200" style="max-height: 350px;">
                         @forelse($applications as $applicant)
-                            <div class="p-4 hover:bg-gray-50 transition text-sm">
+                            <div class="p-4 hover:bg-gray-50 transition text-sm" data-id="{{ $applicant->applicant_id }}">
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <h4 class="font-semibold text-base text-gray-800">{{ $applicant->name }}</h4>
@@ -380,6 +380,69 @@
                         }
                     });
                 </script>
-                 <script src="{{ asset('js/logout.js') }}"></script>
+                <script src="{{ asset('js/logout.js') }}"></script>
+                <script>
+                    // Realtime polling for new applicants
+                    let lastApplicantId = 0;
+                    const applicantsList = document.querySelector('.overflow-y-auto.divide-y');
+                    const headerCount = document.querySelector('.p-4.border-b .text-gray-500');
+
+                    function getLastApplicantId() {
+                        const firstItem = applicantsList.querySelector('.p-4.hover\\:bg-gray-50');
+                        if (firstItem) {
+                            const id = firstItem.getAttribute('data-id');
+                            if (id) lastApplicantId = parseInt(id);
+                        }
+                    }
+
+                    function pollForNewApplicants() {
+                        if (lastApplicantId === 0) getLastApplicantId();
+                        fetch(`/lydo_staff/latest-applicants?last_id=${lastApplicantId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.length > 0) {
+                                    data.reverse().forEach(applicant => {
+                                        const remarkKey = applicant.remarks ? applicant.remarks.toLowerCase().replace(' ', '_') : '';
+                                        let badgeClass = '';
+                                        if (remarkKey === 'poor') badgeClass = 'bg-red-50 text-red-700 border-red-300';
+                                        else if (remarkKey === 'non_poor') badgeClass = 'bg-yellow-50 text-yellow-700 border-yellow-300';
+                                        else if (remarkKey === 'ultra_poor') badgeClass = 'bg-purple-50 text-purple-700 border-purple-300';
+
+                                        const newItem = document.createElement('div');
+                                        newItem.className = 'p-4 hover:bg-gray-50 transition text-sm';
+                                        newItem.setAttribute('data-id', applicant.applicant_id);
+                                        newItem.innerHTML = `
+                                            <div class="flex items-start justify-between">
+                                                <div>
+                                                    <h4 class="font-semibold text-base text-gray-800">${applicant.name}</h4>
+                                                    <div class="text-gray-600 mt-1 text-sm">
+                                                        <span>${applicant.course}</span>
+                                                        <span class="mx-2">•</span>
+                                                        <span>${applicant.school}</span>
+                                                    </div>
+                                                </div>
+                                                <span class="px-3 py-1 text-xs font-medium rounded-full border ${badgeClass}">
+                                                    ${applicant.remarks || 'N/A'}
+                                                </span>
+                                            </div>
+                                        `;
+                                        applicantsList.insertBefore(newItem, applicantsList.firstChild);
+                                        lastApplicantId = Math.max(lastApplicantId, applicant.applicant_id);
+                                    });
+                                    // Update header count (approximate)
+                                    const currentText = headerCount.textContent;
+                                    const match = currentText.match(/Showing (\d+)-(\d+) of (\d+)/);
+                                    if (match) {
+                                        const total = parseInt(match[3]) + data.length;
+                                        headerCount.textContent = `Showing 1-${total} of ${total}`;
+                                    }
+                                }
+                            })
+                            .catch(err => console.log('Polling error:', err));
+                    }
+
+                    // Start polling every 10 seconds
+                    setInterval(pollForNewApplicants, 10000);
+                </script>
 </body>
 </html>

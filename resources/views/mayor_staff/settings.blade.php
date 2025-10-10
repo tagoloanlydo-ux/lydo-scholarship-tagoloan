@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}" />
     <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
     <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body class="bg-gray-50">
@@ -67,8 +68,18 @@
                 </div>
             </div>
           </div>
-            
+
     </header>
+    @if(session('success'))
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 mx-4">
+        {{ session('success') }}
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 mx-4">
+        {{ session('error') }}
+    </div>
+    @endif
         <!-- Main Content -->
         <div class="flex flex-1 overflow-hidden">
             <!-- Sidebar -->
@@ -176,7 +187,7 @@
           </nav>
         </aside>
 
-        <form id="personalForm" method="POST" action="{{ route('lydo_staff.update', session('lydopers')->lydopers_id) }}" class="flex-grow bg-white rounded-2xl px-10 py-8 shadow-lg border border-gray-100">
+        <form id="personalForm" method="POST" action="{{ route('MayorStaff.update', session('lydopers')->lydopers_id) }}" class="flex-grow bg-white rounded-2xl px-10 py-8 shadow-lg border border-gray-100">
           @csrf
           @method('PUT')
                     <h1 class="text-base font-semibold text-gray-800 mb-8">Update Personal Information</h1>
@@ -218,7 +229,7 @@
           </div>
         </form>
 
-          <form id="passwordForm" method="POST" action="{{ route('lydo_staff.updatePassword') }}"
+          <form id="passwordForm" method="POST" action="{{ route('MayorStaff.updatePassword') }}"
             class="hidden flex-grow bg-white rounded-2xl px-10 py-8 shadow-lg border border-gray-100">
         @csrf
       <h1 class="text-base font-semibold text-gray-800 mb-8">Change Password</h1>
@@ -312,6 +323,14 @@ btnPassword.addEventListener("click", () => {
         let notifCount = document.getElementById("notifCount");
         if (notifCount) {
             notifCount.remove();
+            // Mark notifications as viewed
+            fetch('/mayor_staff/mark-notifications-viewed', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            });
         }
     });
 </script>

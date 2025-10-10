@@ -47,6 +47,14 @@
                         let notifCount = document.getElementById("notifCount");
                         if (notifCount) {
                             notifCount.remove(); // mawawala dayun
+                            // Mark notifications as viewed
+                            fetch('/lydo_staff/mark-notifications-viewed', {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json'
+                                }
+                            });
                         }
                     });
                 </script>

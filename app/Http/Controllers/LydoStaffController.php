@@ -1463,7 +1463,7 @@ $totalApplications = DB::table('tbl_application_personnel')
 
         return view('lydo_staff.settings', compact('notifications', 'pendingRenewals','pendingScreening','currentAcadYear', 'staff'));
     }
-public function sendEmail(Request $request)
+    public function sendEmail(Request $request)
 {
     $to = $request->email;
     $subject = $request->subject;
@@ -1475,5 +1475,47 @@ public function sendEmail(Request $request)
     });
 
     return response()->json(['success' => true, 'message' => 'Email sent successfully']);
-}  
+}
+
+    public function markNotificationsViewed(Request $request)
+    {
+        // Mark notifications as viewed for the current user
+        $userId = session('lydopers')->lydopers_id;
+
+        // Assuming notifications are stored in a table, update the viewed status
+        // For example, if there's a notifications table with a viewed column
+        DB::table('tbl_notifications')->where('user_id', $userId)->where('viewed', false)->update(['viewed' => true]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getLatestApplicants(Request $request)
+    {
+        $lastId = $request->query('last_id', 0);
+        $limit = $request->query('limit', 10);
+
+        $currentAcadYear = DB::table("tbl_applicant")
+            ->select("applicant_acad_year")
+            ->orderBy("applicant_acad_year", "desc")
+            ->value("applicant_acad_year");
+
+        $applicants = DB::table("tbl_applicant")
+            ->join("tbl_application", "tbl_applicant.applicant_id", "=", "tbl_application.applicant_id")
+            ->join("tbl_application_personnel", "tbl_application.application_id", "=", "tbl_application_personnel.application_id")
+            ->select(
+                "tbl_applicant.applicant_id",
+                DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as name"),
+                "tbl_applicant.applicant_course as course",
+                "tbl_applicant.applicant_school_name as school",
+                "tbl_applicant.created_at",
+                "tbl_application_personnel.remarks",
+            )
+            ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_applicant.applicant_id", ">", $lastId)
+            ->orderBy("tbl_applicant.applicant_id", "desc")
+            ->limit($limit)
+            ->get();
+
+        return response()->json($applicants);
+    }
 }

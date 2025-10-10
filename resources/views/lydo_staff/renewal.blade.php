@@ -159,7 +159,7 @@
            <tbody>
                 @php $count = 1; @endphp
                 @forelse($tableApplicants as $app)
-                    <tr class="hover:bg-gray-50 border-b">
+                    <tr class="hover:bg-gray-50 border-b" data-id="{{ $app->scholar_id }}">
                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $count++ }}</td>
                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $app->applicant_fname }} {{ $app->applicant_lname }}</td>
                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $app->applicant_brgy }}</td>

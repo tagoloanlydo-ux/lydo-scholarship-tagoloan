@@ -218,7 +218,7 @@
                                             </thead>
                                             <tbody>
                                                 @foreach($unsignedDisbursements as $disburse)
-                                                    <tr class="hover:bg-gray-50 border-b">
+                                                    <tr class="hover:bg-gray-50 border-b" data-id="{{ $disburse->disburse_id }}">
                                                         <td class="w-1/6 px-4 border border-gray-200 py-2 text-center">{{ $disburse->full_name }}</td>
                                                         <td class="w-1/6 px-4 border border-gray-200 py-2 text-center">{{ $disburse->applicant_brgy }}</td>
                                                         <td class="w-1/6 px-4 border border-gray-200 py-2 text-center">{{ $disburse->disburse_semester }}</td>

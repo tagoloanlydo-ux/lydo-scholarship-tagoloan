@@ -11,8 +11,10 @@
     <link rel="stylesheet" href="{{ asset('css/staff.css') }}" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-     <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
-     <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
+    <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
+    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <audio id="notificationSound" src="{{ asset('notification/blade.wav') }}" preload="auto"></audio>
 </head>
 
 <body class="bg-gray-50">
@@ -29,7 +31,7 @@
                     <!-- 🔔 Bell Icon -->
                     <button id="notifBell" class="relative focus:outline-none">
                         <i class="fas fa-bell text-white text-2xl cursor-pointer"></i>
-                        @if($notifications->count() > 0)
+                        @if($showBadge && $notifications->count() > 0)
                             <span id="notifCount"
                                 class="absolute -top-1 -right-1 bg-red-500 text-white text-sm rounded-full h-5 w-5 flex items-center justify-center">
                                 {{ $notifications->count() }}
@@ -580,8 +582,23 @@
         let notifCount = document.getElementById("notifCount");
         if (notifCount) {
             notifCount.remove();
+            // Mark notifications as viewed
+            fetch('/mayor_staff/mark-notifications-viewed', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            });
         }
     });
+</script>
+<script>
+    // Play sound if there are new notifications
+    const hasNewNotifications = {{ $showBadge && $notifications->count() > 0 ? 'true' : 'false' }};
+    if (hasNewNotifications) {
+        document.getElementById('notificationSound').play();
+    }
 </script>
  <script src="{{ asset('js/logout.js') }}"></script>
 </div>

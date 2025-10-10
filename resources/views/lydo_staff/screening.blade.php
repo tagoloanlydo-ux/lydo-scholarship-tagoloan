@@ -178,7 +178,7 @@
                                     <th class="px-4 py-3 border border-gray-200 text-center">Action</th>
                                 </tr>
                             </thead>
-                            <tbody> @forelse($tableApplicants as $index => $app) <tr class="hover:bg-gray-50 border-b">
+                            <tbody> @forelse($tableApplicants as $index => $app) <tr class="hover:bg-gray-50 border-b" data-id="{{ $app->applicant_id }}">
                                     <td class="px-4 border border-gray-200 py-2 text-center">{{ $index + 1 }}</td>
                                     <td class="px-4 border border-gray-200 py-2 text-center">{{ $app->applicant_fname }} {{ $app->applicant_lname }}</td>
                                     <td class="px-4 border border-gray-200 py-2 text-center">{{ $app->applicant_brgy }}</td>

@@ -28,7 +28,7 @@
                                         <!-- 🔔 Bell Icon -->
                                         <button id="notifBell" class="relative focus:outline-none">
                                             <i class="fas fa-bell text-white text-2xl cursor-pointer"></i>
-                                            @if($notifications->count() > 0)
+                                            @if($showBadge && $notifications->count() > 0)
                                                 <span id="notifCount"
                                                     class="absolute -top-1 -right-1 bg-red-500 text-white text-sm rounded-full h-5 w-5 flex items-center justify-center">
                                                     {{ $notifications->count() }}
@@ -1161,9 +1161,24 @@
         let notifCount = document.getElementById("notifCount");
          if (notifCount) {
         notifCount.remove();
+        // Mark notifications as viewed on the server
+        fetch('/mayor_staff/mark-notifications-viewed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            }
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Notifications marked as viewed');
+            }
+        }).catch(error => {
+            console.error('Error marking notifications as viewed:', error);
+        });
         }
         });
-        </script>  
+        </script>
                     <script>
                 // Toggle dropdown and save state
                 function toggleDropdown(id) {

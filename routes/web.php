@@ -98,6 +98,8 @@ Route::middleware(['role:lydo_staff'])->group(function () {
     Route::put('/lydo_staff/update/{id}', [LydoStaffController::class, 'updateStaff'])->name('lydo_staff.update');
     Route::post('/lydo_staff/send-email', [LydoStaffController::class, 'sendEmail'])->name('send.email');
     Route::put('/lydo_staff/update-password', [LydoStaffController::class, 'updatePassword'])->name('lydo_staff.updatePassword');
+    Route::post('/lydo_staff/mark-notifications-viewed', [LydoStaffController::class, 'markNotificationsViewed'])->name('LydoStaff.markNotificationsViewed');
+    Route::get('/lydo_staff/latest-applicants', [LydoStaffController::class, 'getLatestApplicants'])->name('LydoStaff.getLatestApplicants');
 });
 
 // Mayor Staff Routes - Only accessible by mayor_staff role
@@ -112,8 +114,14 @@ Route::middleware(['role:mayor_staff'])->group(function () {
     Route::get('/mayor_staff/status', [MayorStaffController::class, 'status'])->name('MayorStaff.status');
     Route::post('/mayor_staff/status/{id}', [MayorStaffController::class, 'updateStatus'])->name('MayorStaff.updateStatus');
     Route::get('/mayor_staff/settings', [MayorStaffController::class, 'settings'])->name('MayorStaff.settings');
+    Route::put('/mayor_staff/update/{id}', [MayorStaffController::class, 'updatePersonalInfo'])->name('MayorStaff.update');
+    Route::put('/mayor_staff/update-password', [MayorStaffController::class, 'updatePassword'])->name('MayorStaff.updatePassword');
+    Route::post('/mayor_staff/mark-notifications-viewed', [MayorStaffController::class, 'markNotificationsViewed'])->name('MayorStaff.markNotificationsViewed');
     Route::delete('/mayor_staff/application/{id}', [MayorStaffController::class, 'deleteApplication'])->name('mayor_staff.deleteApplication');
     Route::post('/mayor_staff/send-email', [MayorStaffController::class, 'sendEmail'])->name('mayor_staff.sendEmail');
+    Route::get('/mayor_staff/dashboard/updates', [MayorStaffController::class, 'getDashboardUpdates'])->name('MayorStaff.getDashboardUpdates');
+    Route::get('/mayor_staff/application/updates', [MayorStaffController::class, 'getApplicationUpdates'])->name('MayorStaff.getApplicationUpdates');
+    Route::get('/mayor_staff/status/updates', [MayorStaffController::class, 'getStatusUpdates'])->name('MayorStaff.getStatusUpdates');
 });
 
 
