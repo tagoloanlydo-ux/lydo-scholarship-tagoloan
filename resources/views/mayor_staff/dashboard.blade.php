@@ -654,66 +654,10 @@
     }
 </script>
 <script>
-    // SSE for new pending applications
-    let lastId = 0;
-    const eventSource = new EventSource('/mayor_staff/sse-applicants?last_id=' + lastId);
-
-    eventSource.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        const list = document.getElementById('pendingApplicationsList');
-
-        data.forEach(app => {
-            const item = document.createElement('div');
-            item.className = 'p-4 hover:bg-gray-50 transition text-sm';
-            item.setAttribute('data-id', app.applicant_id);
-            item.innerHTML = `
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h4 class="font-semibold text-base text-gray-800">${app.name}</h4>
-                        <div class="text-gray-600 mt-1 text-sm">
-                            <span>${app.course}</span>
-                            <span class="mx-2">•</span>
-                            <span>${app.school}</span>
-                        </div>
-                    </div>
-                    <span class="px-3 py-1 text-xs font-medium rounded-full border bg-yellow-50 text-yellow-700 border-yellow-300">
-                        Pending Review
-                    </span>
-                </div>
-            `;
-
-            // Prepend to the list
-            list.insertBefore(item, list.firstChild);
-
-            // Update lastId
-            lastId = Math.max(lastId, app.applicant_id);
-
-            // Play notification sound
-            document.getElementById('notificationSound').play();
-
-            // Show SweetAlert notification
-            Swal.fire({
-                title: 'New Pending Application!',
-                text: `${app.name} has submitted a new application.`,
-                icon: 'info',
-                timer: 3000,
-                showConfirmButton: false,
-                position: 'top-end',
-                toast: true,
-                background: '#fef3c7',
-                color: '#92400e'
-            });
-        });
-
-        // Update count
-        const countDiv = document.getElementById('pendingCount');
-        const currentCount = list.children.length;
-        countDiv.textContent = `Showing ${currentCount} pending applications`;
-    };
-
-    eventSource.onerror = function(event) {
-        console.error('SSE error:', event);
-    };
+    // Auto refresh the page every 10 seconds for realtime updates
+    setInterval(() => {
+        location.reload();
+    }, 10000);
 </script>
  <script src="{{ asset('js/logout.js') }}"></script>
 </div>

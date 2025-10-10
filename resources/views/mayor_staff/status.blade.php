@@ -553,5 +553,131 @@
     });
 </script>
  <script src="{{ asset('js/logout.js') }}"></script>
+
+<script>
+// Real-time updates for new applications and status changes
+let lastUpdateApps = new Date().toISOString();
+let lastUpdateStatus = new Date().toISOString();
+
+function pollForNewApplications() {
+    fetch(`/mayor_staff/application/updates?last_update=${encodeURIComponent(lastUpdateApps)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                // Filter for applications with remarks 'Poor' or 'Ultra Poor'
+                const newPoorApps = data.filter(app => app.remarks === 'Poor' || app.remarks === 'Ultra Poor');
+                if (newPoorApps.length > 0) {
+                    // Update lastUpdateApps to the latest created_at
+                    const latest = newPoorApps.reduce((max, app) => app.created_at > max ? app.created_at : max, lastUpdateApps);
+                    lastUpdateApps = latest;
+
+                    // Append new rows to tableView
+                    const tableBody = document.querySelector('#tableView tbody');
+                    if (tableBody) {
+                        newPoorApps.forEach(app => {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200';
+                            const badgeColor = app.remarks === 'Poor' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+                            row.innerHTML = `
+                                <td class="px-6 py-4">${tableBody.rows.length + 1}</td>
+                                <td class="px-6 py-4 font-medium">${app.fname} ${app.mname} ${app.lname} ${app.suffix}</td>
+                                <td class="px-6 py-4">${app.barangay}</td>
+                                <td class="px-6 py-4">${app.school}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}">
+                                        ${app.remarks}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <form method="POST" action="/mayor_staff/status/${app.application_personnel_id}">
+                                        @csrf
+                                        <div class="flex flex-col space-y-2">
+                                            <select name="status" class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 status-select">
+                                                <option>Set Status</option>
+                                                <option value="Approved">Approved</option>
+                                                <option value="Rejected">Rejected</option>
+                                            </select>
+                                        </div>
+                                    </form>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+                    }
+                }
+            }
+        })
+        .catch(err => console.error('Polling new apps error:', err));
+}
+
+function pollForStatusUpdates() {
+    fetch(`/mayor_staff/status/updates?last_update=${encodeURIComponent(lastUpdateStatus)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                // Update lastUpdateStatus to the latest updated_at
+                const latest = data.reduce((max, app) => app.updated_at > max ? app.updated_at : max, lastUpdateStatus);
+                lastUpdateStatus = latest;
+
+                data.forEach(app => {
+                    // Remove from tableView if present
+                    const tableBody = document.querySelector('#tableView tbody');
+                    if (tableBody) {
+                        const rows = tableBody.querySelectorAll('tr');
+                        rows.forEach(row => {
+                            const nameCell = row.querySelector('td:nth-child(2)');
+                            if (nameCell && nameCell.textContent.trim() === `${app.fname} ${app.mname} ${app.lname} ${app.suffix}`.trim()) {
+                                row.remove();
+                            }
+                        });
+                    }
+
+                    // Append to listView if not already there
+                    const listBody = document.querySelector('#listView tbody');
+                    if (listBody) {
+                        // Check if already exists
+                        const existingRows = listBody.querySelectorAll('tr');
+                        let exists = false;
+                        existingRows.forEach(row => {
+                            const nameCell = row.querySelector('td:nth-child(2)');
+                            if (nameCell && nameCell.textContent.trim() === `${app.fname} ${app.mname} ${app.lname} ${app.suffix}`.trim()) {
+                                exists = true;
+                            }
+                        });
+                        if (!exists) {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b border-gray-200 hover:bg-green-50 transition-colors duration-200';
+                            const badgeColor = app.remarks === 'Poor' ? 'bg-red-100 text-red-800 border border-red-200' : app.remarks === 'Ultra Poor' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 'bg-blue-100 text-blue-800 border border-blue-200';
+                            const statusBadgeColor = app.status === 'Approved' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200';
+                            row.innerHTML = `
+                                <td class="px-6 py-4">${listBody.rows.length + 1}</td>
+                                <td class="px-6 py-4 font-medium">${app.fname} ${app.mname} ${app.lname} ${app.suffix}</td>
+                                <td class="px-6 py-4">${app.barangay}</td>
+                                <td class="px-6 py-4">${app.school}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}">
+                                        ${app.remarks}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusBadgeColor}">
+                                        ${app.status}
+                                    </span>
+                                </td>
+                            `;
+                            listBody.appendChild(row);
+                        }
+                    }
+                });
+            }
+        })
+        .catch(err => console.error('Polling status updates error:', err));
+}
+
+// Poll every 10 seconds
+setInterval(pollForNewApplications, 10000);
+setInterval(pollForStatusUpdates, 10000);
+</script>
+
 </body>
 </html>

@@ -102,8 +102,8 @@ Route::middleware(['role:lydo_staff'])->group(function () {
     Route::get('/lydo_staff/latest-applicants', [LydoStaffController::class, 'getLatestApplicants'])->name('LydoStaff.getLatestApplicants');
     Route::get('/lydo_staff/latest-renewals', [LydoStaffController::class, 'getLatestRenewals'])->name('LydoStaff.getLatestRenewals');
     Route::get('/lydo_staff/latest-disbursements', [LydoStaffController::class, 'getLatestDisbursements'])->name('LydoStaff.getLatestDisbursements');
-    Route::get('/lydo_staff/sse', [LydoStaffController::class, 'sse'])->name('LydoStaff.sse');
-    Route::get('/lydo_staff/sse-applicants', [LydoStaffController::class, 'sseApplicants'])->name('LydoStaff.sseApplicants');
+    Route::get('/lydo_staff/sse-applicants', [LydoStaffController::class, 'sse'])->name('LydoStaff.sse');
+
 });
 
 // Mayor Staff Routes - Only accessible by mayor_staff role
@@ -127,6 +127,7 @@ Route::middleware(['role:mayor_staff'])->group(function () {
     Route::get('/mayor_staff/application/updates', [MayorStaffController::class, 'getApplicationUpdates'])->name('MayorStaff.getApplicationUpdates');
     Route::get('/mayor_staff/status/updates', [MayorStaffController::class, 'getStatusUpdates'])->name('MayorStaff.getStatusUpdates');
     Route::get('/mayor_staff/sse-applicants', [MayorStaffController::class, 'sseApplicants'])->name('MayorStaff.sseApplicants');
+
 });
 
 

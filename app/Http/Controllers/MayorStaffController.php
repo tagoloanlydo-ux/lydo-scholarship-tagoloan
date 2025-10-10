@@ -1760,36 +1760,27 @@ public function updateStatus(Request $request, $id)
 
         return response()->stream(function () use ($lastId) {
             while (true) {
-                $currentAcadYear = DB::table("tbl_applicant")
-                    ->select("applicant_acad_year")
-                    ->orderBy("applicant_acad_year", "desc")
-                    ->value("applicant_acad_year");
-
-                $newApplicants = DB::table("tbl_applicant")
-                    ->join("tbl_application", "tbl_applicant.applicant_id", "=", "tbl_application.applicant_id")
-                    ->join("tbl_application_personnel", "tbl_application.application_id", "=", "tbl_application_personnel.application_id")
+                // Get new applications since last_id
+                $newApplications = DB::table("tbl_application as app")
+                    ->join("tbl_applicant as a", "a.applicant_id", "=", "app.applicant_id")
                     ->select(
-                        "tbl_applicant.applicant_id",
-                        DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as name"),
-                        "tbl_applicant.applicant_course as course",
-                        "tbl_applicant.applicant_school_name as school",
-                        "tbl_applicant.created_at",
-                        "tbl_application_personnel.remarks",
+                        "app.application_id",
+                        "a.applicant_fname",
+                        "a.applicant_lname",
+                        "app.created_at",
                     )
-                    ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-                    ->where("tbl_applicant.applicant_id", ">", $lastId)
-                    ->where("tbl_application_personnel.initial_screening", "=", "Pending")
-                    ->orderBy("tbl_applicant.applicant_id", "asc")
+                    ->where("app.application_id", ">", $lastId)
+                    ->orderBy("app.application_id", "asc")
                     ->get();
 
-                if ($newApplicants->count() > 0) {
-                    echo "data: " . json_encode($newApplicants->toArray()) . "\n\n";
-                    $lastId = $newApplicants->last()->applicant_id;
+                foreach ($newApplications as $application) {
+                    echo "data: " . json_encode($application) . "\n\n";
                     ob_flush();
                     flush();
+                    $lastId = $application->application_id;
                 }
 
-                sleep(1); // Poll every 1 second
+                sleep(5); // Poll every 5 seconds
             }
         }, 200, [
             'Content-Type' => 'text/event-stream',
@@ -1797,5 +1788,7 @@ public function updateStatus(Request $request, $id)
             'Connection' => 'keep-alive',
         ]);
     }
+
+
 
 }

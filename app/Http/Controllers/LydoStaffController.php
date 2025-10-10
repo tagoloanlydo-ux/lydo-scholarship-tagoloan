@@ -1491,7 +1491,7 @@ $totalApplications = DB::table('tbl_application_personnel')
 
     public function getLatestApplicants(Request $request)
     {
-        $lastId = $request->query('last_id', 0);
+        $lastUpdate = $request->query('last_update', '1970-01-01T00:00:00Z');
         $limit = $request->query('limit', 10);
 
         $currentAcadYear = DB::table("tbl_applicant")
@@ -1504,15 +1504,33 @@ $totalApplications = DB::table('tbl_application_personnel')
             ->join("tbl_application_personnel", "tbl_application.application_id", "=", "tbl_application_personnel.application_id")
             ->select(
                 "tbl_applicant.applicant_id",
-                DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as name"),
-                "tbl_applicant.applicant_course as course",
-                "tbl_applicant.applicant_school_name as school",
+                "tbl_applicant.applicant_fname",
+                "tbl_applicant.applicant_mname",
+                "tbl_applicant.applicant_lname",
+                "tbl_applicant.applicant_suffix",
+                "tbl_applicant.applicant_gender",
+                "tbl_applicant.applicant_bdate",
+                "tbl_applicant.applicant_civil_status",
+                "tbl_applicant.applicant_brgy",
+                "tbl_applicant.applicant_email",
+                "tbl_applicant.applicant_contact_number",
+                "tbl_applicant.applicant_school_name",
+                "tbl_applicant.applicant_year_level",
+                "tbl_applicant.applicant_course",
+                "tbl_applicant.applicant_acad_year",
+                "tbl_application_personnel.application_personnel_id",
                 "tbl_applicant.created_at",
-                "tbl_application_personnel.remarks",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_applicant.applicant_id", ">", $lastId)
-            ->orderBy("tbl_applicant.applicant_id", "desc")
+            ->where("tbl_application_personnel.initial_screening", "Approved")
+            ->whereNotIn("tbl_application_personnel.remarks", [
+                "Poor",
+                "Non Poor",
+                "Ultra Poor",
+                "Non Indigenous",
+            ])
+            ->where("tbl_applicant.created_at", ">", $lastUpdate)
+            ->orderBy("tbl_applicant.created_at", "asc")
             ->limit($limit)
             ->get();
 
@@ -1587,49 +1605,7 @@ $totalApplications = DB::table('tbl_application_personnel')
         return response()->json($disbursements);
     }
 
-    public function sseApplicants(Request $request)
-    {
-        $lastId = $request->query('last_id', 0);
 
-        return response()->stream(function () use ($lastId) {
-            while (true) {
-                $currentAcadYear = DB::table("tbl_applicant")
-                    ->select("applicant_acad_year")
-                    ->orderBy("applicant_acad_year", "desc")
-                    ->value("applicant_acad_year");
-
-                $newApplicants = DB::table("tbl_applicant")
-                    ->join("tbl_application", "tbl_applicant.applicant_id", "=", "tbl_application.applicant_id")
-                    ->join("tbl_application_personnel", "tbl_application.application_id", "=", "tbl_application_personnel.application_id")
-                    ->select(
-                        "tbl_applicant.applicant_id",
-                        DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as name"),
-                        "tbl_applicant.applicant_course as course",
-                        "tbl_applicant.applicant_school_name as school",
-                        "tbl_applicant.created_at",
-                        "tbl_application_personnel.remarks",
-                    )
-                    ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-                    ->where("tbl_applicant.applicant_id", ">", $lastId)
-                    ->where("tbl_application_personnel.initial_screening", "=", "Reviewed")
-                    ->orderBy("tbl_applicant.applicant_id", "asc")
-                    ->get();
-
-                if ($newApplicants->count() > 0) {
-                    echo "data: " . json_encode($newApplicants->toArray()) . "\n\n";
-                    $lastId = $newApplicants->last()->applicant_id;
-                    ob_flush();
-                    flush();
-                }
-
-                sleep(1); // Poll every 1 second
-            }
-        }, 200, [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
-        ]);
-    }
 
     public function sse(Request $request)
     {

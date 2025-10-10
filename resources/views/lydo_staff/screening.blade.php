@@ -587,6 +587,57 @@ function closeEditRemarksModal() {
 }
 </script>
 
+<script>
+// Real-time updates for new applicants
+let lastUpdate = new Date().toISOString();
+
+function pollForNewApplicants() {
+    fetch(`/lydo_staff/latest-applicants?last_update=${encodeURIComponent(lastUpdate)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                // Update lastUpdate to the latest created_at
+                const latest = data.reduce((max, app) => app.created_at > max ? app.created_at : max, lastUpdate);
+                lastUpdate = latest;
+
+                // Append new rows to tableView
+                const tableBody = document.querySelector('#tableView tbody');
+                if (tableBody) {
+                    data.forEach(app => {
+                        const row = document.createElement('tr');
+                        row.className = 'hover:bg-gray-50 border-b';
+                        row.setAttribute('data-id', app.applicant_id);
+                        row.innerHTML = `
+                            <td class="px-4 border border-gray-200 py-2 text-center">${tableBody.rows.length + 1}</td>
+                            <td class="px-4 border border-gray-200 py-2 text-center">${app.applicant_fname} ${app.applicant_lname}</td>
+                            <td class="px-4 border border-gray-200 py-2 text-center">${app.applicant_brgy}</td>
+                            <td class="px-4 border border-gray-200 py-2 text-center">${app.applicant_course}</td>
+                            <td class="px-4 border border-gray-200 py-2 text-center">${app.applicant_school_name}</td>
+                            <td class="px-4 border border-gray-200 py-2 text-center">
+                                <form method="POST" action="/lydo_staff/update-remarks/${app.application_personnel_id}"> @csrf @method('PUT') <select name="remarks" onchange="confirmRemarksChange(this)" class="border border-gray-300 rounded-lg px-2 py-1 text-[15px] focus:ring-2 focus:ring-blue-400">
+                                        <option value="">Select...</option>
+                                        <option value="Poor">Poor</option>
+                                        <option value="Ultra Poor">Ultra Poor</option>
+                                        <option value="Non Poor">Non Poor</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="px-4 py-2 border border-gray-200 text-center">
+                                <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm" data-id="${app.applicant_id}" data-fname="${app.applicant_fname}" data-mname="${app.applicant_mname}" data-lname="${app.applicant_lname}" data-suffix="${app.applicant_suffix}" data-gender="${app.applicant_gender}" data-bdate="${app.applicant_bdate}" data-civil="${app.applicant_civil_status}" data-brgy="${app.applicant_brgy}" data-email="${app.applicant_email}" data-contact="${app.applicant_contact_number}" data-school="${app.applicant_school_name}" data-year="${app.applicant_year_level}" data-course="${app.applicant_course}" data-acad="${app.applicant_acad_year}" onclick="openPersonalEditModal(this)"> Edit Info </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+            }
+        })
+        .catch(err => console.error('Polling new applicants error:', err));
+}
+
+// Poll every 10 seconds
+setInterval(pollForNewApplicants, 10000);
+</script>
+
 </body>
 
 </html>

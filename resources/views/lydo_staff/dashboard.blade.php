@@ -382,55 +382,10 @@
                 </script>
                 <script src="{{ asset('js/logout.js') }}"></script>
                 <script>
-                    // Realtime SSE for new applicants
-                    const applicantsList = document.getElementById('applicantsList');
-                    const headerCount = document.getElementById('showingCount');
-
-                    const eventSource = new EventSource('/lydo_staff/sse-applicants');
-
-                    eventSource.onmessage = function(event) {
-                        const data = JSON.parse(event.data);
-                        if (data.length > 0) {
-                            data.reverse().forEach(applicant => {
-                                const remarkKey = applicant.remarks ? applicant.remarks.toLowerCase().replace(' ', '_') : '';
-                                let badgeClass = '';
-                                if (remarkKey === 'poor') badgeClass = 'bg-red-50 text-red-700 border-red-300';
-                                else if (remarkKey === 'non_poor') badgeClass = 'bg-yellow-50 text-yellow-700 border-yellow-300';
-                                else if (remarkKey === 'ultra_poor') badgeClass = 'bg-purple-50 text-purple-700 border-purple-300';
-
-                                const newItem = document.createElement('div');
-                                newItem.className = 'p-4 hover:bg-gray-50 transition text-sm';
-                                newItem.setAttribute('data-id', applicant.applicant_id);
-                                newItem.innerHTML = `
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <h4 class="font-semibold text-base text-gray-800">${applicant.name}</h4>
-                                            <div class="text-gray-600 mt-1 text-sm">
-                                                <span>${applicant.course}</span>
-                                                <span class="mx-2">•</span>
-                                                <span>${applicant.school}</span>
-                                            </div>
-                                        </div>
-                                        <span class="px-3 py-1 text-xs font-medium rounded-full border ${badgeClass}">
-                                            ${applicant.remarks || 'N/A'}
-                                        </span>
-                                    </div>
-                                `;
-                                applicantsList.insertBefore(newItem, applicantsList.firstChild);
-                            });
-                            // Update header count (approximate)
-                            const currentText = headerCount.textContent;
-                            const match = currentText.match(/Showing (\d+)-(\d+) of (\d+)/);
-                            if (match) {
-                                const total = parseInt(match[3]) + data.length;
-                                headerCount.textContent = `Showing 1-${total} of ${total}`;
-                            }
-                        }
-                    };
-
-                    eventSource.onerror = function(err) {
-                        console.log('SSE error:', err);
-                    };
+                    // Auto refresh the page every 10 seconds for realtime updates
+                    setInterval(() => {
+                        location.reload();
+                    }, 10000);
                 </script>
 </body>
 </html>
