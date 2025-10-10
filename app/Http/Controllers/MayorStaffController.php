@@ -1754,4 +1754,48 @@ public function updateStatus(Request $request, $id)
         ]);
     }
 
+    public function sseApplicants(Request $request)
+    {
+        $lastId = $request->query('last_id', 0);
+
+        return response()->stream(function () use ($lastId) {
+            while (true) {
+                $currentAcadYear = DB::table("tbl_applicant")
+                    ->select("applicant_acad_year")
+                    ->orderBy("applicant_acad_year", "desc")
+                    ->value("applicant_acad_year");
+
+                $newApplicants = DB::table("tbl_applicant")
+                    ->join("tbl_application", "tbl_applicant.applicant_id", "=", "tbl_application.applicant_id")
+                    ->join("tbl_application_personnel", "tbl_application.application_id", "=", "tbl_application_personnel.application_id")
+                    ->select(
+                        "tbl_applicant.applicant_id",
+                        DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as name"),
+                        "tbl_applicant.applicant_course as course",
+                        "tbl_applicant.applicant_school_name as school",
+                        "tbl_applicant.created_at",
+                        "tbl_application_personnel.remarks",
+                    )
+                    ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+                    ->where("tbl_applicant.applicant_id", ">", $lastId)
+                    ->where("tbl_application_personnel.initial_screening", "=", "Pending")
+                    ->orderBy("tbl_applicant.applicant_id", "asc")
+                    ->get();
+
+                if ($newApplicants->count() > 0) {
+                    echo "data: " . json_encode($newApplicants->toArray()) . "\n\n";
+                    $lastId = $newApplicants->last()->applicant_id;
+                    ob_flush();
+                    flush();
+                }
+
+                sleep(1); // Poll every 1 second
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'Connection' => 'keep-alive',
+        ]);
+    }
+
 }

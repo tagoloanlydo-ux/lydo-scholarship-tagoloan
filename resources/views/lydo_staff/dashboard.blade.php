@@ -61,7 +61,7 @@
                                     <i class="bx bxs-file-blank text-center mx-auto md:mx-0 text-xl"></i>
                                     <span class="ml-4 hidden md:block text-lg">Screening</span>
                                 </div>
-                                @if($pendingScreening > 0) <span class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                                @if($pendingScreening > 0) <span id="pendingScreeningBadge" class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                                     {{ $pendingScreening }}
                                 </span> @endif
                             </a>
@@ -72,7 +72,7 @@
                                     <i class="bx bx-refresh text-center mx-auto md:mx-0 text-xl"></i>
                                     <span class="ml-4 hidden md:block text-lg">Renewals</span>
                                 </div>
-                                @if($pendingRenewals > 0) <span class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                                @if($pendingRenewals > 0) <span id="pendingRenewalsBadge" class="ml-2 bg-green-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
                                     {{ $pendingRenewals }}
                                 </span> @endif
                             </a>
@@ -114,7 +114,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Applicants ({{ $currentAcadYear }})</p>
-                            <h3 class="text-4xl font-extrabold text-indigo-600">{{ $applicantsCurrentYear }}</h3>
+                            <h3 id="applicantsCount" class="text-4xl font-extrabold text-indigo-600">{{ $applicantsCurrentYear }}</h3>
                         </div>
                         <div class="bg-indigo-100 rounded-full p-2 inline-flex items-center justify-center">
                             <i class="fas {{ $percentage >= 0 ? 'fa-arrow-up' : 'fa-arrow-down' }} text-indigo-600 text-2xl"></i>
@@ -131,7 +131,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Pending Initial Screening</p>
-                            <h3 class="text-4xl font-extrabold text-yellow-600">{{ $pendingInitial }}</h3>
+                            <h3 id="pendingInitialCount" class="text-4xl font-extrabold text-yellow-600">{{ $pendingInitial }}</h3>
                         </div>
                         <div class="bg-yellow-100 rounded-full p-2 inline-flex items-center justify-center">
                             <i class="fas fa-clock text-yellow-600 text-2xl"></i>
@@ -148,7 +148,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Approved Renewal</p>
-                            <h3 class="text-4xl font-extrabold text-green-600">{{ $approvedRenewals }}</h3>
+                            <h3 id="approvedRenewalsCount" class="text-4xl font-extrabold text-green-600">{{ $approvedRenewals }}</h3>
                         </div>
                         <div class="bg-green-100 rounded-full p-2 inline-flex items-center justify-center">
                             <i class="fas fa-check-circle text-green-600 text-2xl"></i>
@@ -165,7 +165,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-gray-600">Pending Renewal</p>
-                            <h3 class="text-4xl font-extrabold text-yellow-600">{{ $pendingRenewals }}</h3>
+                            <h3 id="pendingRenewalsCount" class="text-4xl font-extrabold text-yellow-600">{{ $pendingRenewals }}</h3>
                         </div>
                         <div class="bg-yellow-100 rounded-full p-2 inline-flex items-center justify-center">
                             <i class="fas fa-clock text-yellow-600 text-2xl"></i>
@@ -217,13 +217,13 @@
                             <i class="fas fa-file-alt text-blue-600 mr-2"></i>
                             Applicants ({{ ucfirst(str_replace('_', ' ', $filter)) }})
                         </h3>
-                        <div class="text-gray-500 text-sm">
+                        <div id="showingCount" class="text-gray-500 text-sm">
                             Showing {{ $applications->firstItem() ?? 0 }}-{{ $applications->lastItem() ?? 0 }} of {{ $applications->total() }}
                         </div>
                     </div>
 
                      <!-- Applicants List -->
-                    <div class="overflow-y-auto divide-y divide-gray-200" style="max-height: 350px;">
+                    <div id="applicantsList" class="overflow-y-auto divide-y divide-gray-200" style="max-height: 350px;">
                         @forelse($applications as $applicant)
                             <div class="p-4 hover:bg-gray-50 transition text-sm" data-id="{{ $applicant->applicant_id }}">
                                 <div class="flex items-start justify-between">
@@ -308,8 +308,8 @@
                     document.addEventListener('DOMContentLoaded', function () {
                         const searchInput = document.getElementById('searchInput');
                         const currentFilter = document.getElementById('currentFilter').value;
-                        const applicantsList = document.querySelector('.overflow-y-auto.divide-y');
-                        const headerCount = document.querySelector('.p-4.border-b .text-gray-500');
+                        const applicantsList = document.getElementById('applicantsList');
+                        const headerCount = document.getElementById('showingCount');
                         const paginationFooter = document.querySelector('.p-4.border-t');
 
                         let debounceTimer;
@@ -382,67 +382,55 @@
                 </script>
                 <script src="{{ asset('js/logout.js') }}"></script>
                 <script>
-                    // Realtime polling for new applicants
-                    let lastApplicantId = 0;
-                    const applicantsList = document.querySelector('.overflow-y-auto.divide-y');
-                    const headerCount = document.querySelector('.p-4.border-b .text-gray-500');
+                    // Realtime SSE for new applicants
+                    const applicantsList = document.getElementById('applicantsList');
+                    const headerCount = document.getElementById('showingCount');
 
-                    function getLastApplicantId() {
-                        const firstItem = applicantsList.querySelector('.p-4.hover\\:bg-gray-50');
-                        if (firstItem) {
-                            const id = firstItem.getAttribute('data-id');
-                            if (id) lastApplicantId = parseInt(id);
-                        }
-                    }
+                    const eventSource = new EventSource('/lydo_staff/sse-applicants');
 
-                    function pollForNewApplicants() {
-                        if (lastApplicantId === 0) getLastApplicantId();
-                        fetch(`/lydo_staff/latest-applicants?last_id=${lastApplicantId}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.length > 0) {
-                                    data.reverse().forEach(applicant => {
-                                        const remarkKey = applicant.remarks ? applicant.remarks.toLowerCase().replace(' ', '_') : '';
-                                        let badgeClass = '';
-                                        if (remarkKey === 'poor') badgeClass = 'bg-red-50 text-red-700 border-red-300';
-                                        else if (remarkKey === 'non_poor') badgeClass = 'bg-yellow-50 text-yellow-700 border-yellow-300';
-                                        else if (remarkKey === 'ultra_poor') badgeClass = 'bg-purple-50 text-purple-700 border-purple-300';
+                    eventSource.onmessage = function(event) {
+                        const data = JSON.parse(event.data);
+                        if (data.length > 0) {
+                            data.reverse().forEach(applicant => {
+                                const remarkKey = applicant.remarks ? applicant.remarks.toLowerCase().replace(' ', '_') : '';
+                                let badgeClass = '';
+                                if (remarkKey === 'poor') badgeClass = 'bg-red-50 text-red-700 border-red-300';
+                                else if (remarkKey === 'non_poor') badgeClass = 'bg-yellow-50 text-yellow-700 border-yellow-300';
+                                else if (remarkKey === 'ultra_poor') badgeClass = 'bg-purple-50 text-purple-700 border-purple-300';
 
-                                        const newItem = document.createElement('div');
-                                        newItem.className = 'p-4 hover:bg-gray-50 transition text-sm';
-                                        newItem.setAttribute('data-id', applicant.applicant_id);
-                                        newItem.innerHTML = `
-                                            <div class="flex items-start justify-between">
-                                                <div>
-                                                    <h4 class="font-semibold text-base text-gray-800">${applicant.name}</h4>
-                                                    <div class="text-gray-600 mt-1 text-sm">
-                                                        <span>${applicant.course}</span>
-                                                        <span class="mx-2">•</span>
-                                                        <span>${applicant.school}</span>
-                                                    </div>
-                                                </div>
-                                                <span class="px-3 py-1 text-xs font-medium rounded-full border ${badgeClass}">
-                                                    ${applicant.remarks || 'N/A'}
-                                                </span>
+                                const newItem = document.createElement('div');
+                                newItem.className = 'p-4 hover:bg-gray-50 transition text-sm';
+                                newItem.setAttribute('data-id', applicant.applicant_id);
+                                newItem.innerHTML = `
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <h4 class="font-semibold text-base text-gray-800">${applicant.name}</h4>
+                                            <div class="text-gray-600 mt-1 text-sm">
+                                                <span>${applicant.course}</span>
+                                                <span class="mx-2">•</span>
+                                                <span>${applicant.school}</span>
                                             </div>
-                                        `;
-                                        applicantsList.insertBefore(newItem, applicantsList.firstChild);
-                                        lastApplicantId = Math.max(lastApplicantId, applicant.applicant_id);
-                                    });
-                                    // Update header count (approximate)
-                                    const currentText = headerCount.textContent;
-                                    const match = currentText.match(/Showing (\d+)-(\d+) of (\d+)/);
-                                    if (match) {
-                                        const total = parseInt(match[3]) + data.length;
-                                        headerCount.textContent = `Showing 1-${total} of ${total}`;
-                                    }
-                                }
-                            })
-                            .catch(err => console.log('Polling error:', err));
-                    }
+                                        </div>
+                                        <span class="px-3 py-1 text-xs font-medium rounded-full border ${badgeClass}">
+                                            ${applicant.remarks || 'N/A'}
+                                        </span>
+                                    </div>
+                                `;
+                                applicantsList.insertBefore(newItem, applicantsList.firstChild);
+                            });
+                            // Update header count (approximate)
+                            const currentText = headerCount.textContent;
+                            const match = currentText.match(/Showing (\d+)-(\d+) of (\d+)/);
+                            if (match) {
+                                const total = parseInt(match[3]) + data.length;
+                                headerCount.textContent = `Showing 1-${total} of ${total}`;
+                            }
+                        }
+                    };
 
-                    // Start polling every 10 seconds
-                    setInterval(pollForNewApplicants, 10000);
+                    eventSource.onerror = function(err) {
+                        console.log('SSE error:', err);
+                    };
                 </script>
 </body>
 </html>

@@ -340,6 +340,59 @@
                     </div>
                 </div>
 
+                <!-- New Pending Applications -->
+                <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden mb-6">
+                    <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                        <h3 class="font-semibold text-lg flex items-center text-gray-700">
+                            <i class="fas fa-file-alt text-blue-600 mr-2"></i>
+                            New Pending Applications
+                        </h3>
+                        <div id="pendingCount" class="text-gray-500 text-sm">
+                            Showing latest pending applications
+                        </div>
+                    </div>
+
+                    <div id="pendingApplicationsList" class="overflow-y-auto divide-y divide-gray-200" style="max-height: 350px;">
+                        @php
+                            $pendingApps = DB::table("tbl_applicant")
+                                ->join("tbl_application", "tbl_applicant.applicant_id", "=", "tbl_application.applicant_id")
+                                ->join("tbl_application_personnel", "tbl_application.application_id", "=", "tbl_application_personnel.application_id")
+                                ->select(
+                                    "tbl_applicant.applicant_id",
+                                    DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as name"),
+                                    "tbl_applicant.applicant_course as course",
+                                    "tbl_applicant.applicant_school_name as school",
+                                    "tbl_applicant.created_at",
+                                    "tbl_application_personnel.remarks",
+                                )
+                                ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+                                ->where("tbl_application_personnel.initial_screening", "=", "Pending")
+                                ->orderBy("tbl_applicant.applicant_id", "desc")
+                                ->limit(10)
+                                ->get();
+                        @endphp
+                        @forelse($pendingApps as $app)
+                            <div class="p-4 hover:bg-gray-50 transition text-sm" data-id="{{ $app->applicant_id }}">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <h4 class="font-semibold text-base text-gray-800">{{ $app->name }}</h4>
+                                        <div class="text-gray-600 mt-1 text-sm">
+                                            <span>{{ $app->course }}</span>
+                                            <span class="mx-2">•</span>
+                                            <span>{{ $app->school }}</span>
+                                        </div>
+                                    </div>
+                                    <span class="px-3 py-1 text-xs font-medium rounded-full border bg-yellow-50 text-yellow-700 border-yellow-300">
+                                        Pending Review
+                                    </span>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="p-4 text-gray-500 text-center">No pending applications.</div>
+                        @endforelse
+                    </div>
+                </div>
+
                 <!-- Applicant Trend Chart -->
                 <div class="bg-white rounded-xl shadow-md p-8 mb-6">
                     <h3 class="text-lg font-bold text-violet-700 mb-6">Applicant Trend (Last 5 Years)</h3>
@@ -599,6 +652,68 @@
     if (hasNewNotifications) {
         document.getElementById('notificationSound').play();
     }
+</script>
+<script>
+    // SSE for new pending applications
+    let lastId = 0;
+    const eventSource = new EventSource('/mayor_staff/sse-applicants?last_id=' + lastId);
+
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const list = document.getElementById('pendingApplicationsList');
+
+        data.forEach(app => {
+            const item = document.createElement('div');
+            item.className = 'p-4 hover:bg-gray-50 transition text-sm';
+            item.setAttribute('data-id', app.applicant_id);
+            item.innerHTML = `
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h4 class="font-semibold text-base text-gray-800">${app.name}</h4>
+                        <div class="text-gray-600 mt-1 text-sm">
+                            <span>${app.course}</span>
+                            <span class="mx-2">•</span>
+                            <span>${app.school}</span>
+                        </div>
+                    </div>
+                    <span class="px-3 py-1 text-xs font-medium rounded-full border bg-yellow-50 text-yellow-700 border-yellow-300">
+                        Pending Review
+                    </span>
+                </div>
+            `;
+
+            // Prepend to the list
+            list.insertBefore(item, list.firstChild);
+
+            // Update lastId
+            lastId = Math.max(lastId, app.applicant_id);
+
+            // Play notification sound
+            document.getElementById('notificationSound').play();
+
+            // Show SweetAlert notification
+            Swal.fire({
+                title: 'New Pending Application!',
+                text: `${app.name} has submitted a new application.`,
+                icon: 'info',
+                timer: 3000,
+                showConfirmButton: false,
+                position: 'top-end',
+                toast: true,
+                background: '#fef3c7',
+                color: '#92400e'
+            });
+        });
+
+        // Update count
+        const countDiv = document.getElementById('pendingCount');
+        const currentCount = list.children.length;
+        countDiv.textContent = `Showing ${currentCount} pending applications`;
+    };
+
+    eventSource.onerror = function(event) {
+        console.error('SSE error:', event);
+    };
 </script>
  <script src="{{ asset('js/logout.js') }}"></script>
 </div>
