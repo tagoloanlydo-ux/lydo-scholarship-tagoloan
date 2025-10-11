@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="{{ asset('css/lydo_forgot.css') }}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
      <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
   </head>
     <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -52,18 +53,21 @@
           @csrf
           <div>
             <label for="email" class="block text-lg font-medium text-gray-700">Email Address</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value="{{ old('email') }}"
-              required
-              autofocus
-              class="mt-2 w-full bg-white rounded-lg px-4 py-3 text-gray-700 shadow-sm text-lg border @error('email') border-red-500 @enderror"
-              placeholder="Enter your email address"
-            />
+            <div class="relative mt-2">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value="{{ old('email') }}"
+                required
+                autofocus
+                class="w-full bg-white rounded-lg pl-12 pr-4 py-3 text-gray-700 shadow-sm text-lg border border-gray-300 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 @error('email') border-red-500 focus:border-red-500 focus:ring-red-200 @enderror"
+                placeholder="Enter your email address"
+              />
+              <i class="fa-solid fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-500"></i>
+            </div>
             @error('email')
-              <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+              <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>
             @enderror
           </div>
 

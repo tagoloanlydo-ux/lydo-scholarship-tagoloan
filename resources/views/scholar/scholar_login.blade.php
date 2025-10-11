@@ -79,7 +79,7 @@
             <label for="scholar_username" class="block text-lg font-medium " style="color: #3b0066;">Username</label>
             <div class="relative mt-2">
               <input id="scholar_username" name="scholar_username" type="text" value="{{ old('scholar_username') }}" required autofocus class="w-full bg-white rounded-lg pl-12 pr-4 py-3 text-gray-700 shadow-sm text-lg border border-gray-300 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 @error('scholar_username') border-red-500 focus:border-red-500 focus:ring-red-200 @enderror" placeholder="Enter your username" />
-              <i id="username-icon" class="fa-solid fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-500"></i>
+              <i id="username-icon" class="fa-solid fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-500"></i>
             </div>
             @error('scholar_username')
               <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message == 'Invalid username.' ? "username doesn't exist" : $message }}</p>

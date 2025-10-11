@@ -6,6 +6,7 @@
       <meta name="csrf-token" content="{{ csrf_token() }}">
       <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
       <script src="https://cdn.tailwindcss.com"></script>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
       <link rel="stylesheet" href="{{ asset('css/application_reg.css') }}">
       <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
     <title>Personal Information Form</title>
@@ -385,11 +386,11 @@
     if (!valid) {
       input.classList.add("error");
       input.classList.remove("valid");
-      errorEl.textContent = errorMsg;
+      errorEl.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>' + errorMsg;
     } else {
       input.classList.remove("error");
       input.classList.add("valid");
-      errorEl.textContent = "";
+      errorEl.innerHTML = "";
     }
 
     toggleButton();
@@ -449,11 +450,11 @@
     if (!valid) {
       input.classList.add("error");
       input.classList.remove("valid");
-      if (errorEl) errorEl.textContent = errorMsg;
+      if (errorEl) errorEl.innerHTML = '<i class="fa-solid fa-circle-exclamation mr-1"></i>' + errorMsg;
     } else {
       input.classList.remove("error");
       input.classList.add("valid");
-      if (errorEl) errorEl.textContent = "";
+      if (errorEl) errorEl.innerHTML = "";
     }
   }
 

@@ -7,7 +7,8 @@
     <title>Reset Password</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link rel="stylesheet" href="{{ asset('css/login.css') }}" />
+<link rel="stylesheet" href="{{ asset('css/lydo_reset.css') }}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
  <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
   </head>
   <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -51,20 +52,21 @@
               <input id="password" name="password"
                 type="password"  required
                 autofocus
-                class="mt-2 w-full bg-white rounded-lg px-4 py-3 pr-10 mb-5 text-gray-700 shadow-sm text-lg border @error('password') border-red-500 @enderror"
+                class="mt-2 w-full bg-white rounded-lg pl-12 pr-10 py-3 mb-5 text-gray-700 shadow-sm text-lg border border-gray-300 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 @error('password') border-red-500 focus:border-red-500 focus:ring-red-200 @enderror"
                 placeholder="Enter your new password"
               />
+              <i class="fa-solid fa-lock absolute left-4 transform -translate-y-1/2 text-purple-500" style="margin-top:35px;"></i>
               <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center mt-2" onclick="togglePassword('password')">
-                <svg id="password-eye" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg id="password-eye"style="margin-bottom:20px;" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </button>
             </div>
             @error('password')
-              <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+              <p class="text-red-600 text-sm "><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>
             @enderror
-            <div id="passwordError" class="text-red-500 text-sm mt-1" style="display:none;"></div>
+          <div id="passwordError" class="text-red-500 text-sm  flex items-center" style="display:none;"><i class="fa-solid fa-circle-exclamation mr-1"></i><span></span></div>
           </div>
 
           <div class="mb-6">
@@ -73,7 +75,8 @@
               <input
                 id="password_confirmation"
                 name="password_confirmation"
-                type="password" required class="mt-2 w-full bg-white rounded-lg px-4 py-3 pr-10 text-gray-700 shadow-sm text-lg border @error('password_confirmation') border-red-500 @enderror" placeholder="Confirm your new password"/>
+                type="password" required class="mt-2 w-full bg-white rounded-lg pl-12 pr-10 py-3 text-gray-700 shadow-sm text-lg border border-gray-300 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 @error('password_confirmation') border-red-500 focus:border-red-500 focus:ring-red-200 @enderror" placeholder="Confirm your new password"/>
+              <i class="fa-solid fa-lock absolute left-4 transform -translate-y-1/2 text-purple-500" style="margin-top:35px;"></i>
               <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center mt-2" onclick="togglePassword('password_confirmation')">
                 <svg id="confirm-eye" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -82,9 +85,9 @@
               </button>
             </div>
             @error('password_confirmation')
-              <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+              <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}</p>
             @enderror
-            <div id="confirmError" class="text-red-500 text-sm mt-1" style="display:none;"></div>
+            <div id="confirmError" class="text-red-500 text-sm mt-2 flex items-center" style="display:none;"><i class="fa-solid fa-circle-exclamation mr-1"></i><span></span></div>
           </div>
 
           <button type="submit" id="resetBtn" class="w-full bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition shadow-md text-lg flex justify-center items-center">
@@ -189,8 +192,8 @@
         }
 
         if (message) {
-          passwordError.textContent = message;
-          passwordError.style.display = 'block';
+          passwordError.querySelector('span').textContent = message;
+          passwordError.style.display = 'flex';
           passwordInput.classList.add('border-red-500');
         } else {
           passwordError.style.display = 'none';
@@ -202,8 +205,8 @@
 
       function validateConfirmPassword() {
         if (confirmInput.value.length > 0 && confirmInput.value !== passwordInput.value) {
-          confirmError.textContent = 'Passwords do not match';
-          confirmError.style.display = 'block';
+          confirmError.querySelector('span').textContent = 'Passwords do not match';
+          confirmError.style.display = 'flex';
           confirmInput.classList.add('border-red-500');
         } else {
           confirmError.style.display = 'none';
@@ -211,7 +214,7 @@
         }
 
         // Disable reset button if there are errors
-        const hasError = passwordError.style.display === 'block' || confirmError.style.display === 'block';
+        const hasError = passwordError.style.display === 'flex' || confirmError.style.display === 'flex';
         resetBtn.disabled = hasError;
       }
 
@@ -222,23 +225,26 @@
         let valid = true;
 
         if (passwordInput.value.trim() === '') {
-          passwordError.textContent = 'Password is required.';
-          passwordError.style.display = 'block';
+          passwordError.querySelector('span').textContent = 'Password is required.';
+          passwordError.style.display = 'flex';
           valid = false;
         }
 
         if (confirmInput.value.trim() === '') {
-          confirmError.textContent = 'Confirm password is required.';
-          confirmError.style.display = 'block';
+          confirmError.querySelector('span').textContent = 'Confirm password is required.';
+          confirmError.style.display = 'flex';
           valid = false;
         } else if (confirmInput.value !== passwordInput.value) {
-          confirmError.textContent = 'Passwords do not match.';
-          confirmError.style.display = 'block';
+          confirmError.querySelector('span').textContent = 'Passwords do not match.';
+          confirmError.style.display = 'flex';
           valid = false;
         }
 
         if (!valid) {
           e.preventDefault();
+          resetBtn.disabled = false;
+          resetBtnText.textContent = 'Reset Password';
+          resetBtnSpinner.classList.add('hidden');
         }
       });
 

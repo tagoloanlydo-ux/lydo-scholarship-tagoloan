@@ -8,6 +8,13 @@
     cursor: pointer;
 }
 
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 3px;
+    display: block;
+}
+
 /* Mobile responsiveness adjustments */
 @media (max-width: 768px) {
     .banner-grad {
