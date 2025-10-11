@@ -6,7 +6,7 @@
     <title>LYDO Scholarship - Admin Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://unpkg.com/feather-icons"></script>
 <link rel="stylesheet" href="{{ asset('css/login.css') }}" />
  <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
@@ -66,7 +66,7 @@
         Access your dashboard, manage scholarships, and oversee operations.
       </p>
         <button onclick="window.location='{{ route('home') }}'" class="flex items-center gap-2 text-purple-600 hover:text-purple-800 font-semibold mt-4">
-          <i class="fa-solid fa-arrow-left"></i> ← Back to Portal
+          <i class="fa-solid fa-arrow-left"></i>Back to Portal
         </button>
     </div>
 
@@ -77,21 +77,25 @@
         <form method="POST" action="{{ route('login.submit') }}" novalidate>
           @csrf
           <div>
-            <label for="lydopers_username" class="block text-lg font-medium text-gray-700">Username</label>
-            <input id="lydopers_username" name="lydopers_username" type="text" value="{{ old('lydopers_username') }}" required autofocus class="mt-2 w-full bg-white rounded-lg px-4 py-3 text-gray-700 shadow-sm text-lg border @error('lydopers_username') border-red-500 @enderror" placeholder="Enter your username" />
+            <label for="lydopers_username" class="block text-lg font-medium " style="color: #3b0066;">Username</label>
+            <div class="relative mt-2">
+              <input id="lydopers_username" name="lydopers_username" type="text" value="{{ old('lydopers_username') }}" required autofocus class="w-full bg-white rounded-lg pl-12 pr-4 py-3 text-gray-700 shadow-sm text-lg border border-gray-300 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 @error('lydopers_username') border-red-500 focus:border-red-500 focus:ring-red-200 @enderror" placeholder="Enter your username" />
+              <i id="username-icon" class="fa-solid fa-envelope absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-500"></i>
+            </div>
             @error('lydopers_username')
-              <p class="text-red-600 text-sm mt-1">{{ $message == 'Invalid username.' ? "username doesn't exist" : $message }}</p>
+              <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message == 'Invalid username.' ? "username doesn't exist" : $message }}</p>
             @enderror
           </div>
 
           <div class="relative">
-            <label for="lydopers_pass" class="block text-lg mt-5 font-medium text-gray-700">Password</label>
-            <input id="lydopers_pass" name="lydopers_pass" type="password" required class="mt-2 w-full bg-white rounded-lg px-4 p-10 py-3 text-gray-700 shadow-sm text-lg border @error('lydopers_pass') border-red-500 @enderror" placeholder="Enter your password"/>
-              <button type="button" class="absolute right-3 text-gray-500 hover:text-gray-700" style="margin-top:25px;" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+            <label for="lydopers_pass" class="block text-lg mt-5 font-medium " style="color: #3b0066;">Password</label>
+            <input id="lydopers_pass" name="lydopers_pass" type="password" required class="mt-2 w-full bg-white rounded-lg pl-12 pr-12 py-3 text-gray-700 shadow-sm text-lg border border-gray-300 focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-200 @error('lydopers_pass') border-red-500 focus:border-red-500 focus:ring-red-200 @enderror" placeholder="Enter your password"/>
+              <i id="password-icon" style="margin-top:20px;" class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-purple-500"></i>
+              <button type="button" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-purple-600" style="margin-top:20px;" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
                 <i data-feather="eye" id="lydopers-pass-eye-icon" class="w-5 h-5"></i>
               </button>
             @error('lydopers_pass')
-              <p class="text-red-600 text-sm mt-1">{{ $message == 'Incorrect password.' ? 'incorrect password' : $message }}</p>
+              <p class="text-red-600 text-sm mt-1"><i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message == 'Incorrect password.' ? 'incorrect password' : $message }}</p>
             @enderror
           </div>
 
@@ -213,6 +217,8 @@
     const rememberCheckbox = document.querySelector('input[name="remember"]');
     const usernameInput = document.getElementById("lydopers_username");
     const passwordInput = document.getElementById("lydopers_pass");
+    const usernameIcon = document.getElementById("username-icon");
+    const passwordIcon = document.getElementById("password-icon");
 
     // ✅ Load saved credentials if "Remember Me" was checked
     if (localStorage.getItem("rememberMe") === "true") {
@@ -221,6 +227,8 @@
       // passwordInput.value = localStorage.getItem("savedPassword") || "";
       rememberCheckbox.checked = true;
     }
+
+
 
     // ✅ When submitting the form
     document.querySelector("form").addEventListener("submit", function () {

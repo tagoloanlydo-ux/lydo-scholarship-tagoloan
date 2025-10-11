@@ -8,6 +8,7 @@
     <title>Personal Information Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/lydo_reg.css') }}" />
      <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
   </head>
@@ -61,7 +62,7 @@
               </div>
               <div class="input-group">
                 <label for="mname">Middle Name</label>
-                <input type="text" id="mname" name="lydopers_mname"  class="pl-2 w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"   />
+                <input type="text" id="mname" name="lydopers_mname"  class="pl-2 w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"   required/>
                 <small class="error-message"></small>
               </div>
                             <div class="input-group">
@@ -272,11 +273,11 @@
         if (!valid) {
           input.classList.add("error");
           input.classList.remove("valid");
-          errorEl.textContent = errorMsg;
+          errorEl.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${errorMsg}`;
         } else {
           input.classList.remove("error");
           input.classList.add("valid");
-          errorEl.textContent = "";
+          errorEl.innerHTML = "";
         }
 
         return valid;
@@ -313,14 +314,14 @@ function checkDuplicate(input) {
         // Show inline error immediately
         input.classList.add("error");
         input.classList.remove("valid");
-        errorEl.textContent = id === 'email'
+        errorEl.innerHTML = `<i class="fa-solid fa-circle-exclamation mr-1"></i>${id === 'email'
           ? "This email is already used. Please try another one."
-          : "This username is already taken. Please choose another one.";
+          : "This username is already taken. Please choose another one."}`;
       } else {
         // Clear the error if now available
         input.classList.remove("error");
         input.classList.add("valid");
-        errorEl.textContent = "";
+        errorEl.innerHTML = "";
       }
       toggleButton();
     })

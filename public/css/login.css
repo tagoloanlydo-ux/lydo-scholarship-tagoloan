@@ -12,7 +12,7 @@
 @media (max-width: 768px) {
     .banner-grad {
         height: 80px; /* Reduce height on mobile */
-        clip-path: polygon(0 0, 100% 0, 100% 50%, 60% 55%, 55% 100%, 0 100%); /* Adjust clip-path for better fit */
+        clip-path: none; /* Remove clip-path to avoid cutting the banner on mobile */
     }
 
     /* Reduce text sizes on mobile */
@@ -20,7 +20,8 @@
         font-size: 1.5rem; /* text-3xl equivalent smaller */
     }
 
-    h2, h3 {
+    h2,
+    h3 {
         font-size: 2rem; /* text-5xl to smaller */
     }
 
