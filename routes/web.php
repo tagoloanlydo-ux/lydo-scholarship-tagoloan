@@ -139,3 +139,6 @@ Route::middleware(['scholar.auth'])->group(function () {
     Route::get('/scholar/settings', [ScholarController::class, 'showSettings'])->name('scholar.settings');
     Route::post('/scholar/settings/update', [ScholarController::class, 'updateSettings'])->name('scholar.settings.update');
    });
+
+use App\Http\Controllers\SmsController;
+Route::get('/test-sms', [SmsController::class, 'testSend'])->name('test.sms');

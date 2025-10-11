@@ -5,9 +5,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use App\Models\Application;
 use App\Models\Scholar;
 use App\Models\Announce;
+use App\Http\Controllers\SmsController;
 
 class MayorStaffController extends Controller
 {
@@ -747,7 +749,7 @@ public function updateStatus(Request $request, $id)
         ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
         ->join('tbl_applicant as app', 'a.applicant_id', '=', 'app.applicant_id')
         ->where('ap.application_personnel_id', $id)
-        ->select('a.application_id', 'app.applicant_email', 'app.applicant_fname', 'app.applicant_lname')
+        ->select('a.application_id', 'app.applicant_email', 'app.applicant_fname', 'app.applicant_lname', 'app.applicant_contact_number')
         ->first();
 
     if (!$applicationPersonnel) {
@@ -795,6 +797,21 @@ public function updateStatus(Request $request, $id)
                 ->subject('Scholar Registration - Update Your Account')
                 ->from(config('mail.from.address', 'noreply@lydoscholarship.com'), 'LYDO Scholarship');
         });
+
+        // Send SMS notification
+        $mobile = $applicationPersonnel->applicant_contact_number;
+        Log::info("Original mobile number: " . $mobile);
+        if (preg_match('/^0\d{10}$/', $mobile)) {
+            $mobile = '+63' . substr($mobile, 1);
+        } elseif (preg_match('/^9\d{9}$/', $mobile)) {
+            $mobile = '+63' . $mobile;
+        }
+        Log::info("Formatted mobile number: " . $mobile);
+        $smsController = new SmsController();
+        $smsMessage = "Congratulations {$applicationPersonnel->applicant_fname}! Your scholarship application has been approved.";
+        Log::info("Sending SMS to: " . $mobile . " with message: " . $smsMessage);
+        $result = $smsController->sendSms($mobile, $smsMessage);
+        Log::info("SMS send result: " . ($result ? 'Success' : 'Failed'));
     }
 
     // If status is Rejected, send rejection email
