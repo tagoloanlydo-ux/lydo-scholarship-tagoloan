@@ -808,7 +808,7 @@ public function updateStatus(Request $request, $id)
         }
         Log::info("Formatted mobile number: " . $mobile);
         $smsController = new SmsController();
-        $smsMessage = "Congratulations {$applicationPersonnel->applicant_fname}! Your scholarship application has been approved.";
+        $smsMessage = "Congratulations {$applicationPersonnel->applicant_fname}! Your scholarship application has been approved. Update your username/password: {$registrationLink}";
         Log::info("Sending SMS to: " . $mobile . " with message: " . $smsMessage);
         $result = $smsController->sendSms($mobile, $smsMessage);
         Log::info("SMS send result: " . ($result ? 'Success' : 'Failed'));
