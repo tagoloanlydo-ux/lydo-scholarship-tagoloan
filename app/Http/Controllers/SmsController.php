@@ -13,11 +13,12 @@ class SmsController extends Controller
 
         $send_data['mobile'] = '+639758669139';
         $send_data['message'] = 'Testing Message! XYZ';
-        $send_data['token'] = env('QPROXY_SMS_TOKEN', '79c86f1d1e497f5febc0ec9763f7e4b5');
+        $send_data['token'] = env('QPROXY_SMS_TOKEN', '8759da3d7302494a1e0d3d8f2e246b21');
         $parameters = json_encode($send_data);
+        Log::info("SMS parameters: " . $parameters);
         $ch = curl_init();
-        
-        curl_setopt($ch, CURLOPT_URL, env('QPROXY_SMS_URL', 'https://app.qproxy.xyz/api/sms/v1/send'));
+
+        curl_setopt($ch, CURLOPT_URL, env('QPROXY_SMS_URL', 'https://sms.ckent.dev/api/sms/v1/send'));
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $parameters);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -29,7 +30,13 @@ class SmsController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $get_sms_status = curl_exec($ch);
+        $curl_error = curl_error($ch);
         curl_close($ch);
+
+        Log::info("SMS API response: " . $get_sms_status);
+        if ($curl_error) {
+            Log::error("Curl error: " . $curl_error);
+        }
 
         return response()->json(['status' => $get_sms_status]);
     }
@@ -41,12 +48,12 @@ class SmsController extends Controller
 
         $send_data['mobile'] = $mobile;
         $send_data['message'] = $message;
-        $send_data['token'] = env('QPROXY_SMS_TOKEN', '79c86f1d1e497f5febc0ec9763f7e4b5');
+        $send_data['token'] = env('QPROXY_SMS_TOKEN', '8759da3d7302494a1e0d3d8f2e246b21');
         $parameters = json_encode($send_data);
         Log::info("SMS parameters: " . $parameters);
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL, env('QPROXY_SMS_URL', 'https://app.qproxy.xyz/api/sms/v1/send'));
+        curl_setopt($ch, CURLOPT_URL, env('QPROXY_SMS_URL', 'https://sms.ckent.dev/api/sms/v1/send'));
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $parameters);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
