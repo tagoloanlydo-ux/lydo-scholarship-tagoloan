@@ -55,7 +55,13 @@ class LydoStaffController extends Controller
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.initial_screening", "Pending")
+            ->where(function ($q) {
+                $q->where("tbl_application_personnel.initial_screening", "Pending")
+                  ->orWhere(function ($subQ) {
+                      $subQ->where("tbl_application_personnel.initial_screening", "Approved")
+                           ->whereNotIn("tbl_application_personnel.remarks", ["Poor", "Non Poor", "Ultra Poor", "Non Indigenous"]);
+                  });
+            })
             ->count();
 
         
@@ -304,7 +310,13 @@ class LydoStaffController extends Controller
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.initial_screening", "Pending")
+            ->where(function ($q) {
+                $q->where("tbl_application_personnel.initial_screening", "Pending")
+                  ->orWhere(function ($subQ) {
+                      $subQ->where("tbl_application_personnel.initial_screening", "Approved")
+                           ->whereNotIn("tbl_application_personnel.remarks", ["Poor", "Non Poor", "Ultra Poor", "Non Indigenous"]);
+                  });
+            })
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -578,7 +590,13 @@ $listApplicants = DB::table("tbl_applicant as a")
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.initial_screening", "Pending")
+            ->where(function ($q) {
+                $q->where("tbl_application_personnel.initial_screening", "Pending")
+                  ->orWhere(function ($subQ) {
+                      $subQ->where("tbl_application_personnel.initial_screening", "Approved")
+                           ->whereNotIn("tbl_application_personnel.remarks", ["Poor", "Non Poor", "Ultra Poor", "Non Indigenous"]);
+                  });
+            })
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -929,7 +947,13 @@ $listView = DB::table("tbl_renewal as r")
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.initial_screening", "Pending")
+            ->where(function ($q) {
+                $q->where("tbl_application_personnel.initial_screening", "Pending")
+                  ->orWhere(function ($subQ) {
+                      $subQ->where("tbl_application_personnel.initial_screening", "Approved")
+                           ->whereNotIn("tbl_application_personnel.remarks", ["Poor", "Non Poor", "Ultra Poor", "Non Indigenous"]);
+                  });
+            })
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -1218,7 +1242,13 @@ public function reviewedApplicants(Request $request)
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.initial_screening", "Pending")
+            ->where(function ($q) {
+                $q->where("tbl_application_personnel.initial_screening", "Pending")
+                  ->orWhere(function ($subQ) {
+                      $subQ->where("tbl_application_personnel.initial_screening", "Approved")
+                           ->whereNotIn("tbl_application_personnel.remarks", ["Poor", "Non Poor", "Ultra Poor", "Non Indigenous"]);
+                  });
+            })
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -1423,7 +1453,13 @@ public function reviewedApplicants(Request $request)
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.initial_screening", "Pending")
+            ->where(function ($q) {
+                $q->where("tbl_application_personnel.initial_screening", "Pending")
+                  ->orWhere(function ($subQ) {
+                      $subQ->where("tbl_application_personnel.initial_screening", "Approved")
+                           ->whereNotIn("tbl_application_personnel.remarks", ["Poor", "Non Poor", "Ultra Poor", "Non Indigenous"]);
+                  });
+            })
             ->count();
 
         $pendingRenewals = DB::table("tbl_renewal")
@@ -1603,7 +1639,13 @@ $totalApplications = DB::table('tbl_application_personnel')
                     ->join("tbl_application", "tbl_application_personnel.application_id", "=", "tbl_application.application_id")
                     ->join("tbl_applicant", "tbl_application.applicant_id", "=", "tbl_applicant.applicant_id")
                     ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-                    ->where("tbl_application_personnel.initial_screening", "Pending")
+                    ->where(function ($q) {
+                        $q->where("tbl_application_personnel.initial_screening", "Pending")
+                          ->orWhere(function ($subQ) {
+                              $subQ->where("tbl_application_personnel.initial_screening", "Approved")
+                                   ->whereNotIn("tbl_application_personnel.remarks", ["Poor", "Non Poor", "Ultra Poor", "Non Indigenous"]);
+                          });
+                    })
                     ->count();
 
                 $pendingRenewals = DB::table("tbl_renewal")
