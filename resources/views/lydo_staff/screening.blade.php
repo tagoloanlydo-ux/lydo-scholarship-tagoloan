@@ -448,9 +448,29 @@
                 document.getElementById('personal_edit_mname').value = button.dataset.mname;
                 document.getElementById('personal_edit_lname').value = button.dataset.lname;
                 document.getElementById('personal_edit_suffix').value = button.dataset.suffix;
-                document.getElementById('personal_edit_gender').value = button.dataset.gender;
+                // Handle gender selection case-insensitively
+                let genderSelect = document.getElementById('personal_edit_gender');
+                genderSelect.value = button.dataset.gender;
+                if (genderSelect.selectedIndex === -1) {
+                    for (let option of genderSelect.options) {
+                        if (option.value.toLowerCase() === button.dataset.gender.toLowerCase()) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                }
                 document.getElementById('personal_edit_bdate').value = button.dataset.bdate;
-                document.getElementById('personal_edit_civil_status').value = button.dataset.civil;
+                // Handle civil status selection case-insensitively
+                let civilSelect = document.getElementById('personal_edit_civil_status');
+                civilSelect.value = button.dataset.civil;
+                if (civilSelect.selectedIndex === -1) {
+                    for (let option of civilSelect.options) {
+                        if (option.value.toLowerCase() === button.dataset.civil.toLowerCase()) {
+                            option.selected = true;
+                            break;
+                        }
+                    }
+                }
                 document.getElementById('personal_edit_brgy').value = button.dataset.brgy;
                 document.getElementById('personal_edit_email').value = button.dataset.email;
                 document.getElementById('personal_edit_contact').value = button.dataset.contact;
