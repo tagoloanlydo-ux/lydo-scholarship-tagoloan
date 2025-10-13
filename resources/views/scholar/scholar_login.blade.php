@@ -108,57 +108,6 @@
             </svg>
           </button>
         </form>
-        <div class="flex items-center my-6">
-          <div class="flex-grow border-t border-gray-300"></div>
-          <span class="mx-4 text-gray-500 font-semibold">OR</span>
-          <div class="flex-grow border-t border-gray-300"></div>
-        </div>
-
-        <div class="flex gap-4 mt-2">
-          @php
-            $settings = \App\Models\Settings::first();
-            $currentDate = now()->toDateString();
-            $applicationDisabled = false;
-            $applicationMessage = '';
-
-            if ($settings && $settings->application_start_date && $settings->application_deadline) {
-              $startDate = $settings->application_start_date->toDateString();
-              $deadline = $settings->application_deadline->toDateString();
-
-              if ($currentDate < $startDate) {
-                $applicationDisabled = true;
-                $applicationMessage = 'Application period starts on ' . $settings->application_start_date->format('M d, Y');
-              } elseif ($currentDate > $deadline) {
-                $applicationDisabled = true;
-                $applicationMessage = 'Application period has ended on ' . $settings->application_deadline->format('M d, Y');
-              }
-            } elseif ($settings && (!$settings->application_start_date || !$settings->application_deadline)) {
-              $applicationDisabled = true;
-              $applicationMessage = 'Application period not yet set by administrator';
-            }
-          @endphp
-
-          @if($applicationDisabled)
-            <div class="flex-1">
-              <button disabled class="w-full bg-gray-300 border border-gray-400 text-gray-500 font-bold py-3 rounded-lg cursor-not-allowed text-lg" title="{{ $applicationMessage }}">
-                Apply as Scholar
-              </button>
-              <p class="text-sm text-gray-500 mt-1 text-center">{{ $applicationMessage }}</p>
-            </div>
-          @else
-            <a href="{{ route('applicants.registration') }}" class="flex-1">
-              <button class="w-full bg-transparent border border-purple-600 text-purple-600 font-bold py-3 rounded-lg hover:bg-purple-50 transition text-lg">
-                Apply as Scholar
-              </button>
-            </a>
-          @endif
-
-          <a href="{{ route('scholar.announcements') }}" class="flex-1">
-            <button class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition text-lg">
-              View Announcement
-            </button>
-          </a>
-        </div>
       </div>
     </main>
 
