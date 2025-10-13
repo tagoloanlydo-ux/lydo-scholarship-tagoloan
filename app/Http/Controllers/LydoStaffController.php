@@ -55,7 +55,7 @@ class LydoStaffController extends Controller
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-            ->where("tbl_application_personnel.remarks", "Pending")
+            ->where("tbl_application_personnel.initial_screening", "!=", "Reviewed")
             ->count();
 
         
@@ -1633,7 +1633,7 @@ $totalApplications = DB::table('tbl_application_personnel')
                     ->join("tbl_application", "tbl_application_personnel.application_id", "=", "tbl_application.application_id")
                     ->join("tbl_applicant", "tbl_application.applicant_id", "=", "tbl_applicant.applicant_id")
                     ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-                    ->where("tbl_application_personnel.remarks", "Pending")
+                    ->where("tbl_application_personnel.initial_screening", "!=", "Reviewed")
                     ->count();
 
                 $pendingRenewals = DB::table("tbl_renewal")
