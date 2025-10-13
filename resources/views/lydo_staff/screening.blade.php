@@ -577,6 +577,28 @@
                         });
                     });
                 }
+
+                // Add confirmation for personal edit form submit
+                const personalEditForm = document.getElementById('personalEditForm');
+                if (personalEditForm) {
+                    personalEditForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        Swal.fire({
+                            title: 'Confirm Update',
+                            text: 'Are you sure you want to update the personal information?',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, update it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                personalEditForm.submit();
+                            }
+                        });
+                    });
+                }
             });
         </script>
 
