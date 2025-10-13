@@ -246,8 +246,8 @@
                                             <div>
                                                 <label class="text-sm font-medium text-gray-600">Gender</label>
                                                 <select name="applicant_gender" id="personal_edit_gender" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400">
-                                                    <option value="Male">Male</option>
-                                                    <option value="Female">Female</option>
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
                                                 </select>
                                                 @error('applicant_gender')
                                                 <span class="error-message">{{ $message }}</span>
@@ -256,9 +256,9 @@
                                             <div>
                                                 <label class="text-sm font-medium text-gray-600">Civil Status</label>
                                                 <select name="applicant_civil_status" id="personal_edit_civil_status" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-400">
-                                                    <option value="Single">Single</option>
-                                                    <option value="Married">Married</option>
-                                                    <option value="Widowed">Widowed</option>
+                                                    <option value="single">Single</option>
+                                                    <option value="married">Married</option>
+                                                    <option value="widowed">Widowed</option>
                                                 </select>
                                                 @error('applicant_civil_status')
                                                 <span class="error-message">{{ $message }}</span>
