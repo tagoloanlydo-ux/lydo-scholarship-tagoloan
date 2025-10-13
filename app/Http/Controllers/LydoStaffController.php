@@ -217,6 +217,7 @@ class LydoStaffController extends Controller
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->count();
 
@@ -305,6 +306,7 @@ class LydoStaffController extends Controller
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->count();
 
@@ -579,6 +581,7 @@ $listApplicants = DB::table("tbl_applicant as a")
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->count();
 
@@ -930,6 +933,7 @@ $listView = DB::table("tbl_renewal as r")
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->count();
 
@@ -1219,6 +1223,7 @@ public function reviewedApplicants(Request $request)
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->count();
 
@@ -1424,6 +1429,7 @@ public function reviewedApplicants(Request $request)
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->count();
 
@@ -1501,6 +1507,7 @@ $totalApplications = DB::table('tbl_application_personnel')
                 "tbl_applicant.created_at",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->where("tbl_applicant.created_at", ">", $lastUpdate)
             ->orderBy("tbl_applicant.created_at", "asc")
@@ -1598,6 +1605,7 @@ $totalApplications = DB::table('tbl_application_personnel')
                     ->join("tbl_application", "tbl_application_personnel.application_id", "=", "tbl_application.application_id")
                     ->join("tbl_applicant", "tbl_application.applicant_id", "=", "tbl_applicant.applicant_id")
                     ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+                    ->where("tbl_application_personnel.initial_screening", "Approved")
                     ->where("tbl_application_personnel.remarks", "waiting")
                     ->count();
 
