@@ -84,7 +84,7 @@
           @endif
 
                 <a href="{{ route('scholar.announcements') }}" class="flex-1">
-            <button  class="flex items-center w-full justify-center gap-2 bg-green-800 hover:bg-indigo-500 py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base">
+            <button  class="flex items-center w-full justify-center gap-2 bg-yellow-800 hover:bg-indigo-500 py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base">
               View Announcement
             </button>
           </a>
