@@ -35,13 +35,13 @@
     <!-- Buttons -->
     <div class="flex flex-col gap-3 w-11/12 max-w-xs md:max-w-sm fade-in-up fade-delay-3 opacity-0 px-4 mb-6">
       <button
-        class="flex items-center justify-center gap-2 bg-blue-800 hover:bg-indigo-500 py-2.5 md:py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base"
+        class="flex items-center justify-center gap-2 bg-blue-800 hover:bg-indigo-500 py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base"
         onclick="window.location='{{ route('scholar.login') }}'">
         <i class="fa-solid fa-right-to-bracket"></i> Log In Scholar
       </button>
 
       <button
-        class="flex items-center justify-center gap-2 bg-green-800 hover:bg-indigo-500 py-2.5 md:py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base"
+        class="flex items-center justify-center gap-2 bg-green-800 hover:bg-indigo-500 py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base"
         onclick="window.location='{{ route('login') }}'">
         <i class="fa-solid fa-right-to-bracket"></i> Log In Lydo Personnel
       </button>
@@ -70,21 +70,21 @@
 
           @if($applicationDisabled)
             <div class="flex-1">
-              <button disabled class="w-full bg-red-300 border border-gray-400 text-gray-500 font-bold py-3 rounded-lg cursor-not-allowed text-lg" title="{{ $applicationMessage }}">
+              <button disabled  class="flex items-center justify-center gap-2 bg-gray-800 hover:bg-indigo-500 py-3 w-full rounded-xl shadow text-white font-medium transition text-sm md:text-base" title="{{ $applicationMessage }}">
                 Apply as Scholar
               </button>
               <p class="text-sm text-gray-500 mt-1 text-center">{{ $applicationMessage }}</p>
             </div>
           @else
             <a href="{{ route('applicants.registration') }}" class="flex-1">
-              <button class="w-full bg-red-600 text-white font-bold py-3 rounded-lg hover:bg-yellow-700 transition text-lg">
+              <button  class="flex w-full items-center justify-center gap-2 bg-red-800 hover:bg-indigo-500 py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base">
                 Apply as Scholar
               </button>
             </a>
           @endif
 
                 <a href="{{ route('scholar.announcements') }}" class="flex-1">
-            <button class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition text-lg">
+            <button  class="flex items-center w-full justify-center gap-2 bg-green-800 hover:bg-indigo-500 py-3 rounded-xl shadow text-white font-medium transition text-sm md:text-base">
               View Announcement
             </button>
           </a>
