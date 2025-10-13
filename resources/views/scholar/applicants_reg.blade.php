@@ -103,12 +103,12 @@
                 <label for="brgy">Barangay</label>
                 <select id="brgy" name="applicant_brgy"  class="pl-2 w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"  required>
                   <option value="">-- Select Barangay --</option>
-                  <option value="Sugboncogon">Sugboncogon</option>
+                  <option value="Sugbong cogon">Sugbong cogon</option>
                   <option value="Baluarte">Baluarte</option>
                   <option value="Casinglot">Casinglot</option>
                   <option value="Gracia">Gracia</option>
                   <option value="Mohon">Mohon</option>
-                  <option value="Natomolan">Natomolan</option>
+                  <option value="Natumolan">Natumolan</option>
                   <option value="Poblacion">Poblacion</option>
                   <option value="Rosario">Rosario</option>
                   <option value="Santa Ana">Santa Ana</option>
