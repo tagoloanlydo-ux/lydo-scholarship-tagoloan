@@ -271,7 +271,7 @@ class LydoAdminController extends Controller
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
             ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
             ->where('tbl_application_personnel.initial_screening', 'Approved')
-            ->paginate(7);
+            ->paginate(15);
 
         // Fix remarks field - ensure it's cast to string to prevent stdClass errors
         $applicantsWithRemarks->getCollection()->transform(function ($applicant) {
@@ -593,12 +593,12 @@ class LydoAdminController extends Controller
         $inactiveStaff = DB::table('tbl_lydopers')
             ->where('lydopers_role', 'lydo_staff')
             ->where('lydopers_status', 'inactive')
-            ->paginate(5, ['*'], 'inactive_page');
+            ->paginate(15, ['*'], 'inactive_page');
 
         $activeStaff = DB::table('tbl_lydopers')
             ->where('lydopers_role', 'lydo_staff')
             ->where('lydopers_status', 'active')
-            ->paginate(6, ['*'], 'active_page');
+            ->paginate(15, ['*'], 'active_page');
 
         return view('lydo_admin.lydo', compact('notifications', 'inactiveStaff', 'activeStaff'));
     }
@@ -654,12 +654,12 @@ class LydoAdminController extends Controller
         $inactiveStaff = DB::table('tbl_lydopers')
             ->where('lydopers_role', 'mayor_staff')
             ->where('lydopers_status', 'inactive')
-            ->paginate(5, ['*'], 'inactive_page');
+            ->paginate(15, ['*'], 'inactive_page');
 
         $activeStaff = DB::table('tbl_lydopers')
             ->where('lydopers_role', 'mayor_staff')
             ->where('lydopers_status', 'active')
-            ->paginate(6, ['*'], 'active_page');
+            ->paginate(15, ['*'], 'active_page');
 
         return view('lydo_admin.mayor', compact('notifications', 'inactiveStaff', 'activeStaff'));
     }
@@ -732,7 +732,7 @@ class LydoAdminController extends Controller
             $query->where('a.applicant_acad_year', $request->academic_year);
         }
 
-        $scholars = $query->paginate(6);
+        $scholars = $query->paginate(15);
 
         // Get distinct barangays for filter dropdown
         $barangays = DB::table('tbl_applicant')
@@ -1018,7 +1018,7 @@ class LydoAdminController extends Controller
             $query->where('d.disburse_semester', $request->semester);
         }
 
-        $disbursements = $query->paginate(10);
+        $disbursements = $query->paginate(15);
 
         // Get distinct barangays for filter dropdown
         $barangays = DB::table('tbl_applicant')
@@ -1075,7 +1075,7 @@ class LydoAdminController extends Controller
                 DB::raw("CONCAT(a.applicant_fname, ' ', COALESCE(a.applicant_mname, ''), ' ', a.applicant_lname, ' ', COALESCE(a.applicant_suffix, '')) as full_name")
             )
             ->whereNotNull('d.disburse_signature')
-            ->paginate(10);
+            ->paginate(15);
 
         return view('lydo_admin.disbursement', compact('notifications', 'disbursements', 'barangays', 'academicYears', 'semesters', 'scholars', 'signedDisbursements'));
     }
@@ -1243,7 +1243,7 @@ class LydoAdminController extends Controller
             $query->where('applicant_acad_year', $request->academic_year);
         }
 
-        $applicants = $query->paginate(10);
+        $applicants = $query->paginate(15);
 
         // Get distinct barangays for filter dropdown
         $barangays = DB::table('tbl_applicant')

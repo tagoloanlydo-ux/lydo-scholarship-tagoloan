@@ -163,7 +163,7 @@ class LydoStaffController extends Controller
             return response()->json($applications);
         }
 
-        $applications = $query->paginate(6)->appends($request->query());
+        $applications = $query->paginate(15)->appends($request->query());
 
         $notifications = DB::table("tbl_application_personnel")
             ->join(
@@ -412,7 +412,7 @@ class LydoStaffController extends Controller
                 "Ultra Poor",
                 "Non Indigenous",
             ])
-            ->paginate(4)
+            ->paginate(15)
     ->appends($request->all());
 
         $currentAcadYear = DB::table("tbl_applicant")
@@ -453,7 +453,7 @@ $listApplicants = DB::table("tbl_applicant as a")
         $query->where("ap.initial_screening", "Reviewed");
     })
     ->where("a.applicant_acad_year", $currentAcadYear)
-    ->paginate(7)
+    ->paginate(15)
     ->appends($request->all());
 
 
@@ -644,7 +644,7 @@ $listApplicants = DB::table("tbl_applicant as a")
             ->when($request->barangay, function ($query, $barangay) {
                 $query->where("a.applicant_brgy", $barangay);
             })
-            ->paginate(8);
+            ->paginate(15);
 
         
         $renewals = DB::table("tbl_renewal")
@@ -727,7 +727,7 @@ $listView = DB::table("tbl_renewal as r")
     ->when($request->barangay, function ($query, $barangay) {
         $query->where("a.applicant_brgy", $barangay);
     })
-    ->paginate(6) // ✅ use paginate instead of get
+    ->paginate(15) // ✅ use paginate instead of get
     ->appends($request->all());
 
         return view(
@@ -1062,7 +1062,7 @@ $remarksByYear = DB::table('tbl_application_personnel')
         ->when($acadYear, fn($q) => $q->where('tbl_applicant.applicant_acad_year', $acadYear))
         ->when($barangay, fn($q) => $q->where('tbl_applicant.applicant_brgy', $barangay))
         ->orderBy('tbl_applicant.applicant_lname', 'asc')
-        ->paginate(10);
+        ->paginate(15);
 
     // para sa dropdown filters
     $acadYears = DB::table('tbl_applicant')->select('applicant_acad_year')->distinct()->pluck('applicant_acad_year');
@@ -1108,7 +1108,7 @@ $remarksByYear = DB::table('tbl_application_personnel')
                 }
             })
             ->orderBy('a.applicant_lname', 'asc')
-            ->paginate(10)
+            ->paginate(15)
             ->appends($request->all());
 
     return view(
@@ -1173,7 +1173,7 @@ public function reviewedApplicants(Request $request)
         ->when($acadYear, fn($q) => $q->where('tbl_applicant.applicant_acad_year', $acadYear))
         ->when($barangay, fn($q) => $q->where('tbl_applicant.applicant_brgy', $barangay))
         ->orderBy('tbl_applicant.applicant_lname', 'asc')
-        ->paginate(10);
+        ->paginate(15);
 
     // para sa dropdown filters
     $acadYears = DB::table('tbl_applicant')->select('applicant_acad_year')->distinct()->pluck('applicant_acad_year');
@@ -1299,8 +1299,8 @@ public function reviewedApplicants(Request $request)
         $applyFilters($unsignedQuery);
         $applyFilters($signedQuery);
 
-        $unsignedDisbursements = $unsignedQuery->paginate(10, ['*'], 'unsigned_page')->appends($request->query());
-        $signedDisbursements = $signedQuery->paginate(10, ['*'], 'signed_page')->appends($request->query());
+        $unsignedDisbursements = $unsignedQuery->paginate(15, ['*'], 'unsigned_page')->appends($request->query());
+        $signedDisbursements = $signedQuery->paginate(15, ['*'], 'signed_page')->appends($request->query());
 
         // Get filter options
         $barangays = DB::table('tbl_applicant')

@@ -704,7 +704,7 @@ $percentageReviewed = $totalApplications > 0
         $query->where('app.applicant_brgy', $request->barangay);
     }
 
-    $applications = $query->paginate(6);
+    $applications = $query->paginate(15);
 
     $barangays = DB::table('tbl_applicant')->distinct()->pluck('applicant_brgy');
 
@@ -726,7 +726,7 @@ $percentageReviewed = $totalApplications > 0
         )
         ->whereIn('ap.status', ['Approved', 'Rejected'])
         ->where('lydo.lydopers_role', 'lydo_staff')
-        ->paginate(4, ['*'], 'list');
+        ->paginate(15, ['*'], 'list');
 
     $barangays = DB::table('tbl_applicant')->distinct()->pluck('applicant_brgy');
 
@@ -1744,7 +1744,7 @@ public function updateStatus(Request $request, $id)
             $query->where('app.applicant_brgy', $request->barangay);
         }
 
-        $applications = $query->paginate(6);
+        $applications = $query->paginate(15);
 
         $listApplications = DB::table('tbl_application_personnel as ap')
             ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
@@ -1763,7 +1763,7 @@ public function updateStatus(Request $request, $id)
             )
             ->whereIn('ap.status', ['Approved', 'Rejected'])
             ->where('lydo.lydopers_role', 'lydo_staff')
-            ->paginate(4, ['*'], 'list');
+            ->paginate(15, ['*'], 'list');
 
         return response()->json([
             'applications' => $applications->items(),
