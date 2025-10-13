@@ -55,6 +55,7 @@ class LydoStaffController extends Controller
                 "tbl_applicant.applicant_id",
             )
             ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
+            ->where("tbl_application_personnel.initial_screening", "Approved")
             ->where("tbl_application_personnel.remarks", "waiting")
             ->count();
 
