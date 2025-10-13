@@ -67,6 +67,7 @@ Route::put('/lydo_admin/announcement/{id}', [LydoAdminController::class, 'update
     Route::post('/lydo_admin/get-scholar-names', [LydoAdminController::class, 'getScholarNames'])->name('LydoAdmin.getScholarNames');
     Route::post('/lydo_admin/create-disbursement', [LydoAdminController::class, 'createDisbursement'])->name('LydoAdmin.createDisbursement');
     Route::post('/lydo_admin/send-email-to-applicants', [LydoAdminController::class, 'sendEmailToApplicants'])->name('LydoAdmin.sendEmailToApplicants');
+    Route::post('/lydo_admin/send-sms-to-applicants', [SmsController::class, 'sendSmsToApplicants'])->name('LydoAdmin.sendSmsToApplicants');
     Route::get('/lydo_admin/report/pdf/scholars', [LydoAdminController::class, 'generateScholarsPdf'])->name('LydoAdmin.report.pdf.scholars');
     Route::get('/lydo_admin/report/pdf/scholars-by-barangay', [LydoAdminController::class, 'generateScholarsPdfByBarangay'])->name('LydoAdmin.report.pdf.scholarsByBarangay');
     Route::get('/lydo_admin/report/pdf/applicants', [LydoAdminController::class, 'generateApplicantsPdf'])->name('LydoAdmin.report.pdf.applicants');

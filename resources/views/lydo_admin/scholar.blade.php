@@ -392,9 +392,18 @@
 
 
 
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
-                            <input type="text" name="subject" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter email subject">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
+                                <input type="text" name="subject" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Enter email subject">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Type</label>
+                                <select name="email_type" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                                    <option value="plain">Plain Email</option>
+                                    <option value="account_creation">Resend Registration Link</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div>
@@ -403,7 +412,6 @@
                         </div>
 
                         <input type="hidden" id="scholarId" name="scholar_id" value="">
-                        <input type="hidden" name="email_type" value="plain">
 
                         <!-- Loading Indicator -->
                         <div id="emailLoading" class="hidden flex items-center justify-center py-4">

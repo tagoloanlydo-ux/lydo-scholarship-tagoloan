@@ -1,5 +1,15 @@
-# SMS Integration Plan Execution
+# SMS Modal Implementation for Applicants
 
--   [x] Update app/Services/SmsService.php to use new SMS API (ckent.dev) with env vars, add logging and error handling
--   [x] Update app/Http/Controllers/SmsController.php to use new env var names and defaults
--   [x] Provide instructions for .env update and testing
+## Tasks
+
+-   [ ] Add Contact Number column to applicants table in applicants.blade.php
+-   [ ] Add SMS button next to Email button in table header
+-   [ ] Create SMS modal HTML structure (similar to email modal)
+-   [ ] Implement sendSmsToApplicants method in SmsController.php
+-   [ ] Add JavaScript for SMS modal functionality (open/close, form submission)
+-   [ ] Test SMS sending functionality
+
+## Files to Edit
+
+-   resources/views/lydo_admin/applicants.blade.php
+-   app/Http/Controllers/SmsController.php
