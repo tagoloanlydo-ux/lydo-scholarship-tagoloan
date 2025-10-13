@@ -97,6 +97,7 @@ Route::middleware(['role:lydo_staff'])->group(function () {
     Route::post('/lydo_staff/sign-disbursement/{disburse_id}', [LydoStaffController::class, 'signDisbursement'])->name('LydoStaff.signDisbursement');
     Route::get('/lydo_staff/settings', [LydoStaffController::class, 'settings'])->name('LydoStaff.settings');
     Route::put('/lydo_staff/update/{id}', [LydoStaffController::class, 'updateStaff'])->name('lydo_staff.update');
+    Route::put('/lydo_staff/update-applicant/{id}', [LydoStaffController::class, 'updateApplicant'])->name('lydo_staff.updateApplicant');
     Route::post('/lydo_staff/send-email', [LydoStaffController::class, 'sendEmail'])->name('send.email');
     Route::put('/lydo_staff/update-password', [LydoStaffController::class, 'updatePassword'])->name('lydo_staff.updatePassword');
     Route::post('/lydo_staff/mark-notifications-viewed', [LydoStaffController::class, 'markNotificationsViewed'])->name('LydoStaff.markNotificationsViewed');

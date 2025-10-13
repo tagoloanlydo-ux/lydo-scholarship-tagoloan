@@ -527,6 +527,14 @@ $listApplicants = DB::table("tbl_applicant as a")
             "applicant_lname" => "required|string|max:50",
             "applicant_email" => "required|email",
             "applicant_contact_number" => "required|string|max:20",
+            "applicant_gender" => "required|in:Male,Female",
+            "applicant_civil_status" => "required|in:Single,Married,Widowed",
+            "applicant_bdate" => "required|date",
+            "applicant_brgy" => "required|string",
+            "applicant_school_name" => "required|string",
+            "applicant_year_level" => "required|string",
+            "applicant_course" => "required|string",
+            "applicant_acad_year" => "required|string",
         ]);
 
         DB::table("tbl_applicant")
