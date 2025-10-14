@@ -110,26 +110,23 @@
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
 
-        <form id="filterForm" method="GET" class="flex gap-2 mb-4">
-            <input type="text" name="search" id="searchInput"
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="searchInput"
                 placeholder="Search name..."
-                value="{{ request('search') }}"
-                class="border rounded px-3 py-2 w-64">
+                class="border rounded px-3 py-2 w-64"
+                onkeyup="filterTable()">
 
-            <select name="barangay" id="barangaySelect"
-                class="border rounded px-3 py-2">
+            <select id="barangaySelect"
+                class="border rounded px-3 py-2"
+                onchange="filterTable()">
                 <option value="">All Barangays</option>
                 @foreach($barangays as $brgy)
-                    <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
+                    <option value="{{ $brgy }}">
                         {{ $brgy }}
                     </option>
                 @endforeach
             </select>
-
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Filter
-            </button>
-        </form>
+        </div>
             <div class="flex gap-2">
                 <div onclick="showTable()" class="tab active" id="tab-renewal">
                     <i class="fas fa-table mr-1"></i> Process Renewals
@@ -987,7 +984,39 @@ function closeEmailModal() {
 }
 </script>
 
+<script>
+function filterTable() {
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const barangayValue = document.getElementById('barangaySelect').value;
 
+    // Determine which table is visible
+    const isTableView = !document.getElementById('tableView').classList.contains('hidden');
+    const tableBody = isTableView ? document.querySelector('#tableView tbody') : document.querySelector('#listView tbody');
+
+    if (!tableBody) return;
+
+    const rows = tableBody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+        const nameCell = row.cells[1]; // Name column
+        const barangayCell = row.cells[2]; // Barangay column
+
+        if (nameCell && barangayCell) {
+            const name = nameCell.textContent.toLowerCase();
+            const barangay = barangayCell.textContent;
+
+            const nameMatch = name.includes(searchValue);
+            const barangayMatch = barangayValue === '' || barangay === barangayValue;
+
+            if (nameMatch && barangayMatch) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+}
+</script>
 
 </body>
 </html>
