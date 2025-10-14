@@ -137,14 +137,13 @@
                         <!-- Search & Filter -->
             <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
                 {{-- Search --}}
-                <input type="text" name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Search name..." 
-                    class="border rounded px-3 py-2 w-64"
-                    oninput="document.getElementById('filterForm').submit()">
+                <input type="text" id="searchInput" name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search name..."
+                    class="border rounded px-3 py-2 w-64">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" class="border rounded px-3 py-2" onchange="document.getElementById('filterForm').submit()">
+                <select id="barangaySelect" name="barangay" class="border rounded px-3 py-2">
                     <option value="">All Barangays</option>
                     @foreach($barangays as $brgy)
                         <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
@@ -1258,6 +1257,24 @@
                 });
             </script>
  <script src="{{ asset('js/logout.js') }}"></script>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const barangaySelect = document.getElementById('barangaySelect');
+    const filterForm = document.getElementById('filterForm');
+
+    let debounceTimer;
+
+    function submitForm() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            filterForm.submit();
+        }, 500); // 500ms delay
+    }
+
+    searchInput.addEventListener('input', submitForm);
+    barangaySelect.addEventListener('change', () => filterForm.submit());
+</script>
 
 <script>
 // Real-time updates for new applications
