@@ -7,22 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/front-page.css') }}" />
    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 
   </head>
   <body class="min-h-screen w-screen flex flex-col items-center justify-between bg-gradient-to-b from-[#2a1e78] via-[#6a4fd4] to-[#7a58f7] text-white overflow-hidden">
-<script>
-  @if($applicationDisabled && $applicationMessage)
-    Swal.fire({
-      icon: 'info',
-      title: 'Application Unavailable',
-      text: '{{ $applicationMessage }}',
-      confirmButtonText: 'OK',
-      allowOutsideClick: false
-    });
-  @endif
-</script>
+
     <!-- Transition Overlay -->
     <div id="overlay" class="transition-overlay flex items-center justify-center px-4 text-center">
       <h1 class="text-2xl md:text-3xl font-bold text-white">
