@@ -1539,7 +1539,7 @@ public function updateStatus(Request $request, $id)
             ->when($request->filled("barangay"), function ($q) use ($request) {
                 $q->where("a.applicant_brgy", $request->barangay);
             })
-            ->get();
+            ->paginate(15, ['*'], 'list');
 
         $applications = DB::table("tbl_application as app")
             ->join("tbl_application_personnel as ap", "app.application_id", "=", "ap.application_id")
