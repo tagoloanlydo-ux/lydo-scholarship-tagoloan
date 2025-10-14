@@ -142,7 +142,7 @@
                     <!-- 🔎 Search & Filter + View Switch -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-            <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
+            <form id="filterForm" method="GET" action="{{ route('MayorStaff.status') }}" class="flex gap-2 mb-4">
                 {{-- Search --}}
                 <input type="text" name="search" 
                     value="{{ request('search') }}" 
@@ -188,7 +188,7 @@
                 </tr>
             </thead>
         <tbody class="bg-white">
-        @forelse($applications as $index => $app)
+        @forelse($tableApplicants as $index => $app)
             @if(in_array($app->remarks, ['Poor', 'Ultra Poor']))
             <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200">
                 <td class="px-6 py-4">{{ $index + 1 }}</td>
@@ -235,7 +235,7 @@
         </tbody>
         </table>
         <div class="mt-4">
-            {{ $applications->appends(request()->query())->links() }}
+            {{ $tableApplicants->appends(request()->query())->links() }}
         </div>
     </div>
         <!-- ✅ List View (Approved and Rejected applications) -->
@@ -674,7 +674,9 @@ function pollForStatusUpdates() {
         .catch(err => console.error('Polling status updates error:', err));
 }
 
-
+// Poll every 10 seconds
+setInterval(pollForNewApplications, 10000);
+setInterval(pollForStatusUpdates, 10000);
 </script>
 
 </body>
