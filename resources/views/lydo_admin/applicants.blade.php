@@ -121,7 +121,15 @@
     }
 </script>
 
-
+<li class="text-blue-600 bg-blue-50">
+    <a href="/lydo_admin/applicants" 
+     class=" flex items-center justify-between p-3 rounded-lg text-white-700 bg-violet-600 text-white">
+         <div class="flex items-center">
+            <i class="bx bxs-user text-center mx-auto md:mx-0 text-xl"></i>
+            <span class="ml-4 hidden md:block text-lg">Applicants</span>
+        </div>
+    </a>
+</li>
 
 <!-- Scholar Dropdown -->
 <li class="relative">
@@ -183,15 +191,7 @@
         });
     });
 </script>
-<li class="text-blue-600 bg-blue-50">
-    <a href="/lydo_admin/applicants" 
-     class=" flex items-center justify-between p-3 rounded-lg text-white-700 bg-violet-600 text-white">
-         <div class="flex items-center">
-            <i class="bx bxs-user text-center mx-auto md:mx-0 text-xl"></i>
-            <span class="ml-4 hidden md:block text-lg">Applicants</span>
-        </div>
-    </a>
-</li>
+
 <li>
     <a href="/lydo_admin/announcement"
        class=" flex items-center justify-between p-3 rounded-lg text-white-700 hover:bg-violet-600 hover:text-white">
