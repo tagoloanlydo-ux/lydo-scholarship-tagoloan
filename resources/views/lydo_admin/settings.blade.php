@@ -274,7 +274,7 @@
     id="profileImage"
     src="{{ asset('images/LYDO.png') }}" 
     alt="Profile Picture"
-    class="rounded-full object-cover w-full h-full ring-4 ring-orange-100 hover:ring-orange-400 transition"
+    class="rounded-full object-cover w-full h-full ring-4 ring-violet-100 hover:ring-violet-400 transition"
   />
 
   <!-- Hidden file input -->
@@ -282,7 +282,7 @@
 
   <!-- Edit Icon -->
   <button aria-label="Edit Profile Picture" title="Edit Profile Picture"
-    class="absolute bottom-0 right-0 bg-orange-500 p-2 rounded-full border-2 border-white hover:bg-orange-600 transition text-white shadow-md"
+    class="absolute bottom-0 right-0 bg-violet-500 p-2 rounded-full border-2 border-white hover:bg-violet-600 transition text-white shadow-md"
     onclick="document.getElementById('fileInput').click();"
   >
     <i class="fas fa-pen text-sm"></i>
@@ -341,15 +341,15 @@
 
 <nav class="flex flex-col gap-2 text-sm font-medium">
   <button id="btnPersonal" type="button"
-    class="flex items-center gap-2 py-2 px-4 rounded-xl bg-orange-100 text-orange-600 transition">
+    class="flex items-center gap-2 py-2 px-4 rounded-xl bg-violet-100 text-violet-600 transition">
     <i class="fas fa-user-circle"></i> Personal Information
   </button>
   <button id="btnDeadlines" type="button"
-    class="flex items-center gap-2 py-2 px-4 rounded-xl hover:bg-orange-50 transition">
+    class="flex items-center gap-2 py-2 px-4 rounded-xl hover:bg-violet-50 transition">
     <i class="fas fa-calendar-alt"></i> Set Deadlines
   </button>
   <button id="btnChangePassword" type="button"
-    class="flex items-center gap-2 py-2 px-4 rounded-xl hover:bg-orange-50 transition">
+    class="flex items-center gap-2 py-2 px-4 rounded-xl hover:bg-violet-50 transition">
     <i class="fas fa-lock"></i> Change Password
   </button>
 </nav>
@@ -381,23 +381,23 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <label class="block text-base text-gray-600 mb-1">First Name</label>
-          <input type="text" name="lydopers_fname" value="{{ session('lydopers')->lydopers_fname }}" class="w-full bg-gray-50 border rounded-xl  px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+          <input type="text" name="lydopers_fname" value="{{ session('lydopers')->lydopers_fname }}" class="w-full bg-gray-50 border rounded-xl  px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
         </div>
         <div>
           <label class="block text-base text-gray-600 mb-1">Last Name</label>
-          <input type="text" name="lydopers_lname" value="{{ session('lydopers')->lydopers_lname }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+          <input type="text" name="lydopers_lname" value="{{ session('lydopers')->lydopers_lname }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
         </div>
         <div class="md:col-span-2">
           <label class="block text-base text-gray-600 mb-1">Email</label>
-          <input type="email" name="lydopers_email" value="{{ session('lydopers')->lydopers_email }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+          <input type="email" name="lydopers_email" value="{{ session('lydopers')->lydopers_email }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
         </div>
         <div class="md:col-span-2">
           <label class="block text-base text-gray-600 mb-1">Address</label>
-          <input type="text" name="lydopers_address" value="{{ session('lydopers')->lydopers_address }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+          <input type="text" name="lydopers_address" value="{{ session('lydopers')->lydopers_address }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
         </div>
         <div>
           <label class="block text-base text-gray-600 mb-1">Phone Number</label>
-          <input type="text" name="lydopers_contact_number" value="{{ session('lydopers')->lydopers_contact_number }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+          <input type="text" name="lydopers_contact_number" value="{{ session('lydopers')->lydopers_contact_number }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
         </div>
         <div>
           <label class="block text-base text-gray-600 mb-1">Date of Birth</label>
@@ -427,11 +427,11 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label class="block text-base text-gray-600 mb-1">Application Start Date</label>
-        <input type="date" name="application_start_date" value="{{ $settings->application_start_date ? $settings->application_start_date->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+        <input type="date" name="application_start_date" value="{{ $settings->application_start_date ? $settings->application_start_date->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
       </div>
       <div>
         <label class="block text-base text-gray-600 mb-1">Application Deadline</label>
-        <input type="date" name="application_deadline" value="{{ $settings->application_deadline ? $settings->application_deadline->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+        <input type="date" name="application_deadline" value="{{ $settings->application_deadline ? $settings->application_deadline->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
       </div>
     </div>
   </div>
@@ -441,7 +441,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div>
         <label class="block text-base text-gray-600 mb-1">Renewal Semester</label>
-        <select name="renewal_semester" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition">
+        <select name="renewal_semester" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition">
           <option value="">Select Semester</option>
           <option value="1st Semester" {{ $settings->renewal_semester == '1st Semester' ? 'selected' : '' }}>1st Semester</option>
           <option value="2nd Semester" {{ $settings->renewal_semester == '2nd Semester' ? 'selected' : '' }}>2nd Semester</option>
@@ -450,11 +450,11 @@
       </div>
       <div>
         <label class="block text-base text-gray-600 mb-1">Renewal Start Date</label>
-        <input type="date" name="renewal_start_date" value="{{ $settings->renewal_start_date ? $settings->renewal_start_date->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+        <input type="date" name="renewal_start_date" value="{{ $settings->renewal_start_date ? $settings->renewal_start_date->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
       </div>
       <div>
         <label class="block text-base text-gray-600 mb-1">Renewal Deadline</label>
-        <input type="date" name="renewal_deadline" value="{{ $settings->renewal_deadline ? $settings->renewal_deadline->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition"/>
+        <input type="date" name="renewal_deadline" value="{{ $settings->renewal_deadline ? $settings->renewal_deadline->format('Y-m-d') : '' }}" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition"/>
       </div>
     </div>
   </div>
@@ -480,15 +480,15 @@
   <div class="grid grid-cols-1 gap-6 mb-6">
     <div>
       <label class="block text-base text-gray-600 mb-1">Current Password</label>
-      <input type="password" name="current_password" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition" required/>
+      <input type="password" name="current_password" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition" required/>
     </div>
     <div>
       <label class="block text-base text-gray-600 mb-1">New Password</label>
-      <input type="password" name="new_password" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition" required/>
+      <input type="password" name="new_password" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition" required/>
     </div>
     <div>
       <label class="block text-base text-gray-600 mb-1">Confirm New Password</label>
-      <input type="password" name="new_password_confirmation" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-orange-400 transition" required/>
+      <input type="password" name="new_password_confirmation" class="w-full bg-gray-50 border rounded-xl py-3 px-4 text-base outline-none focus:ring-2 focus:ring-violet-400 transition" required/>
     </div>
   </div>
 
@@ -539,7 +539,7 @@ btnDeadlines.addEventListener("click", () => {
   changePasswordForm.classList.add("hidden");
 
   resetButtons();
-  btnDeadlines.classList.add("bg-orange-100", "text-orange-600");
+  btnDeadlines.classList.add("bg-violet-100", "text-violet-600");
 });
 
 btnChangePassword.addEventListener("click", () => {
@@ -548,7 +548,7 @@ btnChangePassword.addEventListener("click", () => {
   deadlinesForm.classList.add("hidden");
 
   resetButtons();
-  btnChangePassword.classList.add("bg-orange-100", "text-orange-600");
+  btnChangePassword.classList.add("bg-violet-100", "text-violet-600");
 });
 </script>
 
