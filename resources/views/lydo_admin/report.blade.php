@@ -458,6 +458,9 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div id="scholarsPagination" class="mt-4">
+                                {{ $scholars->links() }}
+                            </div>
                         </div>
                     </div>
 

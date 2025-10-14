@@ -45,7 +45,7 @@ class LydoAdminController extends Controller
         $query->where('tbl_application_personnel.remarks', $request->remarks);
     }
 
-    $applicants = $query->get();
+    $applicants = $query->paginate(15);
 
     // Format the data for JSON response
     $formattedApplicants = $applicants->map(function ($applicant) {
@@ -61,7 +61,8 @@ class LydoAdminController extends Controller
 
     return response()->json([
         'success' => true,
-        'applicants' => $formattedApplicants
+        'applicants' => $formattedApplicants,
+        'pagination' => $applicants->links()->toHtml()
     ]);
 }
     public function report(Request $request)
@@ -175,13 +176,13 @@ class LydoAdminController extends Controller
         }
 
         // Check if this is an AJAX request for filtering
-   if ($request->ajax()) {
-    if ($request->input('tab') === 'applicants') {
-        return $this->getFilteredApplicantsWithRemarks($request);
-    } else {
-        return $this->getFilteredScholars($request);
-    }
-}
+        if ($request->ajax()) {
+            if ($request->input('tab') === 'applicants') {
+                return $this->getFilteredApplicantsWithRemarks($request);
+            } else {
+                return $this->getFilteredScholars($request);
+            }
+        }
 
         // Fetch scholars for the second tab
         $query = DB::table('tbl_scholar')
@@ -388,7 +389,7 @@ class LydoAdminController extends Controller
             $query->where('applicant_acad_year', $request->academic_year);
         }
 
-        $scholars = $query->get();
+        $scholars = $query->paginate(15);
 
         // Format the data for JSON response
         $formattedScholars = $scholars->map(function ($scholar) {
@@ -405,7 +406,8 @@ class LydoAdminController extends Controller
 
         return response()->json([
             'success' => true,
-            'scholars' => $formattedScholars
+            'scholars' => $formattedScholars,
+            'pagination' => $scholars->links()->toHtml()
         ]);
     }
     public function announcement()
