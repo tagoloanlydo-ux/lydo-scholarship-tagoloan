@@ -31,7 +31,7 @@
           Stay updated with the latest scholarship announcements, requirements, and important information.
         </p>
         <button onclick="window.location='{{ route('home') }}'" class="flex items-center gap-2 text-purple-600 hover:text-purple-800 font-semibold mt-4">
-          <i class="fa-solid fa-arrow-left"></i> ← Back to Login
+          <i class="fa-solid fa-arrow-left"></i> ← Back to Portal
         </button>
       </div>
 
