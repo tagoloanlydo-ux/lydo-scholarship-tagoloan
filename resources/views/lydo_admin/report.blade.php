@@ -468,15 +468,14 @@
                             <h3 class="text-lg font-semibold mb-4">Applicants by Remarks</h3>
                             <!-- Filter Section -->
                             <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
-                                <form id="applicantsFilterForm" method="GET" action="{{ route('LydoAdmin.report') }}">
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                         <div class="flex-1">
-                                            <input type="text" name="search" placeholder="Search by name..."
+                                            <input type="text" id="applicantsSearchInput" name="search" placeholder="Search by name..."
                                                    value="{{ request('search') }}"
                                                    class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                         </div>
                                         <div class="flex-1">
-                                            <select name="barangay" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                            <select id="applicantsBarangaySelect" name="barangay" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                                 <option value="">All Barangays</option>
                                                 @foreach($barangays as $barangay)
                                                     <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>
@@ -486,7 +485,7 @@
                                             </select>
                                         </div>
                                         <div class="flex-1">
-                                            <select name="academic_year" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                            <select id="applicantsAcademicYearSelect" name="academic_year" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                                 <option value="">All Academic Years</option>
                                                 @foreach($academicYears as $year)
                                                     <option value="{{ $year }}" {{ request('academic_year') == $year ? 'selected' : '' }}>
@@ -496,18 +495,12 @@
                                             </select>
                                         </div>
                                         <div class="flex-1">
-                                            <select name="remarks" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                            <select id="applicantsRemarksSelect" name="remarks" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                                 <option value="">All Remarks</option>
                                                 <option value="Ultra Poor" {{ request('remarks') == 'Ultra Poor' ? 'selected' : '' }}>Ultra Poor</option>
                                                 <option value="Poor" {{ request('remarks') == 'Poor' ? 'selected' : '' }}>Poor</option>
                                                 <option value="Non Poor" {{ request('remarks') == 'Non Poor' ? 'selected' : '' }}>Non Poor</option>
                                             </select>
-                                        </div>
-                                        <div class="flex-1">
-                                            <button type="submit"
-                                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium flex items-center justify-center">
-                                                <i class="fas fa-filter mr-2"></i> Apply Filters
-                                            </button>
                                         </div>
                                         <div class="flex-1">
                                             <button type="button" id="printApplicantsPdfBtn"
@@ -516,7 +509,6 @@
                                             </button>
                                         </div>
                                     </div>
-                                </form>
                             </div>
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
