@@ -100,7 +100,7 @@ c<!DOCTYPE html>
                                 </li>
                                 <li>
                                     <a href="/mayor_staff/status"
-                                        class="flex items-center p-2 rounded-lg text-gray-700 bg-violet-600 text-white">
+                                        class="flex items-center p-2 rounded-lg text-white-700 bg-violet-600 text-white">
                                     <i class="bx bx-check-circle mr-2"></i> Update Status
                                     </a>
                                 </li>

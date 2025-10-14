@@ -266,7 +266,7 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div id="dropdown-menu-{{ $app->application_personnel_id }}" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openEditInitialScreeningModal({{ $app->application_personnel_id }}, '{{ $app->initial_screening_status ?? "" }}')">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openEditInitialScreeningModal({{ $app->application_personnel_id }}, '{{ $app->initial_screening ?? "" }}')">
                                     <i class="fas fa-edit mr-2"></i>Edit Initial Screening
                                 </a>
                             </div>
