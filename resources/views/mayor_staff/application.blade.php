@@ -164,7 +164,7 @@
             <!-- ✅ Table View (Applicants without remarks) -->
             <div id="tableView">
                 <div class="mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700 bg-red-50 p-3 rounded-lg border border-blue-200">
+                    <h3 class="text-lg font-semibold text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
                         The list below shows applicants who have submitted applications
                     </h3>
                 </div>
@@ -266,9 +266,9 @@
                                 <i class="fas fa-ellipsis-v"></i>
                             </button>
                             <div id="dropdown-menu-{{ $app->application_personnel_id }}" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openEditInitialScreeningModal({{ $app->application_personnel_id }}, '{{ $app->initial_screening ?? "" }}')">
+                                <button type="button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" onclick="openEditInitialScreeningModal({{ $app->application_personnel_id }}, '{{ $app->initial_screening ?? "" }}')">
                                     <i class="fas fa-edit mr-2"></i>Edit Initial Screening
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </td>
