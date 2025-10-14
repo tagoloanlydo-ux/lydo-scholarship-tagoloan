@@ -284,10 +284,13 @@
                     <div class="border-b border-gray-200">
                         <nav class="-mb-px flex space-x-8">
                             <button id="activeTab" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-violet-500 text-violet-600">
-                                Active Scholars Without Renewal
+                                Active Scholars Without Submitted Renewal Application
                             </button>
                             <button id="inactiveTab" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                                 Inactive Scholars
+                            </button>
+                            <button id="inactiveThisYearTab" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Inactive This Academic Year
                             </button>
                         </nav>
                     </div>
@@ -417,6 +420,60 @@
                         @else
                         <div class="text-center py-8 text-gray-500">
                             <p>No inactive scholars found.</p>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Inactive This Academic Year Tab Content -->
+                <div id="inactiveThisYearTabContent" class="tab-content hidden">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Inactive Scholars This Academic Year</h3>
+                        </div>
+
+                        @if($inactiveScholarsThisYear->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto border-collapse text-[17px] shadow-lg overflow-hidden border border-gray-200">
+                                <thead class="bg-gradient-to-r from-red-600 to-pink-600 text-white uppercase text-sm">
+                                    <tr>
+                                        <th class="px-4 py-3 border align-middle border-gray-200 text-center">Name</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Barangay</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Email</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Contact Number</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">School</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Year Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($inactiveScholarsThisYear as $scholar)
+                                    <tr class="scholar-row hover:bg-gray-50 border-b">
+                                        <td class="px-4 border border-gray-200 py-2 text-center">
+                                            {{ $scholar->full_name }}
+                                            @if($scholar->applicant_suffix)
+                                                {{ $scholar->applicant_suffix }}
+                                            @endif
+                                        </td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_brgy }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_email }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_contact_number }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_school_name }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_year_level }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        @if($inactiveScholarsThisYear->hasPages())
+                        <div class="mt-6 flex justify-end">
+                            {{ $inactiveScholarsThisYear->links() }}
+                        </div>
+                        @endif
+                        @else
+                        <div class="text-center py-8 text-gray-500">
+                            <p>No inactive scholars found this academic year.</p>
                         </div>
                         @endif
                     </div>
@@ -748,16 +805,21 @@ scholarId.value = scholarIds.join(',');
                     // Tab switching functionality
                     const activeTab = document.getElementById('activeTab');
                     const inactiveTab = document.getElementById('inactiveTab');
+                    const inactiveThisYearTab = document.getElementById('inactiveThisYearTab');
                     const activeTabContent = document.getElementById('activeTabContent');
                     const inactiveTabContent = document.getElementById('inactiveTabContent');
+                    const inactiveThisYearTabContent = document.getElementById('inactiveThisYearTabContent');
 
                     activeTab.addEventListener('click', function() {
                         activeTab.classList.add('border-violet-500', 'text-violet-600');
                         activeTab.classList.remove('border-transparent', 'text-gray-500');
                         inactiveTab.classList.remove('border-violet-500', 'text-violet-600');
                         inactiveTab.classList.add('border-transparent', 'text-gray-500');
+                        inactiveThisYearTab.classList.remove('border-violet-500', 'text-violet-600');
+                        inactiveThisYearTab.classList.add('border-transparent', 'text-gray-500');
                         activeTabContent.classList.remove('hidden');
                         inactiveTabContent.classList.add('hidden');
+                        inactiveThisYearTabContent.classList.add('hidden');
                     });
 
                     inactiveTab.addEventListener('click', function() {
@@ -765,8 +827,23 @@ scholarId.value = scholarIds.join(',');
                         inactiveTab.classList.remove('border-transparent', 'text-gray-500');
                         activeTab.classList.remove('border-violet-500', 'text-violet-600');
                         activeTab.classList.add('border-transparent', 'text-gray-500');
+                        inactiveThisYearTab.classList.remove('border-violet-500', 'text-violet-600');
+                        inactiveThisYearTab.classList.add('border-transparent', 'text-gray-500');
                         inactiveTabContent.classList.remove('hidden');
                         activeTabContent.classList.add('hidden');
+                        inactiveThisYearTabContent.classList.add('hidden');
+                    });
+
+                    inactiveThisYearTab.addEventListener('click', function() {
+                        inactiveThisYearTab.classList.add('border-violet-500', 'text-violet-600');
+                        inactiveThisYearTab.classList.remove('border-transparent', 'text-gray-500');
+                        activeTab.classList.remove('border-violet-500', 'text-violet-600');
+                        activeTab.classList.add('border-transparent', 'text-gray-500');
+                        inactiveTab.classList.remove('border-violet-500', 'text-violet-600');
+                        inactiveTab.classList.add('border-transparent', 'text-gray-500');
+                        inactiveThisYearTabContent.classList.remove('hidden');
+                        activeTabContent.classList.add('hidden');
+                        inactiveTabContent.classList.add('hidden');
                     });
 
                     // Initialize button states
