@@ -758,6 +758,9 @@ $percentageReviewed = $totalApplications > 0
             ->when($request->filled('barangay'), function ($q) use ($request) {
                 $q->where('app.applicant_brgy', $request->barangay);
             })
+            ->when($request->filled('status_filter'), function ($q) use ($request) {
+                $q->where('ap.status', $request->status_filter);
+            })
             ->paginate(15, ['*'], 'list');
 
         $barangays = DB::table('tbl_applicant')->distinct()->pluck('applicant_brgy');

@@ -142,16 +142,16 @@
                     <!-- 🔎 Search & Filter + View Switch -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-            <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
+            <form id="filterForm" method="GET" action="{{ route('MayorStaff.status') }}" class="flex gap-2 mb-4">
                 {{-- Search --}}
-                <input type="text" name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Search name..." 
+                <input type="text" name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search name..."
                     class="border rounded px-3 py-2 w-64"
                     oninput="document.getElementById('filterForm').submit()">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" 
+                <select name="barangay"
                     class="border rounded px-3 py-2"
                     onchange="document.getElementById('filterForm').submit()">
                     <option value="">All Barangays</option>
@@ -160,6 +160,15 @@
                             {{ $brgy }}
                         </option>
                     @endforeach
+                </select>
+
+                {{-- Status dropdown (only for processed tab) --}}
+                <select name="status_filter" id="statusFilter"
+                    class="border rounded px-3 py-2 hidden"
+                    onchange="document.getElementById('filterForm').submit()">
+                    <option value="">All Statuses</option>
+                    <option value="Approved" {{ request('status_filter') == 'Approved' ? 'selected' : '' }}>Approved</option>
+                    <option value="Rejected" {{ request('status_filter') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                 </select>
             </form>
           <!-- Tab Switch -->
@@ -310,6 +319,7 @@
         document.getElementById("listView").classList.add("hidden");
         document.querySelector('.tab.active').classList.remove('active');
         document.querySelectorAll('.tab')[0].classList.add('active');
+        document.getElementById('statusFilter').classList.add('hidden');
         localStorage.setItem("viewMode", "table"); // save preference
     }
 
@@ -318,6 +328,7 @@
         document.getElementById("tableView").classList.add("hidden");
         document.querySelector('.tab.active').classList.remove('active');
         document.querySelectorAll('.tab')[1].classList.add('active');
+        document.getElementById('statusFilter').classList.remove('hidden');
         localStorage.setItem("viewMode", "list"); // save preference
     }
 
@@ -328,6 +339,11 @@
             showList();
         } else {
             showTable();
+        }
+
+        // Show status filter if on processed tab
+        if(viewMode === "list") {
+            document.getElementById('statusFilter').classList.remove('hidden');
         }
 
         // Add SweetAlert confirmation for dropdown status changes
