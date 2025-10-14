@@ -6,7 +6,7 @@ use App\Http\Controllers\LydopersController;
 use App\Http\Controllers\ScholarController;
 
 Route::get('/reset-password', function () {return redirect()->route('login');});
-Route::get('/', [LydopersController::class, 'showfrontpage'])->name('home');
+Route::get('/', [LydopersController::class, 'showfrontpage'])->name('       ');
 Route::get('/login', [LydopersController::class, 'showLoginForm'])->name('login');
 Route::get('/registration', [LydopersController::class, 'showregistrationForm'])->name('lydopers.registration');
 Route::post('/register-personnel', [LydopersController::class, 'store'])->name('lydopers.register');
