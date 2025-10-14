@@ -217,6 +217,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="mt-4">
+                {{ $tableApplicants->links() }}
+            </div>
         </div>
 
             <!-- ✅ List View (Approved and Rejected applications) -->

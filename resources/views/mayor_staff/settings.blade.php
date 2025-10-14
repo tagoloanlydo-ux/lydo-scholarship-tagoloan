@@ -122,7 +122,7 @@
                     </ul>
                     <ul class="side-menu space-y-1">
                       <li>
-                        <a href="/mayor_staff/settings" class="sidebar-item flex items-center p-3 rounded-lg text-violet-600 bg-violet-50">
+                        <a href="/mayor_staff/settings" class="flex items-center p-2 rounded-lg text-gray-700 bg-violet-600 text-white">
                           <i class="bx bxs-cog text-center mx-auto md:mx-0 text-xl"></i>
                           <span class="ml-4 hidden md:block text-base">Settings</span>
                         </a>
