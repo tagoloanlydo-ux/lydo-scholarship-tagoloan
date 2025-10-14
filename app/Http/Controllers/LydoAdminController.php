@@ -440,6 +440,7 @@ class LydoAdminController extends Controller
                 'applicant_school_name' => $scholar->applicant_school_name,
                 'applicant_course' => $scholar->applicant_course,
                 'applicant_year_level' => $scholar->applicant_year_level,
+                'applicant_brgy' => $scholar->applicant_brgy,
                 'scholar_status' => $scholar->scholar_status,
             ];
         });

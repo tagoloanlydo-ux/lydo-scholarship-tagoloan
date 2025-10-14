@@ -990,7 +990,7 @@
                     <div class="text-sm text-gray-900 font-medium">${scholar.applicant_school_name}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="text-sm text-gray-900">${scholar.applicant_brgy}</span>
+                    <span class="text-sm text-gray-900">${scholar.applicant_brgy || 'undefined'}</span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="text-sm text-gray-900">${scholar.applicant_year_level}</span>
