@@ -825,7 +825,7 @@
     </div>
 
     <!-- Edit Initial Screening Modal -->
-    <div id="editInitialScreeningModal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50" style="display: none;">
+    <div id="editInitialScreeningModal" class="fixed inset-0 hidden bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
     <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl animate-fadeIn">
 
         <!-- Header -->
