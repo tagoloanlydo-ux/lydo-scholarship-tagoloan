@@ -496,9 +496,11 @@
                             <div class="flex-1">
                                 <select id="applicantsRemarksSelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
                                     <option value="">All Remarks</option>
-                                    <option value="Ultra Poor" {{ request('remarks') == 'Ultra Poor' ? 'selected' : '' }}>Ultra Poor</option>
-                                    <option value="Poor" {{ request('remarks') == 'Poor' ? 'selected' : '' }}>Poor</option>
-                                    <option value="Non Poor" {{ request('remarks') == 'Non Poor' ? 'selected' : '' }}>Non Poor</option>
+                                    @foreach($remarks as $remark)
+                                        <option value="{{ $remark->remarks }}" {{ request('remarks') == $remark->remarks ? 'selected' : '' }}>
+                                            {{ $remark->remarks }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="flex-1">

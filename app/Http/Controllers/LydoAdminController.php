@@ -19,7 +19,8 @@ class LydoAdminController extends Controller
         ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
         ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
         ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
-        ->where('tbl_application_personnel.initial_screening', 'Approved');
+        ->where('tbl_application_personnel.initial_screening', 'Approved')
+        ->whereIn('tbl_application_personnel.remarks', ['Poor', 'Non Poor', 'Ultra Poor']);
 
     // Apply search filter
     if ($request->has('search') && !empty($request->search)) {
@@ -234,6 +235,7 @@ class LydoAdminController extends Controller
             ->select('remarks')
             ->whereNotNull('remarks')
             ->where('remarks', '!=', '')
+            ->whereIn('remarks', ['Poor', 'Non Poor', 'Ultra Poor'])
             ->distinct()
             ->orderBy('remarks', 'asc')
             ->get();
@@ -271,6 +273,7 @@ class LydoAdminController extends Controller
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
             ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
             ->where('tbl_application_personnel.initial_screening', 'Approved')
+            ->whereIn('tbl_application_personnel.remarks', ['Poor', 'Non Poor', 'Ultra Poor'])
             ->paginate(15);
 
         // Fix remarks field - ensure it's cast to string to prevent stdClass errors
@@ -1724,7 +1727,8 @@ class LydoAdminController extends Controller
             ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
             ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
-            ->where('tbl_application_personnel.initial_screening', 'Approved');
+            ->where('tbl_application_personnel.initial_screening', 'Approved')
+            ->whereIn('tbl_application_personnel.remarks', ['Poor', 'Non Poor', 'Ultra Poor']);
 
         // Apply search filter
         if ($request->has('search') && !empty($request->search)) {
