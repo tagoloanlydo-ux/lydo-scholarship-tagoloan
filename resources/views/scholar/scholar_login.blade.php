@@ -62,7 +62,7 @@
         <h2 class="text-5xl font-extrabold mb-4 text-purple-700 leading-tight">
           Welcome Back, Scholars!
         </h2>
-        <p class="text-xl leading-relaxed text-gray-700 mb-4">
+        <p class="text-xl leading-relaxed text-violet-700 mb-4">
           Access your scholarship dashboard, track your application, and explore
           new opportunities for your future.
         </p>
