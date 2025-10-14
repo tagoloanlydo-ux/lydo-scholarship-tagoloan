@@ -845,11 +845,21 @@ class LydoAdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Fetch active scholars without renewal applications
+        // Get current academic year
+        $currentAcademicYear = DB::table('tbl_applicant')
+            ->select('applicant_acad_year')
+            ->orderBy('applicant_acad_year', 'desc')
+            ->value('applicant_acad_year');
+
+        // If no academic year found, use current year as fallback
+        if (!$currentAcademicYear) {
+            $currentAcademicYear = date('Y') . '-' . (date('Y') + 1);
+        }
+
+        // Fetch active scholars without renewal applications for the current academic year
         $scholarsWithoutRenewal = DB::table('tbl_scholar as s')
             ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
             ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
-            ->leftJoin('tbl_renewal as r', 's.scholar_id', '=', 'r.scholar_id')
             ->select(
                 's.scholar_id',
                 's.scholar_status',
@@ -866,7 +876,12 @@ class LydoAdminController extends Controller
                 DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
             )
             ->where('s.scholar_status', 'active')
-            ->whereNull('r.renewal_id')
+            ->whereNotExists(function($query) use ($currentAcademicYear) {
+                $query->select(DB::raw(1))
+                      ->from('tbl_renewal')
+                      ->whereRaw('tbl_renewal.scholar_id = s.scholar_id')
+                      ->where('tbl_renewal.renewal_acad_year', $currentAcademicYear);
+            })
             ->paginate(15);
 
         // Fetch inactive scholars
