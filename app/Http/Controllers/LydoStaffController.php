@@ -324,7 +324,7 @@ class LydoStaffController extends Controller
             ->pluck("applicant_brgy");
 
         // Applicants without remarks
-        $tableApplicants = DB::table("tbl_applicant")
+        $tableApplicantsQuery = DB::table("tbl_applicant")
             ->join(
                 "tbl_application",
                 "tbl_applicant.applicant_id",
@@ -350,9 +350,14 @@ class LydoStaffController extends Controller
                 "Non Poor",
                 "Ultra Poor",
                 "Non Indigenous",
-            ])
-            ->paginate(15)
-            ->appends($request->all());
+            ]);
+
+        if ($request->ajax()) {
+            $tableApplicants = $tableApplicantsQuery->paginate(15);
+            return response()->json($tableApplicants);
+        }
+
+        $tableApplicants = $tableApplicantsQuery->paginate(15)->appends($request->all());
 
         $currentAcadYear = DB::table("tbl_applicant")
             ->select("applicant_acad_year")

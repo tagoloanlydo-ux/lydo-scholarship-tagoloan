@@ -145,9 +145,9 @@
                         <!-- Search & Filter -->
                         <form id="filterForm" method="GET" action="{{ route('LydoStaff.screening') }}" class="flex gap-2 mb-4">
                             {{-- Search --}}
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name..." class="border rounded px-3 py-2 w-64" oninput="document.getElementById('filterForm').submit()">
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name..." class="border rounded px-3 py-2 w-64" id="searchInput" onkeyup="filterTable()">
                             {{-- Barangay dropdown --}}
-                            <select name="barangay" class="border rounded px-3 py-2" onchange="document.getElementById('filterForm').submit()">
+                            <select name="barangay" class="border rounded px-3 py-2" id="barangaySelect" onchange="filterTable()">
                                 <option value="">All Barangays</option> @foreach($barangays as $brgy) <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
                                     {{ $brgy }}
                                 </option> @endforeach
@@ -678,6 +678,34 @@ function pollForNewApplicants() {
 
 // Poll every 10 seconds
 setInterval(pollForNewApplicants, 10000);
+</script>
+
+<script>
+function filterTable() {
+    const searchValue = document.getElementById('searchInput').value.toLowerCase();
+    const barangayValue = document.getElementById('barangaySelect').value;
+    const tableBody = document.querySelector('#tableView tbody');
+    const rows = tableBody.querySelectorAll('tr');
+
+    rows.forEach((row, index) => {
+        const nameCell = row.cells[1]; // Name column
+        const barangayCell = row.cells[2]; // Barangay column
+
+        if (nameCell && barangayCell) {
+            const nameText = nameCell.textContent.toLowerCase();
+            const barangayText = barangayCell.textContent.trim();
+
+            const matchesSearch = nameText.includes(searchValue);
+            const matchesBarangay = barangayValue === '' || barangayText === barangayValue;
+
+            if (matchesSearch && matchesBarangay) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    });
+}
 </script>
 
 </body>
