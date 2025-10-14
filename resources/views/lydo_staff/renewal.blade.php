@@ -354,8 +354,15 @@
             @endforelse
         </tbody>
     </table>
-    <div class="mt-4">
-        {{ $listView->links() }}
+    <div class="mt-4 flex justify-between items-center">
+        <div class="text-sm text-gray-600">
+            Showing {{ $listView->firstItem() ?? 0 }} to {{ $listView->lastItem() ?? 0 }} of {{ $listView->total() }} results
+        </div>
+        <div class="flex space-x-1">
+            @if($listView->hasPages())
+                {{ $listView->appends(request()->query())->links() }}
+            @endif
+        </div>
     </div>
     </div>
     </div>
