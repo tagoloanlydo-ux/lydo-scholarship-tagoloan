@@ -19,8 +19,7 @@ class LydoAdminController extends Controller
         ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
         ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
         ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
-        ->where('tbl_application_personnel.initial_screening', 'Approved')
-        ->whereIn('tbl_application_personnel.remarks', ['Poor', 'Non Poor', 'Ultra Poor']);
+        ->where('tbl_application_personnel.initial_screening', 'Approved');
 
     // Apply search filter
     if ($request->has('search') && !empty($request->search)) {
@@ -45,7 +44,7 @@ class LydoAdminController extends Controller
         $query->where('tbl_application_personnel.remarks', $request->remarks);
     }
 
-    $applicants = $query->paginate(15);
+    $applicants = $query->get();
 
     // Format the data for JSON response
     $formattedApplicants = $applicants->map(function ($applicant) {
@@ -61,8 +60,7 @@ class LydoAdminController extends Controller
 
     return response()->json([
         'success' => true,
-        'applicants' => $formattedApplicants,
-        'pagination' => $applicants->links()->toHtml()
+        'applicants' => $formattedApplicants
     ]);
 }
     public function report(Request $request)
@@ -176,13 +174,13 @@ class LydoAdminController extends Controller
         }
 
         // Check if this is an AJAX request for filtering
-        if ($request->ajax()) {
-            if ($request->input('tab') === 'applicants') {
-                return $this->getFilteredApplicantsWithRemarks($request);
-            } else {
-                return $this->getFilteredScholars($request);
-            }
-        }
+   if ($request->ajax()) {
+    if ($request->input('tab') === 'applicants') {
+        return $this->getFilteredApplicantsWithRemarks($request);
+    } else {
+        return $this->getFilteredScholars($request);
+    }
+}
 
         // Fetch scholars for the second tab
         $query = DB::table('tbl_scholar')
@@ -208,7 +206,7 @@ class LydoAdminController extends Controller
             $query->where('scholar_status', $request->status);
         }
 
-        $scholars = $query->get();
+        $scholars = $query->paginate(15);
 
         // Get distinct barangays for filter dropdown
         $barangays = DB::table('tbl_applicant')
@@ -236,7 +234,6 @@ class LydoAdminController extends Controller
             ->select('remarks')
             ->whereNotNull('remarks')
             ->where('remarks', '!=', '')
-            ->whereIn('remarks', ['Poor', 'Non Poor', 'Ultra Poor'])
             ->distinct()
             ->orderBy('remarks', 'asc')
             ->get();
@@ -269,13 +266,36 @@ class LydoAdminController extends Controller
         });
 
         // Fetch applicants with remarks for the third tab (only reviewed initial screening)
-        $applicantsWithRemarks = DB::table('tbl_application_personnel')
+        $applicantsQuery = DB::table('tbl_application_personnel')
             ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
             ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
-            ->where('tbl_application_personnel.initial_screening', 'Approved')
-            ->whereIn('tbl_application_personnel.remarks', ['Poor', 'Non Poor', 'Ultra Poor'])
-            ->paginate(15);
+            ->where('tbl_application_personnel.initial_screening', 'Approved');
+
+        // Apply search filter
+        if ($request->has('search') && !empty($request->search)) {
+            $applicantsQuery->where(function($q) use ($request) {
+                $q->where('applicant_fname', 'like', '%' . $request->search . '%')
+                  ->orWhere('applicant_lname', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Apply barangay filter
+        if ($request->has('barangay') && !empty($request->barangay)) {
+            $applicantsQuery->where('applicant_brgy', $request->barangay);
+        }
+
+        // Apply academic year filter
+        if ($request->has('academic_year') && !empty($request->academic_year)) {
+            $applicantsQuery->where('applicant_acad_year', $request->academic_year);
+        }
+
+        // Apply remarks filter
+        if ($request->has('remarks') && !empty($request->remarks)) {
+            $applicantsQuery->where('tbl_application_personnel.remarks', $request->remarks);
+        }
+
+        $applicantsWithRemarks = $applicantsQuery->paginate(15);
 
         // Fix remarks field - ensure it's cast to string to prevent stdClass errors
         $applicantsWithRemarks->getCollection()->transform(function ($applicant) {
@@ -389,7 +409,7 @@ class LydoAdminController extends Controller
             $query->where('applicant_acad_year', $request->academic_year);
         }
 
-        $scholars = $query->paginate(15);
+        $scholars = $query->get();
 
         // Format the data for JSON response
         $formattedScholars = $scholars->map(function ($scholar) {
@@ -399,15 +419,13 @@ class LydoAdminController extends Controller
                 'applicant_school_name' => $scholar->applicant_school_name,
                 'applicant_course' => $scholar->applicant_course,
                 'applicant_year_level' => $scholar->applicant_year_level,
-                'applicant_brgy' => $scholar->applicant_brgy,
                 'scholar_status' => $scholar->scholar_status,
             ];
         });
 
         return response()->json([
             'success' => true,
-            'scholars' => $formattedScholars,
-            'pagination' => $scholars->links()->toHtml()
+            'scholars' => $formattedScholars
         ]);
     }
     public function announcement()
@@ -851,91 +869,31 @@ class LydoAdminController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Get current academic year
-        $currentAcademicYear = DB::table('tbl_applicant')
-            ->select('applicant_acad_year')
-            ->orderBy('applicant_acad_year', 'desc')
-            ->value('applicant_acad_year');
-
-        // If no academic year found, use current year as fallback
-        if (!$currentAcademicYear) {
-            $currentAcademicYear = date('Y') . '-' . (date('Y') + 1);
-        }
-
-        // Fetch active scholars without renewal applications for the current academic year
+        // Fetch active scholars without renewal applications
         $scholarsWithoutRenewal = DB::table('tbl_scholar as s')
             ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
             ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
-            ->select(
-                's.scholar_id',
-                's.scholar_status',
-                'a.applicant_fname',
-                'a.applicant_mname',
-                'a.applicant_lname',
-                'a.applicant_suffix',
-                'a.applicant_email',
-                'a.applicant_contact_number',
-                'a.applicant_school_name',
-                'a.applicant_course',
-                'a.applicant_year_level',
-                'a.applicant_brgy',
-                DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
-            )
+            ->leftJoin('tbl_renewal as r', 's.scholar_id', '=', 'r.scholar_id')
+->select(
+    's.scholar_id',
+    's.scholar_status',
+    'a.applicant_fname',
+    'a.applicant_mname',
+    'a.applicant_lname',
+    'a.applicant_suffix',
+    'a.applicant_email',
+    'a.applicant_contact_number',
+    'a.applicant_school_name',
+    'a.applicant_course',
+    'a.applicant_year_level',
+      'a.applicant_brgy',
+    DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
+)
             ->where('s.scholar_status', 'active')
-            ->whereNotExists(function($query) use ($currentAcademicYear) {
-                $query->select(DB::raw(1))
-                      ->from('tbl_renewal')
-                      ->whereRaw('tbl_renewal.scholar_id = s.scholar_id')
-                      ->where('tbl_renewal.renewal_acad_year', $currentAcademicYear);
-            })
-            ->paginate(15);
+            ->whereNull('r.renewal_id')
+            ->get();
 
-        // Fetch inactive scholars
-        $inactiveScholars = DB::table('tbl_scholar as s')
-            ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
-            ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
-            ->select(
-                's.scholar_id',
-                's.scholar_status',
-                'a.applicant_fname',
-                'a.applicant_mname',
-                'a.applicant_lname',
-                'a.applicant_suffix',
-                'a.applicant_email',
-                'a.applicant_contact_number',
-                'a.applicant_school_name',
-                'a.applicant_course',
-                'a.applicant_year_level',
-                'a.applicant_brgy',
-                DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
-            )
-            ->where('s.scholar_status', 'inactive')
-            ->paginate(15, ['*'], 'inactive_page');
-
-        // Fetch inactive scholars this academic year
-        $inactiveScholarsThisYear = DB::table('tbl_scholar as s')
-            ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
-            ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
-            ->select(
-                's.scholar_id',
-                's.scholar_status',
-                'a.applicant_fname',
-                'a.applicant_mname',
-                'a.applicant_lname',
-                'a.applicant_suffix',
-                'a.applicant_email',
-                'a.applicant_contact_number',
-                'a.applicant_school_name',
-                'a.applicant_course',
-                'a.applicant_year_level',
-                'a.applicant_brgy',
-                DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
-            )
-            ->where('s.scholar_status', 'inactive')
-            ->whereYear('s.updated_at', substr($currentAcademicYear, 0, 4))
-            ->paginate(15, ['*'], 'inactive_this_year_page');
-
-        return view('lydo_admin.status', compact('notifications', 'scholarsWithoutRenewal', 'inactiveScholars', 'inactiveScholarsThisYear'));
+        return view('lydo_admin.status', compact('notifications', 'scholarsWithoutRenewal'));
     }
 
     public function updateScholarStatus(Request $request)
@@ -1730,8 +1688,7 @@ class LydoAdminController extends Controller
             ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
             ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
-            ->where('tbl_application_personnel.initial_screening', 'Approved')
-            ->whereIn('tbl_application_personnel.remarks', ['Poor', 'Non Poor', 'Ultra Poor']);
+            ->where('tbl_application_personnel.initial_screening', 'Approved');
 
         // Apply search filter
         if ($request->has('search') && !empty($request->search)) {

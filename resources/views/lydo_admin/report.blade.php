@@ -458,9 +458,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div id="scholarsPagination" class="mt-4">
-                                {{ $scholars->links() }}
-                            </div>
+                            {{ $scholars->links() }}
                         </div>
                     </div>
 
@@ -470,49 +468,55 @@
                             <h3 class="text-lg font-semibold mb-4">Applicants by Remarks</h3>
                             <!-- Filter Section -->
                             <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="applicantsFilterForm">
-                                    <div class="flex-1">
-                                        <input type="text" id="applicantsSearchInput" placeholder="Search by name..."
-                                               value="{{ request('search') }}"
-                                               class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                <form id="applicantsFilterForm" method="GET" action="{{ route('LydoAdmin.report') }}">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        <div class="flex-1">
+                                            <input type="text" name="search" placeholder="Search by name..."
+                                                   value="{{ request('search') }}"
+                                                   class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                        </div>
+                                        <div class="flex-1">
+                                            <select name="barangay" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                                <option value="">All Barangays</option>
+                                                @foreach($barangays as $barangay)
+                                                    <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>
+                                                        {{ $barangay }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="flex-1">
+                                            <select name="academic_year" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                                <option value="">All Academic Years</option>
+                                                @foreach($academicYears as $year)
+                                                    <option value="{{ $year }}" {{ request('academic_year') == $year ? 'selected' : '' }}>
+                                                        {{ $year }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="flex-1">
+                                            <select name="remarks" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
+                                                <option value="">All Remarks</option>
+                                                <option value="Ultra Poor" {{ request('remarks') == 'Ultra Poor' ? 'selected' : '' }}>Ultra Poor</option>
+                                                <option value="Poor" {{ request('remarks') == 'Poor' ? 'selected' : '' }}>Poor</option>
+                                                <option value="Non Poor" {{ request('remarks') == 'Non Poor' ? 'selected' : '' }}>Non Poor</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex-1">
+                                            <button type="submit"
+                                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium flex items-center justify-center">
+                                                <i class="fas fa-filter mr-2"></i> Apply Filters
+                                            </button>
+                                        </div>
+                                        <div class="flex-1">
+                                            <button type="button" id="printApplicantsPdfBtn"
+                                                class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium flex items-center justify-center" title="Generate and print applicants report">
+                                                <i class="fas fa-print mr-2"></i> Print PDF
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="flex-1">
-                                        <select id="applicantsBarangaySelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
-                                            <option value="">All Barangays</option>
-                                            @foreach($barangays as $barangay)
-                                                <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>
-                                                    {{ $barangay }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="flex-1">
-                                        <select id="applicantsAcademicYearSelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
-                                            <option value="">All Academic Years</option>
-                                            @foreach($academicYears as $year)
-                                                <option value="{{ $year }}" {{ request('academic_year') == $year ? 'selected' : '' }}>
-                                                    {{ $year }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                            <div class="flex-1">
-                                <select id="applicantsRemarksSelect" class="w-full px-4 py-2 border border-black rounded-lg focus:ring-2 focus:ring-black-500 placeholder-black">
-                                    <option value="">All Remarks</option>
-                                    @foreach($remarks as $remark)
-                                        <option value="{{ $remark->remarks }}" {{ request('remarks') == $remark->remarks ? 'selected' : '' }}>
-                                            {{ $remark->remarks }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="flex-1">
-                                <button type="button" id="printApplicantsPdfBtn"
-                                    class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm font-medium flex items-center justify-center" title="Generate and print applicants report">
-                                    <i class="fas fa-print mr-2"></i> Print PDF
-                                </button>
-                            </div>
-                                </div>
+                                </form>
                             </div>
                             <div class="overflow-x-auto bg-white shadow-sm border border-gray-200">
                                 <table class="w-full">
@@ -936,174 +940,172 @@
             });
         });
 
-        // AJAX filtering functionality for Scholars
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const barangaySelect = document.getElementById('barangaySelect');
-            const academicYearSelect = document.getElementById('academicYearSelect');
-            const scholarStatusSelect = document.getElementById('scholarStatusSelect');
-            const scholarsTableBody = document.querySelector('#scholars-tab tbody');
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const barangaySelect = document.getElementById('barangaySelect');
+    const academicYearSelect = document.getElementById('academicYearSelect');
+    const scholarStatusSelect = document.getElementById('scholarStatusSelect');
+    const printPdfBtn = document.getElementById('printPdfBtn');
+    const scholarsTableBody = document.querySelector('#scholars-tab tbody');
 
-            // Function to show loading state for scholars
-            function showScholarsLoading() {
-                scholarsTableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="p-4 text-center">
-                            <div class="flex items-center justify-center">
-                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                                <span class="ml-2">Loading...</span>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+    // Function to show loading state for scholars
+    function showLoading() {
+        scholarsTableBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="p-4 text-center">
+                    <div class="flex items-center justify-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                        <span class="ml-2">Loading...</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Function to update scholars table with AJAX results
+    function updateScholarsTable(results) {
+        if (results.length === 0) {
+            scholarsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500">
+                        No scholars found matching your criteria
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        scholarsTableBody.innerHTML = results.map(scholar => `
+            <tr class="hover:bg-gray-50 transition-colors duration-200">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-semibold text-gray-900">
+                        ${scholar.applicant_fname} ${scholar.applicant_lname}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900 font-medium">${scholar.applicant_school_name}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-gray-900">${scholar.applicant_brgy}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm text-gray-900">${scholar.applicant_year_level}</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    ${getStatusBadge(scholar.scholar_status)}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Function to get status badge HTML
+    function getStatusBadge(status) {
+        if (status === 'Approved') {
+            return `<span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
+                ${status}
+            </span>`;
+        } else {
+            return `<span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">
+                ${status}
+            </span>`;
+        }
+    }
+
+    // Function to perform AJAX request for scholars
+    function filterScholars() {
+        const search = searchInput.value;
+        const barangay = barangaySelect.value;
+        const academicYear = academicYearSelect.value;
+        const status = scholarStatusSelect.value;
+
+        // Show loading state
+        showLoading();
+
+        // Prepare data for AJAX request
+        const formData = new FormData();
+        formData.append('search', search);
+        formData.append('barangay', barangay);
+        formData.append('academic_year', academicYear);
+        formData.append('status', status);
+        formData.append('tab', 'scholars');
+        formData.append('_token', '{{ csrf_token() }}');
+
+        // Make AJAX request
+        fetch('{{ route("LydoAdmin.report.post") }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             }
-
-            // Function to update scholars table with AJAX results
-            function updateScholarsTable(results) {
-                if (results.length === 0) {
-                    scholarsTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="p-4 text-center text-gray-500">
-                                No scholars found matching your criteria
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-
-                scholarsTableBody.innerHTML = results.map(scholar => `
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-semibold text-gray-900">
-                                ${scholar.applicant_fname} ${scholar.applicant_lname}
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900 font-medium">${scholar.applicant_school_name}</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="text-sm text-gray-900">${scholar.applicant_brgy || 'N/A'}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="text-sm text-gray-900">${scholar.applicant_year_level}</span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            ${scholar.scholar_status === 'Approved' ?
-                                '<span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">Approved</span>' :
-                                '<span class="inline-flex items-center px-3 py-1 text-xs font-semibold border border-gray-300 bg-gray-50 text-gray-800">' + scholar.scholar_status + '</span>'
-                            }
-                        </td>
-                    </tr>
-                `).join('');
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
             }
-
-            // Function to perform AJAX request for scholars
-            function filterScholars() {
-                const search = searchInput.value;
-                const barangay = barangaySelect.value;
-                const academicYear = academicYearSelect.value;
-                const status = scholarStatusSelect.value;
-
-                // Show loading state
-                showScholarsLoading();
-
-                // Prepare data for AJAX request
-                const formData = new FormData();
-                formData.append('search', search);
-                formData.append('barangay', barangay);
-                formData.append('academic_year', academicYear);
-                formData.append('status', status);
-                formData.append('tab', 'scholars');
-                formData.append('_token', '{{ csrf_token() }}');
-
-                // Make AJAX request
-                fetch('{{ route("LydoAdmin.report.post") }}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        updateScholarsTable(data.scholars);
-                    } else {
-                        throw new Error('Server returned error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    scholarsTableBody.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="p-4 text-center text-red-500">
-                                Error loading data. Please try again.
-                            </td>
-                        </tr>
-                    `;
-                });
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                updateScholarsTable(data.scholars);
+            } else {
+                throw new Error('Server returned error');
             }
-
-            // Real-time search functionality for scholars
-            let scholarsSearchTimeout;
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    // Clear previous timeout
-                    clearTimeout(scholarsSearchTimeout);
-
-                    // Set new timeout to trigger search after user stops typing (300ms delay)
-                    scholarsSearchTimeout = setTimeout(function() {
-                        filterScholars();
-                    }, 300);
-                });
-            }
-
-            // Real-time dropdown filtering for scholars
-            if (barangaySelect) {
-                barangaySelect.addEventListener('change', function() {
-                    filterScholars();
-                });
-            }
-
-            if (academicYearSelect) {
-                academicYearSelect.addEventListener('change', function() {
-                    filterScholars();
-                });
-            }
-
-            if (scholarStatusSelect) {
-                scholarStatusSelect.addEventListener('change', function() {
-                    filterScholars();
-                });
-            }
-
-            // Print PDF functionality
-            const printPdfBtn = document.getElementById('printPdfBtn');
-            if (printPdfBtn) {
-                printPdfBtn.addEventListener('click', function() {
-                    const search = searchInput.value;
-                    const barangay = barangaySelect.value;
-                    const academicYear = academicYearSelect.value;
-                    const status = scholarStatusSelect.value;
-
-                    const params = new URLSearchParams({
-                        search: search,
-                        barangay: barangay,
-                        academic_year: academicYear,
-                        status: status
-                    });
-
-                    // Open PDF in new window/tab
-                    window.open(`{{ route("LydoAdmin.report.pdf.scholars") }}?${params.toString()}`, '_blank');
-                });
-            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            scholarsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-4 text-center text-red-500">
+                        Error loading data. Please try again.
+                    </td>
+                </tr>
+            `;
         });
+    }
+
+    // Print PDF functionality
+    if (printPdfBtn) {
+        printPdfBtn.addEventListener('click', function() {
+            const filterForm = document.getElementById('filterForm');
+            const formData = new FormData(filterForm);
+            const params = new URLSearchParams(formData);
+
+            // Open PDF in new window/tab
+            window.open(`{{ route("LydoAdmin.report.pdf.scholars") }}?${params.toString()}`, '_blank');
+        });
+    }
+
+    // Real-time search functionality for scholars
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                filterScholars();
+            }, 300);
+        });
+    }
+
+    // Real-time dropdown filtering for scholars
+    if (barangaySelect) {
+        barangaySelect.addEventListener('change', function() {
+            filterScholars();
+        });
+    }
+
+    if (academicYearSelect) {
+        academicYearSelect.addEventListener('change', function() {
+            filterScholars();
+        });
+    }
+
+    if (scholarStatusSelect) {
+        scholarStatusSelect.addEventListener('change', function() {
+            filterScholars();
+        });
+    }
+});
 
         // AJAX filtering functionality for Applicants
         document.addEventListener('DOMContentLoaded', function() {
