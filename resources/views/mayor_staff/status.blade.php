@@ -188,7 +188,7 @@
                 </tr>
             </thead>
         <tbody class="bg-white">
-        @forelse($applications as $index => $app)
+        @forelse($tableApplicants as $index => $app)
             @if(in_array($app->remarks, ['Poor', 'Ultra Poor']))
             <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200">
                 <td class="px-6 py-4">{{ $index + 1 }}</td>
@@ -235,7 +235,7 @@
         </tbody>
         </table>
         <div class="mt-4">
-            {{ $applications->appends(request()->query())->links() }}
+            {{ $tableApplicants->appends(request()->query())->links() }}
         </div>
     </div>
         <!-- ✅ List View (Approved and Rejected applications) -->
