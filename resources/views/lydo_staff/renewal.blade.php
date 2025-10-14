@@ -110,43 +110,23 @@
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
 
-        <form id="filterForm" method="GET" action="{{ route('LydoStaff.renewal') }}" class="flex gap-2 mb-4">
+        <div class="flex gap-2 mb-4">
 
-            <input type="text" id="searchInput" name="search"
-                value="{{ request('search') }}"
+            <input type="text" id="searchInput"
                 placeholder="Search name..."
                 class="border rounded px-3 py-2 w-64">
 
-            <select id="barangaySelect" name="barangay"
+            <select id="barangaySelect"
                 class="border rounded px-3 py-2">
                 <option value="">All Barangays</option>
                 @foreach($barangays as $brgy)
-                    <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
+                    <option value="{{ $brgy }}">
                         {{ $brgy }}
                     </option>
                 @endforeach
             </select>
 
-            <select id="perPageSelect" name="per_page"
-                class="border rounded px-3 py-2">
-                <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10 per page</option>
-                <option value="15" {{ request('per_page') == '15' || !request('per_page') ? 'selected' : '' }}>15 per page</option>
-                <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25 per page</option>
-                <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 per page</option>
-            </select>
-
-            <select id="listPerPageSelect" name="list_per_page"
-                class="border rounded px-3 py-2">
-                <option value="10" {{ request('list_per_page') == '10' ? 'selected' : '' }}>10 per page</option>
-                <option value="15" {{ request('list_per_page') == '15' || !request('list_per_page') ? 'selected' : '' }}>15 per page</option>
-                <option value="25" {{ request('list_per_page') == '25' ? 'selected' : '' }}>25 per page</option>
-                <option value="50" {{ request('list_per_page') == '50' ? 'selected' : '' }}>50 per page</option>
-            </select>
-
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                <i class="fas fa-search mr-1"></i> Filter
-            </button>
-        </form>
+        </div>
             <div class="flex gap-2">
                 <div onclick="showTable()" class="tab active" id="tab-renewal">
                     <i class="fas fa-table mr-1"></i> Process Renewals

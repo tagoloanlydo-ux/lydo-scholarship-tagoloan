@@ -11,7 +11,7 @@
     <p><strong>Reason for Rejection:</strong> {{ $reason }}</p>
     @endif
     <p>As a result, your scholar account has been set to inactive and can no longer be reopened.</p>
-    <p>If you have any questions, please contact us at scholarship@lydo.gov.</p>
+    <p>If you have any questions, please contact us at tagoloanlydo@gmail.com.</p>
     <p>Best regards,<br>LYDO Scholarship Team</p>
 </body>
 </html>
