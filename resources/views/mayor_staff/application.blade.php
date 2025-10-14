@@ -1265,15 +1265,89 @@
 
     let debounceTimer;
 
-    function submitForm() {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-            filterForm.submit();
-        }, 500); // 500ms delay
+    function updateTable() {
+        const searchValue = searchInput.value;
+        const barangayValue = barangaySelect.value;
+
+        // Show loading state
+        const tableBody = document.querySelector('#tableView tbody');
+        if (tableBody) {
+            tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center"><div class="flex justify-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div></div></td></tr>';
+        }
+
+        fetch(`/mayor_staff/application/filtered-applicants?search=${encodeURIComponent(searchValue)}&barangay=${encodeURIComponent(barangayValue)}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            updateTableContent(data.tableApplicants);
+        })
+        .catch(error => {
+            console.error('Error fetching filtered applicants:', error);
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-500">Error loading data. Please try again.</td></tr>';
+            }
+        });
     }
 
-    searchInput.addEventListener('input', submitForm);
-    barangaySelect.addEventListener('change', () => filterForm.submit());
+    function updateTableContent(applicants) {
+        const tableBody = document.querySelector('#tableView tbody');
+        if (!tableBody) return;
+
+        if (applicants.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500 bg-gray-50">No Application found for the current year.</td></tr>';
+            return;
+        }
+
+        let html = '';
+        applicants.forEach((app, index) => {
+            html += `
+                <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200">
+                    <td class="px-6 py-4 text-center">${index + 1}</td>
+                    <td class="px-6 py-4 text-center font-medium">${app.applicant_fname} ${app.applicant_lname}</td>
+                    <td class="px-6 py-4 text-center">${app.applicant_brgy}</td>
+                    <td class="px-6 py-4 text-center">${app.applicant_gender}</td>
+                    <td class="px-6 py-4 text-center">${app.applicant_bdate}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button
+                            class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm font-medium transition-colors duration-200 shadow-sm"
+                            onclick="openApplicationModal(${app.application_personnel_id}, 'pending')">
+                            View Applications
+                        </button>
+                    </td>
+                    <td class="px-6 py-4 text-center relative">
+                        <div class="dropdown">
+                            <button class="text-gray-600 hover:text-gray-800 focus:outline-none" onclick="toggleDropdownMenu(${app.application_personnel_id})">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div id="dropdown-menu-${app.application_personnel_id}" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openEmailModal(${app.application_personnel_id}, ${app.applicant_id}, '${app.applicant_fname} ${app.applicant_lname}', '${app.applicant_email}')">
+                                    <i class="fas fa-envelope mr-2"></i>Send Email
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openDeleteModal(${app.application_personnel_id}, '${app.applicant_fname} ${app.applicant_lname}')">
+                                    <i class="fas fa-trash mr-2"></i>Delete Application
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableBody.innerHTML = html;
+    }
+
+    function debouncedUpdate() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(updateTable, 500); // 500ms delay
+    }
+
+    searchInput.addEventListener('input', debouncedUpdate);
+    barangaySelect.addEventListener('change', updateTable);
 </script>
 
 <script>
