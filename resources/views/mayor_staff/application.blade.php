@@ -9,8 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ asset('css/mayor_app.css') }}" />
-     <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
-     <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
 </head>
 <body class="bg-gray-50">
 
@@ -137,14 +136,13 @@
                         <!-- Search & Filter -->
             <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
                 {{-- Search --}}
-                <input type="text" name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Search name..." 
-                    class="border rounded px-3 py-2 w-64"
-                    oninput="document.getElementById('filterForm').submit()">
+                <input type="text" id="searchInput" name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search name..."
+                    class="border rounded px-3 py-2 w-64">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" class="border rounded px-3 py-2" onchange="document.getElementById('filterForm').submit()">
+                <select id="barangaySelect" name="barangay" class="border rounded px-3 py-2">
                     <option value="">All Barangays</option>
                     @foreach($barangays as $brgy)
                         <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
@@ -219,6 +217,9 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="mt-4">
+                {{ $tableApplicants->links() }}
+            </div>
         </div>
 
             <!-- ✅ List View (Approved and Rejected applications) -->
@@ -350,6 +351,19 @@
 
 
     <script>
+        // Filter form submission on input change
+        document.getElementById('searchInput').addEventListener('input', function() {
+            // Debounce search input to avoid too many requests
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500);
+        });
+
+        document.getElementById('barangaySelect').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+
         function showTable() {
             document.getElementById("tableView").classList.remove("hidden");
             document.getElementById("listView").classList.add("hidden");
@@ -1258,6 +1272,8 @@
                 });
             </script>
  <script src="{{ asset('js/logout.js') }}"></script>
+
+
 
 <script>
 // Real-time updates for new applications

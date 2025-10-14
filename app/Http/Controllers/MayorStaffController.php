@@ -1905,4 +1905,10 @@ public function updateStatus(Request $request, $id)
         ]);
     }
 
+    public function welcome(Request $request)
+    {
+        Log::info("Request received: " . $request->method() . " " . $request->path());
+        return response()->json(['message' => 'Welcome to the Mayor Staff API!']);
+    }
+
 }

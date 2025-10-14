@@ -110,14 +110,13 @@
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
 
-        <form id="filterForm" method="GET" action="{{ route('LydoStaff.renewal') }}" class="flex gap-2 mb-4">
-
-            <input type="text" id="searchInput" name="search"
-                value="{{ request('search') }}"
+        <form id="filterForm" method="GET" class="flex gap-2 mb-4">
+            <input type="text" name="search" id="searchInput"
                 placeholder="Search name..."
+                value="{{ request('search') }}"
                 class="border rounded px-3 py-2 w-64">
 
-            <select id="barangaySelect" name="barangay"
+            <select name="barangay" id="barangaySelect"
                 class="border rounded px-3 py-2">
                 <option value="">All Barangays</option>
                 @foreach($barangays as $brgy)
@@ -127,24 +126,8 @@
                 @endforeach
             </select>
 
-            <select id="perPageSelect" name="per_page"
-                class="border rounded px-3 py-2">
-                <option value="10" {{ request('per_page') == '10' ? 'selected' : '' }}>10 per page</option>
-                <option value="15" {{ request('per_page') == '15' || !request('per_page') ? 'selected' : '' }}>15 per page</option>
-                <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25 per page</option>
-                <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50 per page</option>
-            </select>
-
-            <select id="listPerPageSelect" name="list_per_page"
-                class="border rounded px-3 py-2">
-                <option value="10" {{ request('list_per_page') == '10' ? 'selected' : '' }}>10 per page</option>
-                <option value="15" {{ request('list_per_page') == '15' || !request('list_per_page') ? 'selected' : '' }}>15 per page</option>
-                <option value="25" {{ request('list_per_page') == '25' ? 'selected' : '' }}>25 per page</option>
-                <option value="50" {{ request('list_per_page') == '50' ? 'selected' : '' }}>50 per page</option>
-            </select>
-
             <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                <i class="fas fa-search mr-1"></i> Filter
+                Filter
             </button>
         </form>
             <div class="flex gap-2">
@@ -371,8 +354,15 @@
             @endforelse
         </tbody>
     </table>
-    <div class="mt-4">
-        {{ $listView->links() }}
+    <div class="mt-4 flex justify-between items-center">
+        <div class="text-sm text-gray-600">
+            Showing {{ $listView->firstItem() ?? 0 }} to {{ $listView->lastItem() ?? 0 }} of {{ $listView->total() }} results
+        </div>
+        <div class="flex space-x-1">
+            @if($listView->hasPages())
+                {{ $listView->appends(request()->query())->links() }}
+            @endif
+        </div>
     </div>
     </div>
     </div>
@@ -997,71 +987,7 @@ function closeEmailModal() {
 }
 </script>
 
-<script>
-// Real-time filtering
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const barangaySelect = document.getElementById('barangaySelect');
 
-    function filterTables() {
-        const searchValue = searchInput.value.toLowerCase();
-        const barangayValue = barangaySelect.value;
-
-        // Filter tableView (5 columns)
-        filterTable('tableView', searchValue, barangayValue, 5);
-
-        // Filter listView (6 columns)
-        filterTable('listView', searchValue, barangayValue, 6);
-    }
-
-    function filterTable(tableId, searchValue, barangayValue, colspan) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        if (!tbody) return;
-
-        const rows = tbody.querySelectorAll('tr');
-        let visibleCount = 0;
-
-        rows.forEach(row => {
-            const nameCell = row.cells[1]; // Name column
-            const barangayCell = row.cells[2]; // Barangay column
-
-            if (nameCell && barangayCell) {
-                const name = nameCell.textContent.toLowerCase();
-                const barangay = barangayCell.textContent;
-
-                const nameMatch = name.includes(searchValue);
-                const barangayMatch = !barangayValue || barangay === barangayValue;
-
-                if (nameMatch && barangayMatch) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-        });
-
-        // Handle no results
-        let noResultRow = tbody.querySelector('.no-result-row');
-        if (visibleCount === 0) {
-            if (!noResultRow) {
-                noResultRow = document.createElement('tr');
-                noResultRow.className = 'no-result-row';
-                noResultRow.innerHTML = `<td colspan="${colspan}" class="text-center py-4 border border-gray-200 text-gray-500">0 result</td>`;
-                tbody.appendChild(noResultRow);
-            }
-            noResultRow.style.display = '';
-        } else {
-            if (noResultRow) {
-                noResultRow.style.display = 'none';
-            }
-        }
-    }
-
-    searchInput.addEventListener('input', filterTables);
-    barangaySelect.addEventListener('change', filterTables);
-});
-</script>
 
 </body>
 </html>

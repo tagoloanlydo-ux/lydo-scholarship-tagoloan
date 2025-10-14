@@ -56,7 +56,7 @@
 
     <div class="footer">
         <p>This is an automated message. Please do not reply to this email.</p>
-        <p>For inquiries, contact us at support@lydoscholarship.com</p>
+        <p>For inquiries, contact us at tagoloanlydo@gmail.com</p>
     </div>
 </body>
 </html>

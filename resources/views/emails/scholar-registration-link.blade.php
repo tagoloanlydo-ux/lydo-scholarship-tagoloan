@@ -51,7 +51,7 @@
         <p>Dear Scholar,</p>
         <p>Congratulations! Your application has been approved. To update your username and password and access your scholar account, please click the link below:</p>
         <p style="text-align: center;">
-           <a href="{{ $registration_link }}">Update Your Username and Password</a>
+           <a href="{{ $registration_link }}">Create Your Username and Password</a>
         </p>
         <p><strong>Important:</strong> This link will expire in 24 hours and can only be used once. If you encounter any issues, please contact the LYDO Scholarship office.</p>
         <p>Thank you for your interest in the LYDO Scholarship program.</p>
