@@ -23,7 +23,7 @@ class MayorStaffController extends Controller
                 "app.applicant_id",
             )
             ->select(
-                "app.applicationi_id",
+                "app.application_id",
                 "a.applicant_fname",
                 "a.applicant_lname",
                 "app.created_at",
