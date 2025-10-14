@@ -314,57 +314,9 @@ class LydoStaffController extends Controller
             ->where("renewal_status", "Pending")
             ->count();
 
-        $query = DB::table("tbl_applicant")
-            ->join(
-                "tbl_application",
-                "tbl_applicant.applicant_id",
-                "=",
-                "tbl_application.applicant_id",
-            )
-            ->join(
-                "tbl_application_personnel",
-                "tbl_application.application_id",
-                "=",
-                "tbl_application_personnel.application_id",
-            )
-            ->select("tbl_applicant.*", "tbl_application_personnel.remarks");
-
-        // ✅ filters
-        if ($request->filled("search")) {
-            $query->where(function ($q) use ($request) {
-                $q->where(
-                    "applicant_fname",
-                    "like",
-                    "%" . $request->search . "%",
-                )->orWhere(
-                    "applicant_lname",
-                    "like",
-                    "%" . $request->search . "%",
-                );
-            });
-        }
-
-        if ($request->filled("barangay")) {
-            $query->where(
-                "applicant_brgy",
-                "like",
-                "%" . $request->barangay . "%",
-            );
-        }
-
-   
-        $query->where(
-            "tbl_application_personnel.initial_screening",
-            "Approved",
-        );
-
-        $tableApplicants = $query->get();
-
-
         $search = $request->input("search");
         $barangay = $request->input("barangay");
 
- 
         $barangays = DB::table("tbl_applicant")
             ->select("applicant_brgy")
             ->distinct()
@@ -372,7 +324,7 @@ class LydoStaffController extends Controller
             ->pluck("applicant_brgy");
 
         // Applicants without remarks
-        $tableApplicants = DB::table("tbl_applicant")
+        $tableApplicantsQuery = DB::table("tbl_applicant")
             ->join(
                 "tbl_application",
                 "tbl_applicant.applicant_id",
@@ -386,18 +338,9 @@ class LydoStaffController extends Controller
                 "tbl_application_personnel.application_id",
             )
             ->select("tbl_applicant.*", "tbl_application_personnel.remarks", "tbl_application_personnel.application_personnel_id")
+            ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
             ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where(
-                        "tbl_applicant.applicant_fname",
-                        "LIKE",
-                        "%{$search}%",
-                    )->orWhere(
-                        "tbl_applicant.applicant_lname",
-                        "LIKE",
-                        "%{$search}%",
-                    );
-                });
+                $query->where(DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), ''))"), 'like', "%{$search}%");
             })
             ->when($barangay, function ($query, $barangay) {
                 $query->where("tbl_applicant.applicant_brgy", $barangay);
@@ -408,16 +351,20 @@ class LydoStaffController extends Controller
                 "Non Poor",
                 "Ultra Poor",
                 "Non Indigenous",
-            ])
-            ->paginate(15)
-            ->appends($request->all());
+            ]);
+
+        if ($request->ajax()) {
+            $tableApplicants = $tableApplicantsQuery->paginate(15);
+            return response()->json($tableApplicants);
+        }
+
+        $tableApplicants = $tableApplicantsQuery->paginate(15)->appends($request->all());
 
         $currentAcadYear = DB::table("tbl_applicant")
             ->select("applicant_acad_year")
             ->orderBy("applicant_acad_year", "desc")
             ->value("applicant_acad_year");
 
-       
 $listApplicants = DB::table("tbl_applicant as a")
     ->join("tbl_application as app", "a.applicant_id", "=", "app.applicant_id")
     ->join("tbl_application_personnel as ap", "app.application_id", "=", "ap.application_id")
@@ -432,15 +379,6 @@ $listApplicants = DB::table("tbl_applicant as a")
         "ap.initial_screening",
         "ap.remarks",
     )
-    ->when($search, function ($query, $search) {
-        $query->where(function ($q) use ($search) {
-            $q->where("a.applicant_fname", "LIKE", "%{$search}%")
-              ->orWhere("a.applicant_lname", "LIKE", "%{$search}%");
-        });
-    })
-    ->when($barangay, function ($query, $barangay) {
-        $query->where("a.applicant_brgy", $barangay);
-    })
     ->when($request->status, function ($query, $status) {
         // If status is a single string, wrap it into an array
         $statuses = is_array($status) ? $status : [$status];
@@ -450,6 +388,12 @@ $listApplicants = DB::table("tbl_applicant as a")
         $query->where("ap.initial_screening", "Reviewed");
     })
     ->where("a.applicant_acad_year", $currentAcadYear)
+    ->when($search, function ($query, $search) {
+        $query->where(DB::raw("CONCAT(a.applicant_fname, ' ', COALESCE(a.applicant_mname, ''), ' ', a.applicant_lname, IFNULL(CONCAT(' ', a.applicant_suffix), ''))"), 'like', "%{$search}%");
+    })
+    ->when($barangay, function ($query, $barangay) {
+        $query->where("a.applicant_brgy", $barangay);
+    })
     ->paginate(15)
     ->appends($request->all());
 

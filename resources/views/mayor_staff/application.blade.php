@@ -351,18 +351,40 @@
 
 
     <script>
-        // Filter form submission on input change
+        // Filter table on input change
         document.getElementById('searchInput').addEventListener('input', function() {
-            // Debounce search input to avoid too many requests
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                document.getElementById('filterForm').submit();
-            }, 500);
+            filterTable();
         });
 
         document.getElementById('barangaySelect').addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
+            filterTable();
         });
+
+        function filterTable() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const barangayValue = document.getElementById('barangaySelect').value;
+            const tableBody = document.querySelector('#tableView tbody');
+            const rows = tableBody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const nameCell = row.cells[1]; // Name column
+                const barangayCell = row.cells[2]; // Barangay column
+
+                if (nameCell && barangayCell) {
+                    const nameText = nameCell.textContent.toLowerCase();
+                    const barangayText = barangayCell.textContent;
+
+                    const matchesSearch = nameText.includes(searchValue);
+                    const matchesBarangay = barangayValue === '' || barangayText === barangayValue;
+
+                    if (matchesSearch && matchesBarangay) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
 
         function showTable() {
             document.getElementById("tableView").classList.remove("hidden");

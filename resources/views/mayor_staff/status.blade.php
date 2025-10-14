@@ -142,18 +142,15 @@
                     <!-- 🔎 Search & Filter + View Switch -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-            <form id="filterForm" method="GET" action="{{ route('MayorStaff.status') }}" class="flex gap-2 mb-4">
+            <div class="flex gap-2 mb-4">
                 {{-- Search --}}
-                <input type="text" name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Search name..." 
-                    class="border rounded px-3 py-2 w-64"
-                    oninput="document.getElementById('filterForm').submit()">
+                <input type="text" id="searchInput" name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search name..."
+                    class="border rounded px-3 py-2 w-64">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" 
-                    class="border rounded px-3 py-2"
-                    onchange="document.getElementById('filterForm').submit()">
+                <select id="barangaySelect" name="barangay" class="border rounded px-3 py-2">
                     <option value="">All Barangays</option>
                     @foreach($barangays as $brgy)
                         <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
@@ -161,7 +158,7 @@
                         </option>
                     @endforeach
                 </select>
-            </form>
+            </div>
           <!-- Tab Switch -->
             <div class="flex gap-2">
                 <div class="tab active" onclick="showTable()">Review Applications</div>
@@ -305,6 +302,41 @@
 </div>
 
 <script>
+    // Filter table on input change
+    document.getElementById('searchInput').addEventListener('input', function() {
+        filterTable();
+    });
+
+    document.getElementById('barangaySelect').addEventListener('change', function() {
+        filterTable();
+    });
+
+    function filterTable() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const barangayValue = document.getElementById('barangaySelect').value;
+        const tableBody = document.querySelector('#tableView tbody');
+        const rows = tableBody.querySelectorAll('tr');
+
+        rows.forEach(row => {
+            const nameCell = row.cells[1]; // Name column
+            const barangayCell = row.cells[2]; // Barangay column
+
+            if (nameCell && barangayCell) {
+                const nameText = nameCell.textContent.toLowerCase();
+                const barangayText = barangayCell.textContent;
+
+                const matchesSearch = nameText.includes(searchValue);
+                const matchesBarangay = barangayValue === '' || barangayText === barangayValue;
+
+                if (matchesSearch && matchesBarangay) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    }
+
     function showTable() {
         document.getElementById("tableView").classList.remove("hidden");
         document.getElementById("listView").classList.add("hidden");
