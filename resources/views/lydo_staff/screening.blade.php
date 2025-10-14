@@ -143,16 +143,16 @@
                     <!-- 🔎 Search & Filter + View Switch -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-                        <form id="filterForm" method="GET" action="{{ route('LydoStaff.screening') }}" class="flex gap-2 mb-4">
+                        <div class="flex gap-2 mb-4">
                             {{-- Search --}}
-                            <input type="text" id="searchInput" name="search" value="{{ request('search') }}" placeholder="Search name..." class="border rounded px-3 py-2 w-64">
+                            <input type="text" id="searchInput" placeholder="Search name..." class="border rounded px-3 py-2 w-64">
                             {{-- Barangay dropdown --}}
-                            <select id="barangaySelect" name="barangay" class="border rounded px-3 py-2">
-                                <option value="">All Barangays</option> @foreach($barangays as $brgy) <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
+                            <select id="barangaySelect" class="border rounded px-3 py-2">
+                                <option value="">All Barangays</option> @foreach($barangays as $brgy) <option value="{{ $brgy }}">
                                     {{ $brgy }}
                                 </option> @endforeach
                             </select>
-                        </form>
+                        </div>
                         <!-- Tab Switch -->
             <div class="flex gap-2">
                 <div class="tab active" id="tab-screening" onclick="showTable()">Assign Remarks</div>
