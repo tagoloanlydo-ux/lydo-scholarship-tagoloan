@@ -736,7 +736,7 @@ public function updateApplication(Request $request, $applicant_id)
 
     $application->save();
 
-    return redirect()->route('home')->with('success', 'Application updated successfully!');
+    return redirect()->route('/')->with('success', 'Application updated successfully!');
 }
 
 /**
