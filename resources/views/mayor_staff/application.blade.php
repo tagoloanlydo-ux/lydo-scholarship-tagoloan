@@ -348,6 +348,19 @@
 
 
     <script>
+        // Filter form submission on input change
+        document.getElementById('searchInput').addEventListener('input', function() {
+            // Debounce search input to avoid too many requests
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 500);
+        });
+
+        document.getElementById('barangaySelect').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+
         function showTable() {
             document.getElementById("tableView").classList.remove("hidden");
             document.getElementById("listView").classList.add("hidden");
