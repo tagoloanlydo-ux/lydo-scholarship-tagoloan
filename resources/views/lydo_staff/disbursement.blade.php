@@ -132,7 +132,7 @@
                             <!-- Search Input -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Search by Name</label>
-                                <input type="text" name="search" value="{{ request('search') }}"
+                            <input type="text" id="searchInput" name="search" value="{{ request('search') }}"
                                        placeholder="Enter name..."
                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500">
                             </div>
@@ -140,7 +140,7 @@
                             <!-- Barangay Filter -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Barangay</label>
-                                <select name="barangay" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500">
+                                <select id="barangaySelect" name="barangay" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-violet-500">
                                     <option value="">All Barangays</option>
                                     @foreach($barangays as $barangay)
                                         <option value="{{ $barangay }}" {{ request('barangay') == $barangay ? 'selected' : '' }}>
@@ -472,6 +472,100 @@
                     });
                 </script>
                  <script src="{{ asset('js/logout.js') }}"></script>
+
+    <script>
+        // Real-time filtering functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const barangaySelect = document.getElementById('barangaySelect');
+            const unsignedTable = document.querySelector('#unsignedTabContent tbody');
+            const signedTable = document.querySelector('#signedTabContent tbody');
+            const unsignedTabContent = document.getElementById('unsignedTabContent');
+            const signedTabContent = document.getElementById('signedTabContent');
+
+            function filterTable(table, searchTerm, barangayTerm) {
+                const rows = table.querySelectorAll('tr');
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const nameCell = row.cells[0]; // Full Name column
+                    const barangayCell = row.cells[1]; // Barangay column
+
+                    if (nameCell && barangayCell) {
+                        const nameText = nameCell.textContent.toLowerCase();
+                        const barangayText = barangayCell.textContent.toLowerCase();
+
+                        const matchesSearch = nameText.includes(searchTerm.toLowerCase());
+                        const matchesBarangay = barangayTerm === '' || barangayText === barangayTerm.toLowerCase();
+
+                        if (matchesSearch && matchesBarangay) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+
+                // Handle "0 result" message for unsigned tab
+                let noResultRow = unsignedTabContent.querySelector('.no-result-row');
+                if (visibleCount === 0) {
+                    if (!noResultRow) {
+                        noResultRow = document.createElement('tr');
+                        noResultRow.className = 'no-result-row';
+                        noResultRow.innerHTML = '<td colspan="6" class="text-center py-8 text-gray-500 text-lg">0 result</td>';
+                        unsignedTable.appendChild(noResultRow);
+                    }
+                    noResultRow.style.display = '';
+                } else {
+                    if (noResultRow) {
+                        noResultRow.style.display = 'none';
+                    }
+                }
+
+                // Handle "0 result" message for signed tab
+                noResultRow = signedTabContent.querySelector('.no-result-row');
+                if (visibleCount === 0) {
+                    if (!noResultRow) {
+                        noResultRow = document.createElement('tr');
+                        noResultRow.className = 'no-result-row';
+                        noResultRow.innerHTML = '<td colspan="6" class="text-center py-8 text-gray-500 text-lg">0 result</td>';
+                        signedTable.appendChild(noResultRow);
+                    }
+                    noResultRow.style.display = '';
+                } else {
+                    if (noResultRow) {
+                        noResultRow.style.display = 'none';
+                    }
+                }
+            }
+
+            function applyFilters() {
+                const searchTerm = searchInput.value;
+                const barangayTerm = barangaySelect.value;
+
+                // Determine which tab is active
+                const activeTab = document.querySelector('.tab-button.active-tab');
+                if (activeTab && activeTab.getAttribute('data-tab') === 'unsigned') {
+                    filterTable(unsignedTable, searchTerm, barangayTerm);
+                } else if (activeTab && activeTab.getAttribute('data-tab') === 'signed') {
+                    filterTable(signedTable, searchTerm, barangayTerm);
+                }
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', applyFilters);
+            barangaySelect.addEventListener('change', applyFilters);
+
+            // Tab switching should reapply filters
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    setTimeout(applyFilters, 10); // Small delay to ensure tab content is visible
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -284,9 +284,9 @@ $percentageReviewed = $totalApplications > 0
        
         $query->where("ap.initial_screening", "Pending");
 
-        $tableApplicants = $query->get();
+        $tableApplicants = $query->paginate(15);
 
-     
+
         $listApplicants = DB::table("tbl_applicant as a")
             ->join(
                 "tbl_application as app",
@@ -335,7 +335,7 @@ $percentageReviewed = $totalApplications > 0
             ->when($request->filled("barangay"), function ($q) use ($request) {
                 $q->where("a.applicant_brgy", $request->barangay);
             })
-            ->get();
+            ->paginate(15, ['*'], 'list');
 
         $barangays = DB::table("tbl_applicant")
             ->pluck("applicant_brgy")
@@ -448,6 +448,14 @@ $percentageReviewed = $totalApplications > 0
 
         $showBadge = !session('notifications_viewed');
 
+        // Ensure variables are always set to prevent undefined variable errors
+        $tableApplicants = $tableApplicants ?? collect();
+        $listApplicants = $listApplicants ?? collect();
+        $barangays = $barangays ?? [];
+        $notifications = $notifications ?? collect();
+        $applications = $applications ?? [];
+        $showBadge = $showBadge ?? false;
+
         return view(
             "mayor_staff.application",
             compact(
@@ -547,7 +555,7 @@ $percentageReviewed = $totalApplications > 0
         DB::table('tbl_application_personnel')
             ->where('application_personnel_id', $id)
             ->update([
-                'initial_screening' => 'Rejected', 
+                'initial_screening' => 'Rejected',
                 'rejection_reason' => $reason,
                 'updated_at' => now()
             ]);
@@ -566,6 +574,23 @@ $percentageReviewed = $totalApplications > 0
         });
 
         return response()->json(['success' => true, 'message' => 'Initial screening rejected successfully.']);
+    }
+
+    public function editInitialScreening(Request $request, $id)
+    {
+        $request->validate([
+            'initial_screening_status' => 'required|in:Approved,Rejected',
+        ]);
+
+        // Update the initial_screening status
+        DB::table('tbl_application_personnel')
+            ->where('application_personnel_id', $id)
+            ->update([
+                'initial_screening' => $request->initial_screening_status,
+                'updated_at' => now()
+            ]);
+
+        return response()->json(['success' => true, 'message' => 'Initial screening status updated successfully.']);
     }
     public function getRequirements($id)
     {
@@ -590,7 +615,7 @@ $percentageReviewed = $totalApplications > 0
 
     public function status(Request $request)
     {
-           $newApplications = DB::table("tbl_application as app")
+        $newApplications = DB::table("tbl_application as app")
             ->join(
                 "tbl_applicant as a",
                 "a.applicant_id",
@@ -654,7 +679,6 @@ $percentageReviewed = $totalApplications > 0
                 ];
             });
 
-      
         $notifications = $newApplications
             ->merge($newRemarks)
             ->sortByDesc("created_at");
@@ -671,68 +695,88 @@ $percentageReviewed = $totalApplications > 0
             ->get()
             ->groupBy("applicant_id");
 
+        $query = DB::table('tbl_application_personnel as ap')
+            ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
+            ->join('tbl_applicant as app', 'a.applicant_id', '=', 'app.applicant_id')
+            ->join('tbl_lydopers as lydo', 'ap.lydopers_id', '=', 'lydo.lydopers_id')
+            ->select(
+                'ap.application_personnel_id',
+                'app.applicant_fname as fname',
+                'app.applicant_mname as mname',
+                'app.applicant_lname as lname',
+                'app.applicant_suffix as suffix',
+                'app.applicant_brgy as barangay',
+                'app.applicant_school_name as school',
+                'ap.remarks as remarks',
+                'ap.status as status'
+            )
+            ->where('ap.status', 'Pending')
+            ->where('lydo.lydopers_role', 'lydo_staff')
+            ->whereIn('ap.remarks', ['Poor', 'Ultra Poor']); // Only show Poor and Ultra Poor
 
-              $query = DB::table('tbl_application_personnel as ap')
-        ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
-        ->join('tbl_applicant as app', 'a.applicant_id', '=', 'app.applicant_id')
-        ->join('tbl_lydopers as lydo', 'ap.lydopers_id', '=', 'lydo.lydopers_id')
-        ->select(
-            'ap.application_personnel_id',
-            'app.applicant_fname as fname',
-            'app.applicant_mname as mname',
-            'app.applicant_lname as lname',
-            'app.applicant_suffix as suffix',
-            'app.applicant_brgy as barangay',
-            'app.applicant_school_name as school',
-            'ap.remarks as remarks',
-            'ap.status as status'
-        )
-        ->where('ap.status', 'Pending')
-        ->where('lydo.lydopers_role', 'lydo_staff');
+        // ✅ Search by name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('app.applicant_fname', 'like', "%$search%")
+                  ->orWhere('app.applicant_lname', 'like', "%$search%");
+            });
+        }
 
-    // ✅ Search by name
-    if ($request->filled('search')) {
-        $search = $request->search;
-        $query->where(function ($q) use ($search) {
-            $q->where('app.applicant_fname', 'like', "%$search%")
-              ->orWhere('app.applicant_lname', 'like', "%$search%");
-        });
-    }
+        // ✅ Filter by barangay
+        if ($request->filled('barangay')) {
+            $query->where('app.applicant_brgy', $request->barangay);
+        }
 
-    // ✅ Filter by barangay
-    if ($request->filled('barangay')) {
-        $query->where('app.applicant_brgy', $request->barangay);
-    }
+        $applications = $query->paginate(15);
 
-    $applications = $query->paginate(15);
-
-    $barangays = DB::table('tbl_applicant')->distinct()->pluck('applicant_brgy');
-
+        $barangays = DB::table('tbl_applicant')->distinct()->pluck('applicant_brgy');
 
         $listApplications = DB::table('tbl_application_personnel as ap')
-        ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
-        ->join('tbl_applicant as app', 'a.applicant_id', '=', 'app.applicant_id')
-        ->join('tbl_lydopers as lydo', 'ap.lydopers_id', '=', 'lydo.lydopers_id')
-        ->select(
-            'ap.application_personnel_id',
-            'app.applicant_fname as fname',
-            'app.applicant_mname as mname',
-            'app.applicant_lname as lname',
-            'app.applicant_suffix as suffix',
-            'app.applicant_brgy as barangay',
-            'app.applicant_school_name as school',
-            'ap.remarks as remarks',
-            'ap.status as status'
-        )
-        ->whereIn('ap.status', ['Approved', 'Rejected'])
-        ->where('lydo.lydopers_role', 'lydo_staff')
-        ->paginate(15, ['*'], 'list');
+            ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
+            ->join('tbl_applicant as app', 'a.applicant_id', '=', 'app.applicant_id')
+            ->join('tbl_lydopers as lydo', 'ap.lydopers_id', '=', 'lydo.lydopers_id')
+            ->select(
+                'ap.application_personnel_id',
+                'app.applicant_fname as fname',
+                'app.applicant_mname as mname',
+                'app.applicant_lname as lname',
+                'app.applicant_suffix as suffix',
+                'app.applicant_brgy as barangay',
+                'app.applicant_school_name as school',
+                'ap.remarks as remarks',
+                'ap.status as status'
+            )
+            ->whereIn('ap.status', ['Approved', 'Rejected'])
+            ->where('lydo.lydopers_role', 'lydo_staff')
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->where(function ($q) use ($request) {
+                    $q->where('app.applicant_fname', 'like', "%{$request->search}%")
+                      ->orWhere('app.applicant_lname', 'like', "%{$request->search}%");
+                });
+            })
+            ->when($request->filled('barangay'), function ($q) use ($request) {
+                $q->where('app.applicant_brgy', $request->barangay);
+            })
+            ->paginate(15, ['*'], 'list');
 
-    $barangays = DB::table('tbl_applicant')->distinct()->pluck('applicant_brgy');
+        $barangays = DB::table('tbl_applicant')->distinct()->pluck('applicant_brgy');
 
-    $showBadge = !session('notifications_viewed');
+        $showBadge = !session('notifications_viewed');
 
-    return view('mayor_staff.status', compact('applications', 'barangays', 'notifications', 'applications','newApplications', 'newRemarks', 'listApplications', 'showBadge'  ));
+        $tableApplicants = $applications;
+
+        // If AJAX request, return JSON data
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'tableApplicants' => $tableApplicants->items(),
+                'listApplications' => $listApplications->items(),
+                'tablePagination' => $tableApplicants->appends(request()->query())->links()->toHtml(),
+                'listPagination' => $listApplications->appends(request()->query())->links()->toHtml(),
+            ]);
+        }
+
+        return view('mayor_staff.status', compact('tableApplicants', 'barangays', 'notifications', 'newApplications', 'newRemarks', 'listApplications', 'showBadge'));
 }
 
 // ✅ Update status

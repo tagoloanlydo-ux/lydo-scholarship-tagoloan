@@ -104,7 +104,6 @@ Route::middleware(['role:lydo_staff'])->group(function () {
     Route::get('/lydo_staff/latest-applicants', [LydoStaffController::class, 'getLatestApplicants'])->name('LydoStaff.getLatestApplicants');
     Route::get('/lydo_staff/latest-renewals', [LydoStaffController::class, 'getLatestRenewals'])->name('LydoStaff.getLatestRenewals');
     Route::get('/lydo_staff/latest-disbursements', [LydoStaffController::class, 'getLatestDisbursements'])->name('LydoStaff.getLatestDisbursements');
-    Route::get('/lydo_staff/sse-applicants', [LydoStaffController::class, 'sse'])->name('LydoStaff.sse');
 
 });
 
@@ -116,6 +115,7 @@ Route::middleware(['role:mayor_staff'])->group(function () {
     Route::post('/mayor_staff/application/{id}/approve', [MayorStaffController::class, 'approveApplication'])->name('mayor_staff.approveApplication');
     Route::post('/mayor_staff/application/{id}/reject', [MayorStaffController::class, 'rejectApplication'])->name('mayor_staff.rejectApplication');
     Route::post('/mayor_staff/application/{id}/update-initial-screening', [MayorStaffController::class, 'updateInitialScreening'])->name('application.updateInitialScreening');
+    Route::patch('/mayor_staff/application/{id}/edit-initial-screening', [MayorStaffController::class, 'editInitialScreening'])->name('mayor_staff.editInitialScreening');
     Route::get('/applications/{id}/requirements', [ApplicationController::class, 'getRequirements']);
     Route::get('/mayor_staff/status', [MayorStaffController::class, 'status'])->name('MayorStaff.status');
     Route::post('/mayor_staff/status/{id}', [MayorStaffController::class, 'updateStatus'])->name('MayorStaff.updateStatus');

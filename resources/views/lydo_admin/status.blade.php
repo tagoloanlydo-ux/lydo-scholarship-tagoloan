@@ -274,27 +274,42 @@
 </script>
 </div>
             </div>
-            <div class="flex-1 overflow-hidden p-5 md:p-6 text-[17px]">
+            <div class="flex-1 overflow-auto p-5 md:p-6 text-[17px]">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold text-gray-800">Scholar Status Management</h2>
                 </div>
 
-                <!-- Scholars without renewal applications -->
-                <div class="p-5">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Active Scholars Without Renewal Applications</h3>
-                        <div class="flex space-x-2">
-                            <button type="button" id="copyNamesBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed hidden">
-                                Copy Names
+                <!-- Tab Navigation -->
+                <div class="mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8">
+                            <button id="activeTab" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-violet-500 text-violet-600">
+                                Active Scholars Without Renewal
                             </button>
-                            <button type="button" id="sendEmailBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed hidden">
-                                Email
+                            <button id="inactiveTab" class="tab-button whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                                Inactive Scholars
                             </button>
-                            <button type="button" id="updateStatusBtn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed hidden">
-                                Update Status
-                            </button>
-                        </div>
+                        </nav>
                     </div>
+                </div>
+
+                <!-- Active Scholars Tab Content -->
+                <div id="activeTabContent" class="tab-content">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Active Scholars Without Renewal Applications</h3>
+                            <div class="flex space-x-2">
+                                <button type="button" id="copyNamesBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed hidden">
+                                    Copy Names
+                                </button>
+                                <button type="button" id="sendEmailBtn" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed hidden">
+                                    Email
+                                </button>
+                                <button type="button" id="updateStatusBtn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed hidden">
+                                    Update Status
+                                </button>
+                            </div>
+                        </div>
 
                     @if($scholarsWithoutRenewal->count() > 0)
                     <form id="scholarForm" action="{{ route('LydoAdmin.updateScholarStatus') }}" method="POST">
@@ -311,6 +326,7 @@
                                                                                 <!-- Add this in the <thead> -->
 <th class="px-4 py-3 border border-gray-200 align-middle text-center">Barangay</th>
                                         <th class="px-4 py-3 border border-gray-200 align-middle text-center">Email</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Contact Number</th>
                                         <th class="px-4 py-3 border border-gray-200 align-middle text-center">School</th>
                                         <th class="px-4 py-3 border border-gray-200 align-middle text-center">Year Level</th>
                                     </tr>
@@ -329,6 +345,7 @@
                                         </td>
 <td class="px-4 border border-gray-200 py-2 text-center barangay-cell">{{ $scholar->applicant_brgy }}</td>
                                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_email }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_contact_number }}</td>
                                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_school_name }}</td>
                                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_year_level }}</td>
                                     </tr>
@@ -336,12 +353,73 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Pagination -->
+                        @if($scholarsWithoutRenewal->hasPages())
+                        <div class="mt-6 flex justify-end">
+                            {{ $scholarsWithoutRenewal->links() }}
+                        </div>
+                        @endif
                     </form>
                     @else
                     <div class="text-center py-8 text-gray-500">
                         <p>No active scholars found without renewal applications.</p>
                     </div>
                     @endif
+                </div>
+
+                <!-- Inactive Scholars Tab Content -->
+                <div id="inactiveTabContent" class="tab-content hidden">
+                    <div class="p-5">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Inactive Scholars</h3>
+                        </div>
+
+                        @if($inactiveScholars->count() > 0)
+                        <div class="overflow-x-auto">
+                            <table class="w-full table-auto border-collapse text-[17px] shadow-lg overflow-hidden border border-gray-200">
+                                <thead class="bg-gradient-to-r from-red-600 to-pink-600 text-white uppercase text-sm">
+                                    <tr>
+                                        <th class="px-4 py-3 border align-middle border-gray-200 text-center">Name</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Barangay</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Email</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Contact Number</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">School</th>
+                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Year Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($inactiveScholars as $scholar)
+                                    <tr class="scholar-row hover:bg-gray-50 border-b">
+                                        <td class="px-4 border border-gray-200 py-2 text-center">
+                                            {{ $scholar->full_name }}
+                                            @if($scholar->applicant_suffix)
+                                                {{ $scholar->applicant_suffix }}
+                                            @endif
+                                        </td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_brgy }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_email }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_contact_number }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_school_name }}</td>
+                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_year_level }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        @if($inactiveScholars->hasPages())
+                        <div class="mt-6 flex justify-end">
+                            {{ $inactiveScholars->links() }}
+                        </div>
+                        @endif
+                        @else
+                        <div class="text-center py-8 text-gray-500">
+                            <p>No inactive scholars found.</p>
+                        </div>
+                        @endif
+                    </div>
                 </div>
 
             </div>
@@ -665,6 +743,30 @@ scholarId.value = scholarIds.join(',');
                                 form.submit();
                             }
                         });
+                    });
+
+                    // Tab switching functionality
+                    const activeTab = document.getElementById('activeTab');
+                    const inactiveTab = document.getElementById('inactiveTab');
+                    const activeTabContent = document.getElementById('activeTabContent');
+                    const inactiveTabContent = document.getElementById('inactiveTabContent');
+
+                    activeTab.addEventListener('click', function() {
+                        activeTab.classList.add('border-violet-500', 'text-violet-600');
+                        activeTab.classList.remove('border-transparent', 'text-gray-500');
+                        inactiveTab.classList.remove('border-violet-500', 'text-violet-600');
+                        inactiveTab.classList.add('border-transparent', 'text-gray-500');
+                        activeTabContent.classList.remove('hidden');
+                        inactiveTabContent.classList.add('hidden');
+                    });
+
+                    inactiveTab.addEventListener('click', function() {
+                        inactiveTab.classList.add('border-violet-500', 'text-violet-600');
+                        inactiveTab.classList.remove('border-transparent', 'text-gray-500');
+                        activeTab.classList.remove('border-violet-500', 'text-violet-600');
+                        activeTab.classList.add('border-transparent', 'text-gray-500');
+                        inactiveTabContent.classList.remove('hidden');
+                        activeTabContent.classList.add('hidden');
                     });
 
                     // Initialize button states

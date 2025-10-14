@@ -12,6 +12,7 @@
     <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
     <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="bg-gray-50">
@@ -264,11 +265,21 @@
             const passwordRequirements = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
             if (!passwordRequirements.test(newPassword)) {
-              alert('New password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.');
               event.preventDefault();
+              Swal.fire({
+                icon: 'error',
+                title: 'Invalid Password',
+                text: 'New password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+                confirmButtonColor: '#d33'
+              });
             } else if (newPassword !== confirmPassword) {
-              alert('New password and confirmation do not match.');
               event.preventDefault();
+              Swal.fire({
+                icon: 'error',
+                title: 'Password Mismatch',
+                text: 'New password and confirmation do not match.',
+                confirmButtonColor: '#d33'
+              });
             }
           });
         </script>

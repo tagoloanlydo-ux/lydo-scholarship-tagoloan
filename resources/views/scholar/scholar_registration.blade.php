@@ -14,7 +14,7 @@
   </head>
   <body class="bg-gray-50 min-h-screen flex flex-col">
     <!-- HEADER -->
-    <header class="banner-grad flex items-center px-6 text-white shadow-md">
+    <header class="banner-graad flex items-center px-6 text-white shadow-md">
        <img src="/images/LYDO.png" alt="LYDO Logo" class="h-10 mr-4"/>
       <div>
         <h1 class="text-3xl font-extrabold">LYDO SCHOLARSHIP</h1>
@@ -263,7 +263,7 @@
         return username.length >= 3 &&
                password.length >= 8 &&
                confirm === password &&
-               usernameError.style.display === 'none' &&
+               (usernameError.style.display === 'none' || usernameError.classList.contains('text-green-500')) &&
                passwordError.style.display === 'none' &&
                confirmError.style.display === 'none';
       }

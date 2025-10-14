@@ -258,7 +258,7 @@
 </script>
 </div>
             </div>
-            <div class="flex-1 overflow-hidden p-4 md:p-5 text-[16px]">
+            <div class="flex-1 overflow-auto p-4 md:p-5 text-[16px]">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold text-gray-800">List of Scholars</h2>
                 </div>

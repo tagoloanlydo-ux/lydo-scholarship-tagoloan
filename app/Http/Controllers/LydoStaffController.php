@@ -410,7 +410,7 @@ class LydoStaffController extends Controller
                 "Non Indigenous",
             ])
             ->paginate(15)
-    ->appends($request->all());
+            ->appends($request->all());
 
         $currentAcadYear = DB::table("tbl_applicant")
             ->select("applicant_acad_year")
@@ -592,6 +592,7 @@ $listApplicants = DB::table("tbl_applicant as a")
         $currentYear = date("Y");
 
         // ✅ Pending renewals (current year only)
+        $perPage = $request->input('per_page', 15);
         $tableApplicants = DB::table("tbl_renewal as r")
             ->join("tbl_scholar as s", "r.scholar_id", "=", "s.scholar_id")
             ->join(
@@ -636,7 +637,7 @@ $listApplicants = DB::table("tbl_applicant as a")
             ->when($request->barangay, function ($query, $barangay) {
                 $query->where("a.applicant_brgy", $barangay);
             })
-            ->paginate(15);
+            ->paginate($perPage);
 
         
         $renewals = DB::table("tbl_renewal")
@@ -692,6 +693,7 @@ $listApplicants = DB::table("tbl_applicant as a")
             ->limit(5)
             ->get();
 
+$listViewPerPage = $request->input('list_per_page', 15);
 $listView = DB::table("tbl_renewal as r")
     ->join("tbl_scholar as s", "r.scholar_id", "=", "s.scholar_id")
     ->join("tbl_application as ap", "s.application_id", "=", "ap.application_id")
@@ -719,7 +721,7 @@ $listView = DB::table("tbl_renewal as r")
     ->when($request->barangay, function ($query, $barangay) {
         $query->where("a.applicant_brgy", $barangay);
     })
-    ->paginate(15) // ✅ use paginate instead of get
+    ->paginate($listViewPerPage) // ✅ use paginate instead of get
     ->appends($request->all());
 
         return view(
@@ -733,6 +735,8 @@ $listView = DB::table("tbl_renewal as r")
                 "renewals",
                 "notifications",
                 "listView",
+                "perPage",
+                "listViewPerPage",
             ),
         );
     }
@@ -1587,147 +1591,5 @@ $totalApplications = DB::table('tbl_application_personnel')
 
 
 
-    public function sse(Request $request)
-    {
-        $lastApplicantId = $request->query('last_applicant_id', 0);
-        $lastRenewalId = $request->query('last_renewal_id', 0);
-        $lastDisbursementId = $request->query('last_disbursement_id', 0);
 
-        return response()->stream(function () use ($lastApplicantId, $lastRenewalId, $lastDisbursementId) {
-            while (true) {
-                // Calculate current counts
-                $currentAcadYear = DB::table("tbl_applicant")
-                    ->select("applicant_acad_year")
-                    ->orderBy("applicant_acad_year", "desc")
-                    ->value("applicant_acad_year");
-
-                $pendingInitial = DB::table("tbl_application_personnel")
-                    ->join("tbl_application", "tbl_application_personnel.application_id", "=", "tbl_application.application_id")
-                    ->join("tbl_applicant", "tbl_application.applicant_id", "=", "tbl_applicant.applicant_id")
-                    ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-                    ->where("tbl_application_personnel.initial_screening", "Approved")
-                    ->where("tbl_application_personnel.remarks", "waiting")
-                    ->count();
-
-                $pendingRenewals = DB::table("tbl_renewal")
-                    ->where("renewal_status", "Pending")
-                    ->where("renewal_acad_year", $currentAcadYear)
-                    ->count();
-
-                $approvedRenewals = DB::table("tbl_renewal")
-                    ->where("renewal_status", "Approved")
-                    ->where("renewal_acad_year", $currentAcadYear)
-                    ->count();
-
-                $applicantsCurrentYear = $currentAcadYear ? DB::table("tbl_applicant")
-                    ->where("applicant_acad_year", $currentAcadYear)
-                    ->count() : 0;
-
-                // Send counts update
-                echo "event: update_counts\n";
-                echo "data: " . json_encode([
-                    'pendingInitial' => $pendingInitial,
-                    'pendingRenewals' => $pendingRenewals,
-                    'approvedRenewals' => $approvedRenewals,
-                    'applicantsCurrentYear' => $applicantsCurrentYear,
-                ]) . "\n\n";
-                ob_flush();
-                flush();
-
-                // Check for new applicants
-                $newApplicants = DB::table("tbl_applicant")
-                    ->join("tbl_application", "tbl_applicant.applicant_id", "=", "tbl_application.applicant_id")
-                    ->join("tbl_application_personnel", "tbl_application.application_id", "=", "tbl_application_personnel.application_id")
-                    ->select(
-                        "tbl_applicant.applicant_id",
-                        DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as name"),
-                        "tbl_applicant.applicant_course as course",
-                        "tbl_applicant.applicant_school_name as school",
-                        "tbl_applicant.created_at",
-                        "tbl_application_personnel.remarks",
-                    )
-                    ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
-                    ->where("tbl_applicant.applicant_id", ">", $lastApplicantId)
-                    ->orderBy("tbl_applicant.applicant_id", "asc")
-                    ->get();
-
-                foreach ($newApplicants as $applicant) {
-                    echo "event: new_applicant\n";
-                    echo "data: " . json_encode($applicant) . "\n\n";
-                    ob_flush();
-                    flush();
-                    $lastApplicantId = $applicant->applicant_id;
-                }
-
-                // Check for new renewals
-                $newRenewals = DB::table("tbl_renewal as r")
-                    ->join("tbl_scholar as s", "r.scholar_id", "=", "s.scholar_id")
-                    ->join("tbl_application as ap", "s.application_id", "=", "ap.application_id")
-                    ->join("tbl_applicant as a", "ap.applicant_id", "=", "a.applicant_id")
-                    ->select(
-                        "r.renewal_id",
-                        "a.applicant_id",
-                        "a.applicant_fname",
-                        "a.applicant_lname",
-                        "a.applicant_brgy",
-                        "a.applicant_email",
-                        "a.applicant_school_name",
-                        "r.renewal_status",
-                        "r.renewal_cert_of_reg",
-                        "r.renewal_grade_slip",
-                        "r.renewal_brgy_indigency",
-                        "r.renewal_acad_year",
-                        "ap.application_id",
-                        "s.scholar_id",
-                    )
-                    ->where("r.renewal_status", "Pending")
-                    ->where("r.renewal_acad_year", $currentAcadYear)
-                    ->where("r.renewal_id", ">", $lastRenewalId)
-                    ->orderBy("r.renewal_id", "asc")
-                    ->get();
-
-                foreach ($newRenewals as $renewal) {
-                    echo "event: new_renewal\n";
-                    echo "data: " . json_encode($renewal) . "\n\n";
-                    ob_flush();
-                    flush();
-                    $lastRenewalId = $renewal->renewal_id;
-                }
-
-                // Check for new disbursements
-                $newDisbursements = DB::table('tbl_disburse')
-                    ->join('tbl_scholar', 'tbl_disburse.scholar_id', '=', 'tbl_scholar.scholar_id')
-                    ->join('tbl_application', 'tbl_scholar.application_id', '=', 'tbl_application.application_id')
-                    ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
-                    ->select(
-                        'tbl_disburse.disburse_id',
-                        'tbl_disburse.disburse_semester',
-                        'tbl_disburse.disburse_acad_year',
-                        'tbl_disburse.disburse_amount',
-                        'tbl_disburse.disburse_date',
-                        'tbl_disburse.disburse_signature',
-                        DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), '')) as full_name"),
-                        'tbl_applicant.applicant_brgy'
-                    )
-                    ->whereNull('tbl_disburse.disburse_signature')
-                    ->where('tbl_disburse.disburse_id', '>', $lastDisbursementId)
-                    ->orderBy('tbl_disburse.disburse_id', 'asc')
-                    ->get();
-
-                foreach ($newDisbursements as $disbursement) {
-                    echo "event: new_disbursement\n";
-                    echo "data: " . json_encode($disbursement) . "\n\n";
-                    ob_flush();
-                    flush();
-                    $lastDisbursementId = $disbursement->disburse_id;
-                }
-
-                sleep(5); // Poll every 5 seconds
-            }
-        }, 200, [
-            'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'Connection' => 'keep-alive',
-        ]);
-    }
 }

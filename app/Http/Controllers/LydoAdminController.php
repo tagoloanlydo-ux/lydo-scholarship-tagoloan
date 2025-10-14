@@ -850,26 +850,48 @@ class LydoAdminController extends Controller
             ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
             ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
             ->leftJoin('tbl_renewal as r', 's.scholar_id', '=', 'r.scholar_id')
-->select(
-    's.scholar_id',
-    's.scholar_status',
-    'a.applicant_fname',
-    'a.applicant_mname',
-    'a.applicant_lname',
-    'a.applicant_suffix',
-    'a.applicant_email',
-    'a.applicant_contact_number',
-    'a.applicant_school_name',
-    'a.applicant_course',
-    'a.applicant_year_level',
-      'a.applicant_brgy',
-    DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
-)
+            ->select(
+                's.scholar_id',
+                's.scholar_status',
+                'a.applicant_fname',
+                'a.applicant_mname',
+                'a.applicant_lname',
+                'a.applicant_suffix',
+                'a.applicant_email',
+                'a.applicant_contact_number',
+                'a.applicant_school_name',
+                'a.applicant_course',
+                'a.applicant_year_level',
+                'a.applicant_brgy',
+                DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
+            )
             ->where('s.scholar_status', 'active')
             ->whereNull('r.renewal_id')
-            ->get();
+            ->paginate(15);
 
-        return view('lydo_admin.status', compact('notifications', 'scholarsWithoutRenewal'));
+        // Fetch inactive scholars
+        $inactiveScholars = DB::table('tbl_scholar as s')
+            ->join('tbl_application as app', 's.application_id', '=', 'app.application_id')
+            ->join('tbl_applicant as a', 'app.applicant_id', '=', 'a.applicant_id')
+            ->select(
+                's.scholar_id',
+                's.scholar_status',
+                'a.applicant_fname',
+                'a.applicant_mname',
+                'a.applicant_lname',
+                'a.applicant_suffix',
+                'a.applicant_email',
+                'a.applicant_contact_number',
+                'a.applicant_school_name',
+                'a.applicant_course',
+                'a.applicant_year_level',
+                'a.applicant_brgy',
+                DB::raw("CONCAT(a.applicant_fname, ' ', a.applicant_lname) as full_name")
+            )
+            ->where('s.scholar_status', 'inactive')
+            ->paginate(15, ['*'], 'inactive_page');
+
+        return view('lydo_admin.status', compact('notifications', 'scholarsWithoutRenewal', 'inactiveScholars'));
     }
 
     public function updateScholarStatus(Request $request)

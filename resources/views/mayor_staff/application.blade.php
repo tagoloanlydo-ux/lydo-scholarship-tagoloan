@@ -136,15 +136,16 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
             <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
+                {{-- Hidden input for current tab --}}
+                <input type="hidden" name="tab" id="currentTab" value="pending">
                 {{-- Search --}}
-                <input type="text" name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Search name..." 
-                    class="border rounded px-3 py-2 w-64"
-                    oninput="document.getElementById('filterForm').submit()">
+                <input type="text" id="search" name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search name..."
+                    class="border rounded px-3 py-2 w-64">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" class="border rounded px-3 py-2" onchange="document.getElementById('filterForm').submit()">
+                <select id="barangay" name="barangay" class="border rounded px-3 py-2">
                     <option value="">All Barangays</option>
                     @foreach($barangays as $brgy)
                         <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
@@ -279,6 +280,10 @@
             @endforelse
         </tbody>
     </table>
+    <!-- Pagination for listApplicants -->
+    <div class="mt-4">
+        {{ $listApplicants->links() }}
+    </div>
     </div>
     </div>
     </div>
@@ -356,6 +361,7 @@
             document.querySelector('.tab.active').classList.remove('active');
             document.querySelectorAll('.tab')[0].classList.add('active');
             localStorage.setItem("viewMode", "table"); // save preference
+            document.getElementById('currentTab').value = 'pending';
         }
 
         function showList() {
@@ -364,16 +370,32 @@
             document.querySelector('.tab.active').classList.remove('active');
             document.querySelectorAll('.tab')[1].classList.add('active');
             localStorage.setItem("viewMode", "list"); // save preference
+            document.getElementById('currentTab').value = 'reviewed';
         }
 
         // ✅ Kapag nag-load ang page, i-apply yung last view
         document.addEventListener("DOMContentLoaded", function() {
-            let viewMode = localStorage.getItem("viewMode") || "table"; // default table
+            // Check URL parameter first, then localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            let viewMode = "table"; // default
+
+            if (tabParam === 'reviewed') {
+                viewMode = "list";
+            } else if (tabParam === 'pending') {
+                viewMode = "table";
+            } else {
+                viewMode = localStorage.getItem("viewMode") || "table";
+            }
+
             if(viewMode === "list") {
                 showList();
             } else {
                 showTable();
             }
+
+            // Set the hidden tab input to match the active view
+            document.getElementById('currentTab').value = viewMode === "list" ? 'reviewed' : 'pending';
         });
 
         // ✅ Application Modal Functions
@@ -905,6 +927,50 @@
         document.getElementById('emailModal').classList.remove('hidden');
     }
 
+    function openEditInitialScreeningModal(applicationPersonnelId, currentStatus) {
+        document.getElementById('editApplicationPersonnelId').value = applicationPersonnelId;
+        document.getElementById('initialScreeningStatus').value = currentStatus || '';
+        document.getElementById('editInitialScreeningModal').classList.remove('hidden');
+    }
+
+    function closeEditInitialScreeningModal() {
+        document.getElementById('editInitialScreeningModal').classList.add('hidden');
+    }
+
+    function submitEditInitialScreening() {
+        const applicationPersonnelId = document.getElementById('editApplicationPersonnelId').value;
+        const status = document.getElementById('initialScreeningStatus').value;
+
+        if (!status) {
+            Swal.fire('Error', 'Please select a status.', 'error');
+            return;
+        }
+
+        // Make AJAX call to update the initial screening status
+        fetch(`/mayor_staff/application/${applicationPersonnelId}/edit-initial-screening`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            },
+            body: JSON.stringify({ initial_screening_status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('Success!', 'Initial screening status updated successfully.', 'success');
+                closeEditInitialScreeningModal();
+                // Reload the page to reflect changes
+                location.reload();
+            } else {
+                Swal.fire('Error', 'Failed to update initial screening status.', 'error');
+            }
+        })
+        .catch(() => {
+            Swal.fire('Error', 'Failed to update initial screening status.', 'error');
+        });
+    }
+
     function updateEmailMessage() {
         const checkboxes = document.querySelectorAll('input[name="application_issues[]"]:checked');
         let issues = [];
@@ -1207,6 +1273,59 @@
  <script src="{{ asset('js/logout.js') }}"></script>
 
 <script>
+// Real-time filtering function for both tables
+function filterTable() {
+    const searchValue = document.getElementById('search').value.toLowerCase();
+    const barangayValue = document.getElementById('barangay').value;
+
+    // Tables to filter
+    const tables = [document.getElementById('tableView'), document.getElementById('listView')];
+
+    tables.forEach(table => {
+        const rows = table.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            // Skip the empty row if present
+            if (row.cells.length < 2) return;
+
+            const name = row.cells[1].textContent.toLowerCase();
+            const barangay = row.cells[2].textContent;
+
+            const matchesSearch = name.includes(searchValue);
+            const matchesBarangay = barangayValue === '' || barangay === barangayValue;
+
+            if (matchesSearch && matchesBarangay) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Handle empty state
+        const emptyRow = table.querySelector('tbody tr:last-child');
+        if (emptyRow && emptyRow.cells.length === 1) { // Assuming empty row has colspan
+            if (visibleCount === 0) {
+                emptyRow.style.display = '';
+            } else {
+                emptyRow.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Add event listeners for real-time filtering
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('search').addEventListener('input', filterTable);
+    document.getElementById('barangay').addEventListener('change', filterTable);
+
+    // Apply initial filter if values are set
+    filterTable();
+});
+</script>
+
+<script>
 // Real-time updates for new applications
 let lastUpdate = new Date().toISOString();
 
@@ -1261,7 +1380,7 @@ function pollForUpdates() {
 }
 
 // Poll every 10 seconds
-setInterval(pollForUpdates, 10000);
+// setInterval(pollForUpdates, 10000);
 </script>
 
 </body>

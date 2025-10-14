@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+c<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,7 +30,7 @@
                     <i class="fas fa-bell text-white text-2xl cursor-pointer"></i>
                     @if($notifications->count() > 0)
                         <span id="notifCount"
-                            class="absolute -top-1 -right-1 bg-red-500 text-white text-sm rounded-full h-5 w-5 flex items-center justify-center">
+                            class="absolute -top-1 -right-1 bg-red-500 text-red text-sm rounded-full h-5 w-5 flex items-center justify-center">
                             {{ $notifications->count() }}
                         </span>
                     @endif
@@ -142,18 +142,17 @@
                     <!-- 🔎 Search & Filter + View Switch -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-            <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
+            <form id="filterForm" method="GET" action="{{ route('MayorStaff.status') }}" class="flex gap-2 mb-4">
+                {{-- Hidden input for current tab --}}
+                <input type="hidden" name="tab" id="currentTab" value="pending">
                 {{-- Search --}}
-                <input type="text" name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Search name..." 
-                    class="border rounded px-3 py-2 w-64"
-                    oninput="document.getElementById('filterForm').submit()">
+                <input type="text" id="search" name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Search name..."
+                    class="border rounded px-3 py-2 w-64">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" 
-                    class="border rounded px-3 py-2"
-                    onchange="document.getElementById('filterForm').submit()">
+                <select id="barangay" name="barangay" class="border rounded px-3 py-2">
                     <option value="">All Barangays</option>
                     @foreach($barangays as $brgy)
                         <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
@@ -188,7 +187,7 @@
                 </tr>
             </thead>
         <tbody class="bg-white">
-        @forelse($applications as $index => $app)
+        @forelse($tableApplicants as $index => $app)
             @if(in_array($app->remarks, ['Poor', 'Ultra Poor']))
             <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200">
                 <td class="px-6 py-4">{{ $index + 1 }}</td>
@@ -232,10 +231,13 @@
                 <td colspan="6" class="px-6 py-8 text-center text-gray-500 bg-gray-50">No pending applications found.</td>
             </tr>
         @endforelse
+        <tr id="tableEmptyRow" style="display: none;">
+            <td colspan="6" class="px-6 py-8 text-center text-gray-500 bg-gray-50">Not found.</td>
+        </tr>
         </tbody>
         </table>
         <div class="mt-4">
-            {{ $applications->appends(request()->query())->links() }}
+            {{ $tableApplicants->appends(request()->query())->links() }}
         </div>
     </div>
         <!-- ✅ List View (Approved and Rejected applications) -->
@@ -259,7 +261,7 @@
             <tbody class="bg-white">
             @forelse($listApplications as $index => $app)
                 <tr class="border-b border-gray-200 hover:bg-green-50 transition-colors duration-200">
-                    <td class="px-6 py-4">{{ $index + 1 }}</td>
+                    <td class="px-6 py-4">{{ $listApplications->firstItem() + $index }}</td>
                     <td class="px-6 py-4 font-medium">{{ $app->fname }} {{ $app->mname }} {{ $app->lname }} {{ $app->suffix }}</td>
                     <td class="px-6 py-4">{{ $app->barangay }}</td>
                     <td class="px-6 py-4">{{ $app->school }}</td>
@@ -328,6 +330,177 @@
             showList();
         } else {
             showTable();
+        }
+
+        // Add event listeners for search and barangay filters with AJAX
+        let searchTimeout;
+        document.getElementById('search').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterApplications();
+            }, 500);
+        });
+        document.getElementById('barangay').addEventListener('change', function() {
+            filterApplications();
+        });
+
+        function filterApplications() {
+            const searchValue = document.getElementById('search').value;
+            const barangayValue = document.getElementById('barangay').value;
+
+            // Show loading
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+
+            fetch(`/mayor_staff/status?search=${encodeURIComponent(searchValue)}&barangay=${encodeURIComponent(barangayValue)}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading
+                document.getElementById('loadingSpinner').classList.add('hidden');
+
+                // Update tableView
+                updateTableView(data.tableApplicants);
+
+                // Update listView
+                updateListView(data.listApplications);
+
+                // Update pagination
+                document.querySelector('#tableView .mt-4').innerHTML = data.tablePagination;
+                document.querySelector('#listView .mt-4').innerHTML = data.listPagination;
+            })
+            .catch(error => {
+                document.getElementById('loadingSpinner').classList.add('hidden');
+                console.error('Error filtering applications:', error);
+            });
+        }
+
+        function updateTableView(applications) {
+            const tableBody = document.querySelector('#tableView tbody');
+            // Clear existing rows except the empty state row
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                if (row.cells.length > 1) {
+                    row.remove();
+                }
+            });
+
+            if (applications.length === 0) {
+                const emptyRow = tableBody.querySelector('tr:last-child');
+                if (emptyRow) {
+                    emptyRow.style.display = '';
+                }
+                return;
+            }
+
+            // Hide empty state
+            const emptyRow = tableBody.querySelector('tr:last-child');
+            if (emptyRow) {
+                emptyRow.style.display = 'none';
+            }
+
+            applications.forEach((app, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200';
+
+                const badgeColor = app.remarks === 'Poor' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4">${index + 1}</td>
+                    <td class="px-6 py-4 font-medium">${app.fname} ${app.mname} ${app.lname} ${app.suffix}</td>
+                    <td class="px-6 py-4">${app.barangay}</td>
+                    <td class="px-6 py-4">${app.school}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}">
+                            ${app.remarks}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <form method="POST" action="{{ route('MayorStaff.updateStatus', $app->application_personnel_id ?? '') }}">
+                            @csrf
+                            <div class="flex flex-col space-y-2">
+                                <select name="status" class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 status-select">
+                                    <option>Set Status</option>
+                                    <option value="Approved" ${app.status == 'Approved' ? 'selected' : ''}>Approved</option>
+                                    <option value="Rejected" ${app.status == 'Rejected' ? 'selected' : ''}>Rejected</option>
+                                </select>
+                            </div>
+                        </form>
+                    </td>
+                `;
+                tableBody.insertBefore(row, emptyRow);
+            });
+
+            // Re-attach event listeners to new status selects
+            attachStatusSelectListeners();
+        }
+
+        function updateListView(applications) {
+            const listBody = document.querySelector('#listView tbody');
+            // Clear existing rows except the empty state row
+            const rows = listBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                if (row.cells.length > 1) {
+                    row.remove();
+                }
+            });
+
+            if (applications.length === 0) {
+                const emptyRow = listBody.querySelector('tr:last-child');
+                if (emptyRow) {
+                    emptyRow.style.display = '';
+                }
+                return;
+            }
+
+            // Hide empty state
+            const emptyRow = listBody.querySelector('tr:last-child');
+            if (emptyRow) {
+                emptyRow.style.display = 'none';
+            }
+
+            applications.forEach((app, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-green-50 transition-colors duration-200';
+
+                const badgeColor = app.remarks === 'Poor' ? 'bg-red-100 text-red-800 border border-red-200' : app.remarks === 'Ultra Poor' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' : 'bg-blue-100 text-blue-800 border border-blue-200';
+                const statusBadgeColor = app.status === 'Approved' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200';
+
+                row.innerHTML = `
+                    <td class="px-6 py-4">${index + 1}</td>
+                    <td class="px-6 py-4 font-medium">${app.fname} ${app.mname} ${app.lname} ${app.suffix}</td>
+                    <td class="px-6 py-4">${app.barangay}</td>
+                    <td class="px-6 py-4">${app.school}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}">
+                            ${app.remarks}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusBadgeColor}">
+                            ${app.status}
+                        </span>
+                    </td>
+                `;
+                listBody.insertBefore(row, emptyRow);
+            });
+        }
+
+        function attachStatusSelectListeners() {
+            const statusSelects = document.querySelectorAll('select[name="status"]');
+            statusSelects.forEach(select => {
+                // Remove any existing event listeners to prevent duplicates
+                select.removeEventListener('change', handleStatusChange);
+
+                select.addEventListener('change', handleStatusChange);
+
+                // Store original value
+                select.setAttribute('data-original-value', select.value);
+            });
         }
 
         // Add SweetAlert confirmation for dropdown status changes
