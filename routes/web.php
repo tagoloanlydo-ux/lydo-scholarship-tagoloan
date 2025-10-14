@@ -125,7 +125,7 @@ Route::middleware(['role:mayor_staff'])->group(function () {
     Route::post('/mayor_staff/mark-notifications-viewed', [MayorStaffController::class, 'markNotificationsViewed'])->name('MayorStaff.markNotificationsViewed');
     Route::delete('/mayor_staff/application/{id}', [MayorStaffController::class, 'deleteApplication'])->name('mayor_staff.deleteApplication');
     Route::post('/mayor_staff/send-email', [MayorStaffController::class, 'sendEmail'])->name('mayor_staff.sendEmail');
-    Route::get('/mayor_staff/dashboard/updates', [MayorStaffController::class, 'getDashboardUpdates'])->name('MayorStaff.getDashboardUpdates');
+
     Route::get('/mayor_staff/application/updates', [MayorStaffController::class, 'getApplicationUpdates'])->name('MayorStaff.getApplicationUpdates');
     Route::get('/mayor_staff/status/updates', [MayorStaffController::class, 'getStatusUpdates'])->name('MayorStaff.getStatusUpdates');
     Route::get('/mayor_staff/sse-applicants', [MayorStaffController::class, 'sseApplicants'])->name('MayorStaff.sseApplicants');

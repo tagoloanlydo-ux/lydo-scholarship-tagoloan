@@ -50,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('mayor')->group(function () {
         // Dashboard routes
         Route::get('/dashboard', [MayorStaffController::class, 'index']);
-        Route::get('/dashboard/updates', [MayorStaffController::class, 'getDashboardUpdates']);
+
 
         // Application management routes
         Route::get('/applications', [MayorStaffController::class, 'application']);
