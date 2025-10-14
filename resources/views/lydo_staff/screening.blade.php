@@ -684,7 +684,20 @@ setInterval(pollForNewApplicants, 10000);
 function filterTable() {
     const searchValue = document.getElementById('searchInput').value.toLowerCase();
     const barangayValue = document.getElementById('barangaySelect').value;
-    const tableBody = document.querySelector('#tableView tbody');
+
+    // Determine which table is currently visible
+    const tableView = document.getElementById('tableView');
+    const listView = document.getElementById('listView');
+    let tableBody;
+
+    if (!tableView.classList.contains('hidden')) {
+        tableBody = document.querySelector('#tableView tbody');
+    } else if (!listView.classList.contains('hidden')) {
+        tableBody = document.querySelector('#listView tbody');
+    }
+
+    if (!tableBody) return; // No table visible
+
     const rows = tableBody.querySelectorAll('tr');
 
     rows.forEach((row, index) => {
