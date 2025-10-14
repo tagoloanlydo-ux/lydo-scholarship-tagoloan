@@ -305,13 +305,14 @@ class ScholarController extends Controller
         return response()->json(['valid' => true]);
     }
 
-    public function announcements()
-    {
-      $announcements = Announce::orderBy('created_at', 'desc')
-    ->orderBy('announce_id', 'desc')
-    ->get();
-        return view('scholar.scholar_announce', compact('announcements'));
-    }
+        public function announcements()
+        {
+            $announcements = Announce::where('announce_type', 'Applicants')
+                ->orderBy('created_at', 'desc')
+                ->orderBy('announce_id', 'desc')
+                ->get();
+            return view('scholar.scholar_announce', compact('announcements'));
+        }
 
     public function dashboard()
     {
