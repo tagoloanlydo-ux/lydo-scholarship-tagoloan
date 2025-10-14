@@ -110,23 +110,22 @@
 
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
 
-        <div class="flex gap-2 mb-4">
-
-            <input type="text" id="searchInput"
+        <form id="filterForm" method="GET" class="flex gap-2 mb-4">
+            <input type="text" name="search" id="searchInput"
                 placeholder="Search name..."
+                value="{{ request('search') }}"
                 class="border rounded px-3 py-2 w-64">
 
-            <select id="barangaySelect"
+            <select name="barangay" id="barangaySelect"
                 class="border rounded px-3 py-2">
                 <option value="">All Barangays</option>
                 @foreach($barangays as $brgy)
-                    <option value="{{ $brgy }}">
+                    <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
                         {{ $brgy }}
                     </option>
                 @endforeach
             </select>
-
-        </div>
+        </form>
             <div class="flex gap-2">
                 <div onclick="showTable()" class="tab active" id="tab-renewal">
                     <i class="fas fa-table mr-1"></i> Process Renewals
