@@ -274,11 +274,12 @@
 </script>
 </div>
             </div>
-            <div class="flex-1 overflow-auto p-5 md:p-6 text-[17px]">
+            <div class="flex-1 overflow-hidden p-5 md:p-6 text-[17px]">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold text-gray-800">Scholar Status Management</h2>
                 </div>
 
+                <!-- Scholars without renewal applications -->
                 <div class="p-5">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold">Active Scholars Without Renewal Applications</h3>
@@ -307,9 +308,9 @@
                                             <input type="checkbox" id="selectAll" class="rounded border-gray-300">
                                         </th>
                                         <th class="px-4 py-3 border align-middle border-gray-200 text-center">Name</th>
-                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Barangay</th>
+                                                                                <!-- Add this in the <thead> -->
+<th class="px-4 py-3 border border-gray-200 align-middle text-center">Barangay</th>
                                         <th class="px-4 py-3 border border-gray-200 align-middle text-center">Email</th>
-                                        <th class="px-4 py-3 border border-gray-200 align-middle text-center">Contact Number</th>
                                         <th class="px-4 py-3 border border-gray-200 align-middle text-center">School</th>
                                         <th class="px-4 py-3 border border-gray-200 align-middle text-center">Year Level</th>
                                     </tr>
@@ -326,9 +327,8 @@
                                                 {{ $scholar->applicant_suffix }}
                                             @endif
                                         </td>
-                                        <td class="px-4 border border-gray-200 py-2 text-center barangay-cell">{{ $scholar->applicant_brgy }}</td>
+<td class="px-4 border border-gray-200 py-2 text-center barangay-cell">{{ $scholar->applicant_brgy }}</td>
                                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_email }}</td>
-                                        <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_contact_number }}</td>
                                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_school_name }}</td>
                                         <td class="px-4 border border-gray-200 py-2 text-center">{{ $scholar->applicant_year_level }}</td>
                                     </tr>
@@ -336,13 +336,6 @@
                                 </tbody>
                             </table>
                         </div>
-
-                        <!-- Pagination -->
-                        @if($scholarsWithoutRenewal->hasPages())
-                        <div class="mt-6 flex justify-end">
-                            {{ $scholarsWithoutRenewal->links() }}
-                        </div>
-                        @endif
                     </form>
                     @else
                     <div class="text-center py-8 text-gray-500">
@@ -673,8 +666,6 @@ scholarId.value = scholarIds.join(',');
                             }
                         });
                     });
-
-
 
                     // Initialize button states
                     updateButtons();

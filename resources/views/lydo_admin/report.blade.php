@@ -713,7 +713,7 @@
                     <!-- Renewal Tab -->
                     <div id="renewal-tab" class="tab-pane hidden">
                         <div class="bg-white rounded-lg shadow-sm p-6">
-                            <h3 class="text-lg font-semibold mb-4">Approved Renewal Applications</h3>
+                            <h3 class="text-lg font-semibold mb-4">Renewal Applications</h3>
                             <!-- Filter Section -->
                             <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
                                 <div class="flex flex-col md:flex-row gap-4" id="renewalFilterForm">
@@ -815,10 +815,22 @@
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                    <i class="fas fa-check-circle mr-1"></i>
-                                                    {{ $renewal->renewal_status }}
-                                                </span>
+                                                @if($renewal->renewal_status === 'Approved')
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                        {{ $renewal->renewal_status }}
+                                                    </span>
+                                                @elseif($renewal->renewal_status === 'Rejected')
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-200">
+                                                        <i class="fas fa-times-circle mr-1"></i>
+                                                        {{ $renewal->renewal_status }}
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">
+                                                        <i class="fas fa-clock mr-1"></i>
+                                                        {{ $renewal->renewal_status }}
+                                                    </span>
+                                                @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">

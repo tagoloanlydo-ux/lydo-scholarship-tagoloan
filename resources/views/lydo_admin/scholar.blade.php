@@ -87,7 +87,7 @@
             
         </header>
         <!-- Main Content -->
-      <div class="flex flex-1 overflow-hidden">
+      <div class="flex flex-1">
             <!-- Sidebar -->
             <div class="w-16 md:w-72 bg-white shadow-md flex flex-col transition-all duration-300">
                 <nav class="flex-1 p-2 md:p-4 space-y-1 overflow-y-auto">
