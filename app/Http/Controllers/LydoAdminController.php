@@ -778,7 +778,7 @@ class LydoAdminController extends Controller
             $query->where('a.applicant_acad_year', $request->academic_year);
         }
 
-        $scholars = $query->paginate(15);
+        $scholars = $query->paginate(30);
 
         // Get distinct barangays for filter dropdown
         $barangays = DB::table('tbl_applicant')
