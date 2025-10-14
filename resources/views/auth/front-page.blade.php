@@ -73,7 +73,7 @@
               <button disabled  class="flex items-center justify-center gap-2 bg-gray-800 hover:bg-indigo-500 py-3 w-full rounded-xl shadow text-white font-medium transition text-sm md:text-base" title="{{ $applicationMessage }}">
                 Apply as Scholar
               </button>
-              <p class="text-sm text-gray-500 mt-1 text-center">{{ $applicationMessage }}</p>
+              <p class="text-sm text-white-500 mt-1 text-center">{{ $applicationMessage }}</p>
             </div>
           @else
             <a href="{{ route('applicants.registration') }}" class="flex-1">
