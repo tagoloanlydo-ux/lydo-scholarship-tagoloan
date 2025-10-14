@@ -164,7 +164,7 @@
             <!-- ✅ Table View (Applicants without remarks) -->
             <div id="tableView">
                 <div class="mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200">
+                    <h3 class="text-lg font-semibold text-gray-700 bg-red-50 p-3 rounded-lg border border-blue-200">
                         The list below shows applicants who have submitted applications
                     </h3>
                 </div>
