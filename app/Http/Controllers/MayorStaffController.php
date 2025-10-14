@@ -23,7 +23,7 @@ class MayorStaffController extends Controller
                 "app.applicant_id",
             )
             ->select(
-                "app.application_id",
+                "app.applicationi_id",
                 "a.applicant_fname",
                 "a.applicant_lname",
                 "app.created_at",
@@ -1682,6 +1682,106 @@ public function updateStatus(Request $request, $id)
         ]);
     }
 
+    public function getFilteredPendingApplicants(Request $request)
+    {
+        $query = DB::table('tbl_application_personnel as ap')
+            ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
+            ->join('tbl_applicant as app', 'a.applicant_id', '=', 'app.applicant_id')
+            ->join('tbl_lydopers as lydo', 'ap.lydopers_id', '=', 'lydo.lydopers_id')
+            ->select(
+                'ap.application_personnel_id',
+                'app.applicant_fname as fname',
+                'app.applicant_mname as mname',
+                'app.applicant_lname as lname',
+                'app.applicant_suffix as suffix',
+                'app.applicant_brgy as barangay',
+                'app.applicant_school_name as school',
+                'ap.remarks as remarks',
+                'ap.status as status'
+            )
+            ->where('ap.status', 'Pending')
+            ->where('lydo.lydopers_role', 'lydo_staff')
+            ->whereIn('ap.remarks', ['Poor', 'Ultra Poor']);
 
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('app.applicant_fname', 'like', "%$search%")
+                  ->orWhere('app.applicant_lname', 'like', "%$search%");
+            });
+        }
+
+        // Apply barangay filter
+        if ($request->filled('barangay')) {
+            $query->where('app.applicant_brgy', $request->barangay);
+        }
+
+        $tableApplicants = $query->paginate(15);
+
+        return response()->json([
+            'data' => $tableApplicants->items(),
+            'pagination' => [
+                'current_page' => $tableApplicants->currentPage(),
+                'last_page' => $tableApplicants->lastPage(),
+                'per_page' => $tableApplicants->perPage(),
+                'total' => $tableApplicants->total(),
+                'links' => $tableApplicants->links()->toHtml(),
+            ]
+        ]);
+    }
+
+    public function getFilteredProcessedApplicants(Request $request)
+    {
+        $query = DB::table('tbl_application_personnel as ap')
+            ->join('tbl_application as a', 'ap.application_id', '=', 'a.application_id')
+            ->join('tbl_applicant as app', 'a.applicant_id', '=', 'app.applicant_id')
+            ->join('tbl_lydopers as lydo', 'ap.lydopers_id', '=', 'lydo.lydopers_id')
+            ->select(
+                'ap.application_personnel_id',
+                'app.applicant_fname as fname',
+                'app.applicant_mname as mname',
+                'app.applicant_lname as lname',
+                'app.applicant_suffix as suffix',
+                'app.applicant_brgy as barangay',
+                'app.applicant_school_name as school',
+                'ap.remarks as remarks',
+                'ap.status as status'
+            )
+            ->whereIn('ap.status', ['Approved', 'Rejected'])
+            ->where('lydo.lydopers_role', 'lydo_staff');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('app.applicant_fname', 'like', "%$search%")
+                  ->orWhere('app.applicant_lname', 'like', "%$search%");
+            });
+        }
+
+        // Apply barangay filter
+        if ($request->filled('barangay')) {
+            $query->where('app.applicant_brgy', $request->barangay);
+        }
+
+        // Apply status filter
+        if ($request->filled('status_filter')) {
+            $query->where('ap.status', $request->status_filter);
+        }
+
+        $listApplications = $query->paginate(15, ['*'], 'list');
+
+        return response()->json([
+            'data' => $listApplications->items(),
+            'pagination' => [
+                'current_page' => $listApplications->currentPage(),
+                'last_page' => $listApplications->lastPage(),
+                'per_page' => $listApplications->perPage(),
+                'total' => $listApplications->total(),
+                'links' => $listApplications->links()->toHtml(),
+            ]
+        ]);
+    }
 
 }
