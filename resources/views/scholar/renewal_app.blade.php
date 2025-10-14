@@ -63,7 +63,7 @@
                     </form>
 
                     <script>
-                        document.getElementById('logoutForm').addEventListener('submit', function(e) {
+                        document.getElementById('renewalForm').addEventListener('submit', function(e) {
                             e.preventDefault();
                             Swal.fire({
                                 title: 'Are you sure you want to logout?',
@@ -212,7 +212,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('scholar.submit_renewal') }}" enctype="multipart/form-data" class="p-8 space-y-8">
+                <form method="POST" id="renewalForm"  action="{{ route('scholar.submit_renewal') }}" enctype="multipart/form-data" class="p-8 space-y-8">
                     @csrf
 
                     <!-- Hidden renewal_id for updates -->
