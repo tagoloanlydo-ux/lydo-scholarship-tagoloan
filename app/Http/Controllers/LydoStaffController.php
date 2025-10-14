@@ -338,6 +338,7 @@ class LydoStaffController extends Controller
                 "tbl_application_personnel.application_id",
             )
             ->select("tbl_applicant.*", "tbl_application_personnel.remarks", "tbl_application_personnel.application_personnel_id")
+            ->where("tbl_applicant.applicant_acad_year", $currentAcadYear)
             ->when($search, function ($query, $search) {
                 $query->where(DB::raw("CONCAT(tbl_applicant.applicant_fname, ' ', COALESCE(tbl_applicant.applicant_mname, ''), ' ', tbl_applicant.applicant_lname, IFNULL(CONCAT(' ', tbl_applicant.applicant_suffix), ''))"), 'like', "%{$search}%");
             })
@@ -387,6 +388,12 @@ $listApplicants = DB::table("tbl_applicant as a")
         $query->where("ap.initial_screening", "Reviewed");
     })
     ->where("a.applicant_acad_year", $currentAcadYear)
+    ->when($search, function ($query, $search) {
+        $query->where(DB::raw("CONCAT(a.applicant_fname, ' ', COALESCE(a.applicant_mname, ''), ' ', a.applicant_lname, IFNULL(CONCAT(' ', a.applicant_suffix), ''))"), 'like', "%{$search}%");
+    })
+    ->when($barangay, function ($query, $barangay) {
+        $query->where("a.applicant_brgy", $barangay);
+    })
     ->paginate(15)
     ->appends($request->all());
 
