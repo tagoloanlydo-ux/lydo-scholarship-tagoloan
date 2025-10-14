@@ -736,7 +736,7 @@ public function updateApplication(Request $request, $applicant_id)
 
     $application->save();
 
-    return redirect()->route('scholar.dashboard')->with('success', 'Application updated successfully!');
+    return redirect()->route('home')->with('success', 'Application updated successfully!');
 }
 
 /**
