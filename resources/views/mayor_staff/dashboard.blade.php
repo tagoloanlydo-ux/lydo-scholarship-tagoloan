@@ -78,7 +78,7 @@
                 <nav class="flex-1 p-2 md:p-4 space-y-1 overflow-y-auto">
                     <ul class="side-menu top space-y-4">
                          <li>
-                            <a href="/mayor_staff/dashboard" class="w-ful flex items-center p-3 rounded-lg text-red-violet-600 hover:bg-violet-700">
+                            <a href="/mayor_staff/dashboard" class="w-ful flex items-center p-3 rounded-lg text-white bg-violet-600 hover:bg-violet-700">
                                 <i class="bx bxs-dashboard text-center mx-auto md:mx-0 text-xl"></i>
                                 <span class="ml-4 hidden md:block text-lg">Dashboard</span>
                             </a>
@@ -583,8 +583,14 @@
         Swal.fire({
             title: '👋 Welcome back, {{ session('lydopers')->lydopers_fname }} {{ session('lydopers')->lydopers_lname }} (Mayor Staff)!',
             icon: 'success',
-            showConfirmButton: true,
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false,
             width: '600px',
+            didOpen: (modal) => {
+                modal.addEventListener('mouseenter', Swal.stopTimer)
+                modal.addEventListener('mouseleave', Swal.resumeTimer)
+            },
             position: 'center',
             background: '#f3e8ff',
             color: '#5b21b6'
@@ -647,6 +653,12 @@
         document.getElementById('notificationSound').play();
     }
 </script>
+<!-- <script>
+    // Auto refresh the page every 10 seconds for realtime updates
+    setInterval(() => {
+        location.reload();
+    }, 10000);
+</script> -->
  <script src="{{ asset('js/logout.js') }}"></script>
 </div>
 </body>
