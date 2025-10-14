@@ -9,8 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="{{ asset('css/mayor_app.css') }}" />
-     <link rel="icon" type="image/x-icon" href="/img/LYDO.png">
-     <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('/images/LYDO.png') }}">
 </head>
 <body class="bg-gray-50">
 
