@@ -674,49 +674,7 @@ scholarId.value = scholarIds.join(',');
                         });
                     });
 
-                    // Tab switching functionality
-                    const activeTab = document.getElementById('activeTab');
-                    const inactiveTab = document.getElementById('inactiveTab');
-                    const inactiveThisYearTab = document.getElementById('inactiveThisYearTab');
-                    const activeTabContent = document.getElementById('activeTabContent');
-                    const inactiveTabContent = document.getElementById('inactiveTabContent');
-                    const inactiveThisYearTabContent = document.getElementById('inactiveThisYearTabContent');
 
-                    activeTab.addEventListener('click', function() {
-                        activeTab.classList.add('border-violet-500', 'text-violet-600');
-                        activeTab.classList.remove('border-transparent', 'text-gray-500');
-                        inactiveTab.classList.remove('border-violet-500', 'text-violet-600');
-                        inactiveTab.classList.add('border-transparent', 'text-gray-500');
-                        inactiveThisYearTab.classList.remove('border-violet-500', 'text-violet-600');
-                        inactiveThisYearTab.classList.add('border-transparent', 'text-gray-500');
-                        activeTabContent.classList.remove('hidden');
-                        inactiveTabContent.classList.add('hidden');
-                        inactiveThisYearTabContent.classList.add('hidden');
-                    });
-
-                    inactiveTab.addEventListener('click', function() {
-                        inactiveTab.classList.add('border-violet-500', 'text-violet-600');
-                        inactiveTab.classList.remove('border-transparent', 'text-gray-500');
-                        activeTab.classList.remove('border-violet-500', 'text-violet-600');
-                        activeTab.classList.add('border-transparent', 'text-gray-500');
-                        inactiveThisYearTab.classList.remove('border-violet-500', 'text-violet-600');
-                        inactiveThisYearTab.classList.add('border-transparent', 'text-gray-500');
-                        inactiveTabContent.classList.remove('hidden');
-                        activeTabContent.classList.add('hidden');
-                        inactiveThisYearTabContent.classList.add('hidden');
-                    });
-
-                    inactiveThisYearTab.addEventListener('click', function() {
-                        inactiveThisYearTab.classList.add('border-violet-500', 'text-violet-600');
-                        inactiveThisYearTab.classList.remove('border-transparent', 'text-gray-500');
-                        activeTab.classList.remove('border-violet-500', 'text-violet-600');
-                        activeTab.classList.add('border-transparent', 'text-gray-500');
-                        inactiveTab.classList.remove('border-violet-500', 'text-violet-600');
-                        inactiveTab.classList.add('border-transparent', 'text-gray-500');
-                        inactiveThisYearTabContent.classList.remove('hidden');
-                        activeTabContent.classList.add('hidden');
-                        inactiveTabContent.classList.add('hidden');
-                    });
 
                     // Initialize button states
                     updateButtons();
