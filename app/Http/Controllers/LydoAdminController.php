@@ -206,7 +206,7 @@ class LydoAdminController extends Controller
             $query->where('scholar_status', $request->status);
         }
 
-        $scholars = $query->paginate(15);
+        $scholars = $query->get();
 
         // Get distinct barangays for filter dropdown
         $barangays = DB::table('tbl_applicant')
@@ -266,36 +266,12 @@ class LydoAdminController extends Controller
         });
 
         // Fetch applicants with remarks for the third tab (only reviewed initial screening)
-        $applicantsQuery = DB::table('tbl_application_personnel')
+        $applicantsWithRemarks = DB::table('tbl_application_personnel')
             ->join('tbl_application', 'tbl_application_personnel.application_id', '=', 'tbl_application.application_id')
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
             ->select('tbl_applicant.*', 'tbl_application_personnel.remarks')
-            ->where('tbl_application_personnel.initial_screening', 'Approved');
-
-        // Apply search filter
-        if ($request->has('search') && !empty($request->search)) {
-            $applicantsQuery->where(function($q) use ($request) {
-                $q->where('applicant_fname', 'like', '%' . $request->search . '%')
-                  ->orWhere('applicant_lname', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        // Apply barangay filter
-        if ($request->has('barangay') && !empty($request->barangay)) {
-            $applicantsQuery->where('applicant_brgy', $request->barangay);
-        }
-
-        // Apply academic year filter
-        if ($request->has('academic_year') && !empty($request->academic_year)) {
-            $applicantsQuery->where('applicant_acad_year', $request->academic_year);
-        }
-
-        // Apply remarks filter
-        if ($request->has('remarks') && !empty($request->remarks)) {
-            $applicantsQuery->where('tbl_application_personnel.remarks', $request->remarks);
-        }
-
-        $applicantsWithRemarks = $applicantsQuery->paginate(15);
+            ->where('tbl_application_personnel.initial_screening', 'Approved')
+            ->paginate(15);
 
         // Fix remarks field - ensure it's cast to string to prevent stdClass errors
         $applicantsWithRemarks->getCollection()->transform(function ($applicant) {
@@ -336,8 +312,8 @@ class LydoAdminController extends Controller
             ->groupBy('applicant_brgy')
             ->get();
 
-        // Fetch renewal applications for the new tab (Approved and Rejected only)
-        $renewalQuery = DB::table('tbl_renewal')
+        // Fetch approved renewal applications for the new tab
+        $approvedRenewals = DB::table('tbl_renewal')
             ->join('tbl_scholar', 'tbl_renewal.scholar_id', '=', 'tbl_scholar.scholar_id')
             ->join('tbl_application', 'tbl_scholar.application_id', '=', 'tbl_application.application_id')
             ->join('tbl_applicant', 'tbl_application.applicant_id', '=', 'tbl_applicant.applicant_id')
@@ -356,29 +332,8 @@ class LydoAdminController extends Controller
                 'tbl_applicant.applicant_course',
                 'tbl_applicant.applicant_year_level'
             )
-            ->whereIn('tbl_renewal.renewal_status', ['Approved', 'Rejected']);
-
-        // Apply filters for initial load
-        if ($request->has('search') && !empty($request->search)) {
-            $renewalQuery->where(function($q) use ($request) {
-                $q->where('applicant_fname', 'like', '%' . $request->search . '%')
-                  ->orWhere('applicant_lname', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        if ($request->has('barangay') && !empty($request->barangay)) {
-            $renewalQuery->where('applicant_brgy', $request->barangay);
-        }
-
-        if ($request->has('academic_year') && !empty($request->academic_year)) {
-            $renewalQuery->where('renewal_acad_year', $request->academic_year);
-        }
-
-        if ($request->has('status') && !empty($request->status) && in_array($request->status, ['Approved', 'Rejected'])) {
-            $renewalQuery->where('renewal_status', $request->status);
-        }
-
-        $approvedRenewals = $renewalQuery->get();
+            ->where('tbl_renewal.renewal_status', 'Approved')
+            ->get();
 
         return view('lydo_admin.report', compact(
             'totalApplicants',
@@ -912,7 +867,7 @@ class LydoAdminController extends Controller
 )
             ->where('s.scholar_status', 'active')
             ->whereNull('r.renewal_id')
-            ->paginate(15);
+            ->get();
 
         return view('lydo_admin.status', compact('notifications', 'scholarsWithoutRenewal'));
     }

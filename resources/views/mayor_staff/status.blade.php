@@ -142,30 +142,24 @@
                     <!-- 🔎 Search & Filter + View Switch -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-            <form id="filterForm" method="GET" action="{{ route('MayorStaff.status') }}" class="flex gap-2 mb-4">
+            <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
                 {{-- Search --}}
-                <input type="text" name="search" id="searchInput"
-                    value="{{ request('search') }}"
-                    placeholder="Search name..."
-                    class="border rounded px-3 py-2 w-64">
+                <input type="text" name="search" 
+                    value="{{ request('search') }}" 
+                    placeholder="Search name..." 
+                    class="border rounded px-3 py-2 w-64"
+                    oninput="document.getElementById('filterForm').submit()">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" id="barangaySelect"
-                    class="border rounded px-3 py-2">
+                <select name="barangay" 
+                    class="border rounded px-3 py-2"
+                    onchange="document.getElementById('filterForm').submit()">
                     <option value="">All Barangays</option>
                     @foreach($barangays as $brgy)
                         <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
                             {{ $brgy }}
                         </option>
                     @endforeach
-                </select>
-
-                {{-- Status dropdown (only for processed tab) --}}
-                <select name="status_filter" id="statusFilter"
-                    class="border rounded px-3 py-2 hidden">
-                    <option value="">All Statuses</option>
-                    <option value="Approved" {{ request('status_filter') == 'Approved' ? 'selected' : '' }}>Approved</option>
-                    <option value="Rejected" {{ request('status_filter') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                 </select>
             </form>
           <!-- Tab Switch -->
@@ -194,7 +188,7 @@
                 </tr>
             </thead>
         <tbody class="bg-white">
-        @forelse($tableApplicants as $index => $app)
+        @forelse($applications as $index => $app)
             @if(in_array($app->remarks, ['Poor', 'Ultra Poor']))
             <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200">
                 <td class="px-6 py-4">{{ $index + 1 }}</td>
@@ -241,7 +235,7 @@
         </tbody>
         </table>
         <div class="mt-4">
-            {{ $tableApplicants->appends(request()->query())->links() }}
+            {{ $applications->appends(request()->query())->links() }}
         </div>
     </div>
         <!-- ✅ List View (Approved and Rejected applications) -->
@@ -316,9 +310,7 @@
         document.getElementById("listView").classList.add("hidden");
         document.querySelector('.tab.active').classList.remove('active');
         document.querySelectorAll('.tab')[0].classList.add('active');
-        document.getElementById('statusFilter').classList.add('hidden');
         localStorage.setItem("viewMode", "table"); // save preference
-        updateTableData();
     }
 
     function showList() {
@@ -326,9 +318,7 @@
         document.getElementById("tableView").classList.add("hidden");
         document.querySelector('.tab.active').classList.remove('active');
         document.querySelectorAll('.tab')[1].classList.add('active');
-        document.getElementById('statusFilter').classList.remove('hidden');
         localStorage.setItem("viewMode", "list"); // save preference
-        updateListData();
     }
 
     // ✅ Kapag nag-load ang page, i-apply yung last view
@@ -338,11 +328,6 @@
             showList();
         } else {
             showTable();
-        }
-
-        // Show status filter if on processed tab
-        if(viewMode === "list") {
-            document.getElementById('statusFilter').classList.remove('hidden');
         }
 
         // Add SweetAlert confirmation for dropdown status changes
@@ -570,140 +555,6 @@
  <script src="{{ asset('js/logout.js') }}"></script>
 
 <script>
-// AJAX functions for dynamic table updates
-function updateTableData() {
-    const search = document.getElementById('searchInput').value;
-    const barangay = document.getElementById('barangaySelect').value;
-
-    fetch(`/mayor_staff/status/filtered-pending?search=${encodeURIComponent(search)}&barangay=${encodeURIComponent(barangay)}`)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.querySelector('#tableView tbody');
-            tbody.innerHTML = '';
-
-            if (data.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500 bg-gray-50">No pending applications found.</td></tr>';
-                return;
-            }
-
-            data.data.forEach((app, index) => {
-                const badgeColor = app.remarks === 'Poor' ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-yellow-100 text-yellow-800 border border-yellow-200';
-                const row = `
-                    <tr class="border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200">
-                        <td class="px-6 py-4">${index + 1}</td>
-                        <td class="px-6 py-4 font-medium">${app.fname} ${app.mname} ${app.lname} ${app.suffix}</td>
-                        <td class="px-6 py-4">${app.barangay}</td>
-                        <td class="px-6 py-4">${app.school}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}">${app.remarks}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <form method="POST" action="/mayor_staff/status/${app.application_personnel_id}">
-                                @csrf
-                                <div class="flex flex-col space-y-2">
-                                    <select name="status" class="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 status-select">
-                                        <option>Set Status</option>
-                                        <option value="Approved">Approved</option>
-                                        <option value="Rejected">Rejected</option>
-                                    </select>
-                                </div>
-                            </form>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-
-            // Update pagination
-            const paginationContainer = document.querySelector('#tableView .mt-4');
-            if (paginationContainer) {
-                paginationContainer.innerHTML = data.pagination.links;
-            }
-
-            // Re-attach event listeners for status selects
-            attachStatusSelectListeners();
-        })
-        .catch(err => console.error('Error updating table data:', err));
-}
-
-function updateListData() {
-    const search = document.getElementById('searchInput').value;
-    const barangay = document.getElementById('barangaySelect').value;
-    const statusFilter = document.getElementById('statusFilter').value;
-
-    fetch(`/mayor_staff/status/filtered-processed?search=${encodeURIComponent(search)}&barangay=${encodeURIComponent(barangay)}&status_filter=${encodeURIComponent(statusFilter)}`)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.querySelector('#listView tbody');
-            tbody.innerHTML = '';
-
-            if (data.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500 bg-gray-50">No processed applications found.</td></tr>';
-                return;
-            }
-
-            data.data.forEach((app, index) => {
-                const badgeColor = app.remarks === 'Poor' ? 'bg-red-100 text-red-800 border border-red-200' :
-                                 app.remarks === 'Ultra Poor' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
-                                 'bg-blue-100 text-blue-800 border border-blue-200';
-                const statusBadgeColor = app.status === 'Approved' ? 'bg-green-100 text-green-800 border border-green-200' :
-                                       'bg-red-100 text-red-800 border border-red-200';
-                const row = `
-                    <tr class="border-b border-gray-200 hover:bg-green-50 transition-colors duration-200">
-                        <td class="px-6 py-4">${index + 1}</td>
-                        <td class="px-6 py-4 font-medium">${app.fname} ${app.mname} ${app.lname} ${app.suffix}</td>
-                        <td class="px-6 py-4">${app.barangay}</td>
-                        <td class="px-6 py-4">${app.school}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}">${app.remarks}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusBadgeColor}">${app.status}</span>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-
-            // Update pagination
-            const paginationContainer = document.querySelector('#listView .mt-4');
-            if (paginationContainer) {
-                paginationContainer.innerHTML = data.pagination.links;
-            }
-        })
-        .catch(err => console.error('Error updating list data:', err));
-}
-
-function attachStatusSelectListeners() {
-    const statusSelects = document.querySelectorAll('.status-select');
-    statusSelects.forEach(select => {
-        select.removeEventListener('change', handleStatusChange);
-        select.addEventListener('change', handleStatusChange);
-        select.setAttribute('data-original-value', select.value);
-    });
-}
-
-// Add event listeners for filter inputs
-document.getElementById('searchInput').addEventListener('input', function() {
-    if (document.getElementById('tableView').classList.contains('hidden')) {
-        updateListData();
-    } else {
-        updateTableData();
-    }
-});
-
-document.getElementById('barangaySelect').addEventListener('change', function() {
-    if (document.getElementById('tableView').classList.contains('hidden')) {
-        updateListData();
-    } else {
-        updateTableData();
-    }
-});
-
-document.getElementById('statusFilter').addEventListener('change', function() {
-    updateListData();
-});
-
 // Real-time updates for new applications and status changes
 let lastUpdateApps = new Date().toISOString();
 let lastUpdateStatus = new Date().toISOString();
@@ -823,10 +674,9 @@ function pollForStatusUpdates() {
         .catch(err => console.error('Polling status updates error:', err));
 }
 
-// Start polling for real-time updates
-setInterval(pollForNewApplications, 30000); // Poll every 30 seconds
-setInterval(pollForStatusUpdates, 30000); // Poll every 30 seconds
-
+// Poll every 10 seconds
+setInterval(pollForNewApplications, 10000);
+setInterval(pollForStatusUpdates, 10000);
 </script>
 
 </body>
