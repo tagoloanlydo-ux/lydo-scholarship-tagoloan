@@ -373,12 +373,6 @@ $listApplicants = DB::table("tbl_applicant as a")
         "ap.initial_screening",
         "ap.remarks",
     )
-    ->when($search, function ($query, $search) {
-        $query->where(DB::raw("CONCAT(a.applicant_fname, ' ', COALESCE(a.applicant_mname, ''), ' ', a.applicant_lname, IFNULL(CONCAT(' ', a.applicant_suffix), ''))"), 'like', "%{$search}%");
-    })
-    ->when($barangay, function ($query, $barangay) {
-        $query->where("a.applicant_brgy", $barangay);
-    })
     ->when($request->status, function ($query, $status) {
         // If status is a single string, wrap it into an array
         $statuses = is_array($status) ? $status : [$status];
