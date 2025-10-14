@@ -25,7 +25,7 @@
                <span class="text-white font-semibold">{{ session('lydopers')->lydopers_fname }} {{ session('lydopers')->lydopers_lname }} | Mayor Staff</span>
              
             <div class="relative">
-                <!-- 🔔 Bell Iconicondgiuwteuiwteetiut
+                <!-- 🔔 Bell Icon -->
                 <button id="notifBell" class="relative focus:outline-none">
                     <i class="fas fa-bell text-white text-2xl cursor-pointer"></i>
                     @if($notifications->count() > 0)
@@ -676,5 +676,6 @@ function pollForStatusUpdates() {
 
 
 </script>
+
 </body>
 </html>
