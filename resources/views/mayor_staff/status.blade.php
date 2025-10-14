@@ -848,8 +848,8 @@ function pollForStatusUpdates() {
 }
 
 // Poll every 10 seconds
-setInterval(pollForNewApplications, 10000);
-setInterval(pollForStatusUpdates, 10000);
+// setInterval(pollForNewApplications, 10000);
+// setInterval(pollForStatusUpdates, 10000);
 </script>
 
 </body>
