@@ -143,16 +143,16 @@
                     <!-- 🔎 Search & Filter + View Switch -->
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-                        <div class="flex gap-2 mb-4">
+                        <form id="filterForm" method="GET" class="flex gap-2 mb-4">
                             {{-- Search --}}
-                            <input type="text" id="searchInput" placeholder="Search name..." class="border rounded px-3 py-2 w-64">
+                            <input type="text" name="search" id="searchInput" placeholder="Search name..." class="border rounded px-3 py-2 w-64">
                             {{-- Barangay dropdown --}}
-                            <select id="barangaySelect" class="border rounded px-3 py-2">
+                            <select name="barangay" id="barangaySelect" class="border rounded px-3 py-2">
                                 <option value="">All Barangays</option> @foreach($barangays as $brgy) <option value="{{ $brgy }}">
                                     {{ $brgy }}
                                 </option> @endforeach
                             </select>
-                        </div>
+                        </form>
                         <!-- Tab Switch -->
             <div class="flex gap-2">
                 <div class="tab active" id="tab-screening" onclick="showTable()">Assign Remarks</div>
