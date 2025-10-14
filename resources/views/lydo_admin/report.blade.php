@@ -678,7 +678,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
-                                                    <span class="text-2xl font-bold text-orange-600 mr-2">{{ $barangay->total }}</span>
+                                                    <span class="text-2xl font-bold text-green-600 mr-2">{{ $barangay->total }}</span>
                                                     <span class="text-sm text-gray-500">applicants</span>
                                                 </div>
                                             </td>
