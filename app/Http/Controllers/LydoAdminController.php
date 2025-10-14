@@ -912,7 +912,7 @@ class LydoAdminController extends Controller
 )
             ->where('s.scholar_status', 'active')
             ->whereNull('r.renewal_id')
-            ->get();
+            ->paginate(15);
 
         return view('lydo_admin.status', compact('notifications', 'scholarsWithoutRenewal'));
     }

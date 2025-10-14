@@ -583,14 +583,8 @@
         Swal.fire({
             title: '👋 Welcome back, {{ session('lydopers')->lydopers_fname }} {{ session('lydopers')->lydopers_lname }} (Mayor Staff)!',
             icon: 'success',
-            timer: 4000,
-            timerProgressBar: true,
-            showConfirmButton: false,
+            showConfirmButton: true,
             width: '600px',
-            didOpen: (modal) => {
-                modal.addEventListener('mouseenter', Swal.stopTimer)
-                modal.addEventListener('mouseleave', Swal.resumeTimer)
-            },
             position: 'center',
             background: '#f3e8ff',
             color: '#5b21b6'

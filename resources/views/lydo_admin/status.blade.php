@@ -274,7 +274,7 @@
 </script>
 </div>
             </div>
-            <div class="flex-1 overflow-hidden p-5 md:p-6 text-[17px]">
+            <div class="flex-1 overflow-y-auto p-5 md:p-6 text-[17px]">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-3xl font-bold text-gray-800">Scholar Status Management</h2>
                 </div>
@@ -336,6 +336,18 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <!-- Pagination -->
+                        @if($scholarsWithoutRenewal->hasPages())
+                        <div class="mt-6 flex justify-between items-center">
+                            <div class="text-sm text-gray-700">
+                                Showing {{ $scholarsWithoutRenewal->firstItem() }} to {{ $scholarsWithoutRenewal->lastItem() }} of {{ $scholarsWithoutRenewal->total() }} results
+                            </div>
+                            <div>
+                                {{ $scholarsWithoutRenewal->links() }}
+                            </div>
+                        </div>
+                        @endif
                     </form>
                     @else
                     <div class="text-center py-8 text-gray-500">
