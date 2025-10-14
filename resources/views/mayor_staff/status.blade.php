@@ -600,6 +600,7 @@ function pollForNewApplications() {
                                         </div>
                                     </form>
                                 </td>
+                            </form>
                             `;
                             tableBody.appendChild(row);
                         });
