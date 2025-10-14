@@ -971,11 +971,13 @@
             cancelButtonText: 'Cancel'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch('/mayor_staff/application/update-initial-screening', {
+                const applicationPersonnelId = document.getElementById('editApplicationPersonnelId').value;
+                fetch(`/mayor_staff/application/${applicationPersonnelId}/edit-initial-screening`, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-HTTP-Method-Override': 'PATCH'
                     },
                     body: formData
                 })
