@@ -945,6 +945,57 @@
         document.getElementById('emailModal').classList.add('hidden');
     }
 
+    function openEditInitialScreeningModal(applicationPersonnelId, currentStatus) {
+        document.getElementById('editApplicationPersonnelId').value = applicationPersonnelId;
+        document.getElementById('initialScreeningStatus').value = currentStatus;
+        document.getElementById('editInitialScreeningModal').classList.remove('hidden');
+    }
+
+    function closeEditInitialScreeningModal() {
+        document.getElementById('editInitialScreeningModal').classList.add('hidden');
+    }
+
+    function submitEditInitialScreening() {
+        const form = document.getElementById('editInitialScreeningForm');
+        const formData = new FormData(form);
+
+        // Confirm update
+        Swal.fire({
+            title: 'Update Initial Screening?',
+            text: 'Are you sure you want to update the initial screening status?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Update',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/mayor_staff/application/update-initial-screening', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('Updated!', 'Initial screening status has been updated successfully.', 'success');
+                        closeEditInitialScreeningModal();
+                        location.reload();
+                    } else {
+                        Swal.fire('Error', 'Failed to update initial screening status.', 'error');
+                    }
+                })
+                .catch(() => {
+                    Swal.fire('Error', 'Failed to update initial screening status.', 'error');
+                });
+            }
+        });
+    }
+
     // Add loading state to email form submission
     document.getElementById('emailForm').addEventListener('submit', function(e) {
         e.preventDefault(); // Prevent default form submission to handle with AJAX and SweetAlert
