@@ -127,6 +127,7 @@ Route::middleware(['role:mayor_staff'])->group(function () {
     Route::post('/mayor_staff/send-email', [MayorStaffController::class, 'sendEmail'])->name('mayor_staff.sendEmail');
 
     Route::get('/mayor_staff/application/updates', [MayorStaffController::class, 'getApplicationUpdates'])->name('MayorStaff.getApplicationUpdates');
+    Route::get('/mayor_staff/application/filtered', [MayorStaffController::class, 'getFilteredApplicants'])->name('MayorStaff.getFilteredApplicants');
     Route::get('/mayor_staff/status/updates', [MayorStaffController::class, 'getStatusUpdates'])->name('MayorStaff.getStatusUpdates');
     Route::get('/mayor_staff/sse-applicants', [MayorStaffController::class, 'sseApplicants'])->name('MayorStaff.sseApplicants');
     Route::get('/mayor_staff/status/filtered-pending', [MayorStaffController::class, 'getFilteredPendingApplicants'])->name('MayorStaff.getFilteredPendingApplicants');

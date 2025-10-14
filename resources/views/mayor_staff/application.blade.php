@@ -132,19 +132,18 @@
                     <div class="flex justify-between items-center mb-6">
                         <h5 class="text-3xl font-bold text-gray-800">Review Applicants Application</h5>
                 </div>
-                    <!-- 🔎 Search & Filter + View Switch -->
+            <!-- 🔎 Search & Filter + View Switch -->
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <!-- Search & Filter -->
-            <form id="filterForm" method="GET" action="{{ route('MayorStaff.application') }}" class="flex gap-2 mb-4">
+            <div class="flex gap-2 mb-4">
                 {{-- Search --}}
-                <input type="text" name="search" 
-                    value="{{ request('search') }}" 
-                    placeholder="Search name..." 
-                    class="border rounded px-3 py-2 w-64"
-                    oninput="document.getElementById('filterForm').submit()">
+                <input type="text" id="searchInput"
+                    value="{{ request('search') }}"
+                    placeholder="Search name..."
+                    class="border rounded px-3 py-2 w-64">
 
                 {{-- Barangay dropdown --}}
-                <select name="barangay" class="border rounded px-3 py-2" onchange="document.getElementById('filterForm').submit()">
+                <select id="barangaySelect" class="border rounded px-3 py-2">
                     <option value="">All Barangays</option>
                     @foreach($barangays as $brgy)
                         <option value="{{ $brgy }}" {{ request('barangay') == $brgy ? 'selected' : '' }}>
@@ -152,7 +151,7 @@
                         </option>
                     @endforeach
                 </select>
-            </form>
+            </div>
                         <!-- Tab Switch -->
             <div class="flex gap-2">
                 <div class="tab active" onclick="showTable()">Pending Review</div>
@@ -1260,61 +1259,265 @@
  <script src="{{ asset('js/logout.js') }}"></script>
 
 <script>
-// Real-time updates for new applications
-let lastUpdate = new Date().toISOString();
+// Real-time filtering for table
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const barangaySelect = document.getElementById('barangaySelect');
 
-function pollForUpdates() {
-    fetch(`/mayor_staff/application/updates?last_update=${encodeURIComponent(lastUpdate)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length > 0) {
-                // Update lastUpdate to the latest created_at
-                const latest = data.reduce((max, app) => app.created_at > max ? app.created_at : max, lastUpdate);
-                lastUpdate = latest;
+    function filterTable() {
+        const searchValue = searchInput.value.trim();
+        const barangayValue = barangaySelect.value;
 
-                // Append new rows to tableView
-                const tableBody = document.querySelector('#tableView tbody');
-                if (tableBody) {
-                    data.forEach(app => {
-                        const row = document.createElement('tr');
-                        row.className = 'border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200';
-                        row.innerHTML = `
-                            <td class="px-6 py-4 text-center">${tableBody.rows.length + 1}</td>
-                            <td class="px-6 py-4 text-center font-medium">${app.applicant_fname} ${app.applicant_lname}</td>
-                            <td class="px-6 py-4 text-center">${app.applicant_brgy}</td>
-                            <td class="px-6 py-4 text-center">${app.applicant_gender}</td>
-                            <td class="px-6 py-4 text-center">${app.applicant_bdate}</td>
-                            <td class="px-6 py-4 text-center">
-                                <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm font-medium transition-colors duration-200 shadow-sm" onclick="openApplicationModal(${app.application_personnel_id}, 'pending')">
-                                    View Applications
-                                </button>
-                            </td>
-                            <td class="px-6 py-4 text-center relative">
-                                <div class="dropdown">
-                                    <button class="text-gray-600 hover:text-gray-800 focus:outline-none" onclick="toggleDropdownMenu(${app.application_personnel_id})">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </button>
-                                    <div id="dropdown-menu-${app.application_personnel_id}" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openEmailModal(${app.application_personnel_id}, ${app.applicant_id}, '${app.applicant_fname} ${app.applicant_lname}', '${app.applicant_email}')">
-                                            <i class="fas fa-envelope mr-2"></i>Send Email
-                                        </a>
-                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openDeleteModal(${app.application_personnel_id}, '${app.applicant_fname} ${app.applicant_lname}')">
-                                            <i class="fas fa-trash mr-2"></i>Delete Application
-                                        </a>
-                                    </div>
-                                </div>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                }
+        fetch(`/mayor_staff/application/filtered?search=${encodeURIComponent(searchValue)}&barangay=${encodeURIComponent(barangayValue)}`, {
+            method: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                'Accept': 'application/json'
             }
         })
-        .catch(err => console.error('Polling error:', err));
-}
+        .then(response => response.json())
+        .then(data => {
+            updateTable(data.tableApplicants);
+        })
+        .catch(err => console.error('Filtering error:', err));
+    }
 
-// Poll every 10 seconds
-setInterval(pollForUpdates, 10000);
+    function updateTable(applicants) {
+        const tableBody = document.querySelector('#tableView tbody');
+        if (tableBody) {
+            tableBody.innerHTML = '';
+
+            if (applicants.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500 bg-gray-50">No Application found for the current year.</td>
+                    </tr>
+                `;
+            } else {
+                applicants.forEach((app, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 text-center">${index + 1}</td>
+                        <td class="px-6 py-4 text-center font-medium">${app.applicant_fname} ${app.applicant_lname}</td>
+                        <td class="px-6 py-4 text-center">${app.applicant_brgy}</td>
+                        <td class="px-6 py-4 text-center">${app.applicant_gender}</td>
+                        <td class="px-6 py-4 text-center">${app.applicant_bdate}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm font-medium transition-colors duration-200 shadow-sm" onclick="openApplicationModal(${app.application_personnel_id}, 'pending')">
+                                View Applications
+                            </button>
+                        </td>
+                        <td class="px-6 py-4 text-center relative">
+                            <div class="dropdown">
+                                <button class="text-gray-600 hover:text-gray-800 focus:outline-none" onclick="toggleDropdownMenu(${app.application_personnel_id})">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div id="dropdown-menu-${app.application_personnel_id}" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openEmailModal(${app.application_personnel_id}, ${app.applicant_id}, '${app.applicant_fname} ${app.applicant_lname}', '${app.applicant_email}')">
+                                        <i class="fas fa-envelope mr-2"></i>Send Email
+                                    </a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openDeleteModal(${app.application_personnel_id}, '${app.applicant_fname} ${app.applicant_lname}')">
+                                        <i class="fas fa-trash mr-2"></i>Delete Application
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+    }
+
+    // Add event listeners for real-time filtering
+    searchInput.addEventListener('input', filterTable);
+    barangaySelect.addEventListener('change', filterTable);
+
+    // Real-time updates for new applications
+    let lastApplicationId = 0;
+    const eventSource = new EventSource('/mayor_staff/sse-applicants?last_id=' + lastApplicationId);
+
+    eventSource.onmessage = function(event) {
+        const newApplication = JSON.parse(event.data);
+
+        // Update last ID
+        lastApplicationId = newApplication.application_id;
+
+        // Check if application matches current filters
+        const searchValue = searchInput.value.trim().toLowerCase();
+        const barangayValue = barangaySelect.value;
+
+        const matchesSearch = !searchValue ||
+            newApplication.applicant_fname.toLowerCase().includes(searchValue) ||
+            newApplication.applicant_lname.toLowerCase().includes(searchValue);
+
+        const matchesBarangay = !barangayValue || newApplication.applicant_brgy === barangayValue;
+
+        if (matchesSearch && matchesBarangay) {
+            // Add to table
+            addNewApplicationToTable(newApplication);
+
+            // Update notification count and dropdown
+            updateNotifications(newApplication);
+
+            // Show toast notification
+            showToast(`New application from ${newApplication.applicant_fname} ${newApplication.applicant_lname}`, 'success');
+        }
+    };
+
+    eventSource.onerror = function(error) {
+        console.error('SSE Error:', error);
+        // Reconnect after 5 seconds
+        setTimeout(() => {
+            eventSource.close();
+            location.reload(); // Simple reconnect by reloading
+        }, 5000);
+    };
+
+    function addNewApplicationToTable(application) {
+        const tableBody = document.querySelector('#tableView tbody');
+        if (!tableBody) return;
+
+        // Remove "No applications found" row if present
+        const noDataRow = tableBody.querySelector('tr td[colspan="7"]');
+        if (noDataRow) {
+            tableBody.innerHTML = '';
+        }
+
+        // Get current row count
+        const existingRows = tableBody.querySelectorAll('tr').length;
+        const rowNumber = existingRows + 1;
+
+        // Create new row
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-200 hover:bg-blue-50 transition-colors duration-200 animate-pulse';
+        row.innerHTML = `
+            <td class="px-6 py-4 text-center">${rowNumber}</td>
+            <td class="px-6 py-4 text-center font-medium">${application.applicant_fname} ${application.applicant_lname}</td>
+            <td class="px-6 py-4 text-center">${application.applicant_brgy}</td>
+            <td class="px-6 py-4 text-center">${application.applicant_gender}</td>
+            <td class="px-6 py-4 text-center">${application.applicant_bdate}</td>
+            <td class="px-6 py-4 text-center">
+                <button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm font-medium transition-colors duration-200 shadow-sm" onclick="openApplicationModal(${application.application_personnel_id}, 'pending')">
+                    View Applications
+                </button>
+            </td>
+            <td class="px-6 py-4 text-center relative">
+                <div class="dropdown">
+                    <button class="text-gray-600 hover:text-gray-800 focus:outline-none" onclick="toggleDropdownMenu(${application.application_personnel_id})">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div id="dropdown-menu-${application.application_personnel_id}" class="dropdown-menu hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openEmailModal(${application.application_personnel_id}, ${application.applicant_id}, '${application.applicant_fname} ${application.applicant_lname}', '${application.applicant_email}')">
+                            <i class="fas fa-envelope mr-2"></i>Send Email
+                        </a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="openDeleteModal(${application.application_personnel_id}, '${application.applicant_fname} ${application.applicant_lname}')">
+                            <i class="fas fa-trash mr-2"></i>Delete Application
+                        </a>
+                    </div>
+                </div>
+            </td>
+        `;
+
+        // Add to top of table
+        tableBody.insertBefore(row, tableBody.firstChild);
+
+        // Remove animation after 2 seconds
+        setTimeout(() => {
+            row.classList.remove('animate-pulse');
+        }, 2000);
+
+        // Update row numbers for existing rows
+        updateRowNumbers();
+    }
+
+    function updateRowNumbers() {
+        const rows = document.querySelectorAll('#tableView tbody tr');
+        rows.forEach((row, index) => {
+            const numberCell = row.querySelector('td:first-child');
+            if (numberCell) {
+                numberCell.textContent = index + 1;
+            }
+        });
+    }
+
+    function updateNotifications(newApplication) {
+        // Update notification count
+        let notifCount = document.getElementById('notifCount');
+        if (!notifCount) {
+            // Create notification badge if it doesn't exist
+            const bellIcon = document.getElementById('notifBell');
+            notifCount = document.createElement('span');
+            notifCount.id = 'notifCount';
+            notifCount.className = 'absolute -top-1 -right-1 bg-red-500 text-white text-sm rounded-full h-5 w-5 flex items-center justify-center';
+            bellIcon.appendChild(notifCount);
+        }
+
+        const currentCount = parseInt(notifCount.textContent) || 0;
+        notifCount.textContent = currentCount + 1;
+
+        // Add to notification dropdown
+        const notifDropdown = document.getElementById('notifDropdown');
+        const ul = notifDropdown.querySelector('ul');
+        const emptyMessage = ul.querySelector('li.text-gray-500');
+
+        if (emptyMessage) {
+            emptyMessage.remove();
+        }
+
+        const newNotif = document.createElement('li');
+        newNotif.className = 'px-4 py-2 hover:bg-gray-50 text-base border-b';
+        newNotif.innerHTML = `
+            <p class="text-blue-600 font-medium">
+                📝 ${newApplication.applicant_fname} ${newApplication.applicant_lname} submitted a new application
+            </p>
+            <p class="text-xs text-gray-500">
+                just now
+            </p>
+        `;
+
+        ul.insertBefore(newNotif, ul.firstChild);
+    }
+
+    function showToast(message, type = 'info') {
+        // Create toast container if it doesn't exist
+        let toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            toastContainer.className = 'fixed top-4 right-4 z-50 space-y-2';
+            document.body.appendChild(toastContainer);
+        }
+
+        // Create toast
+        const toast = document.createElement('div');
+        toast.className = `p-4 rounded-lg shadow-lg text-white transform translate-x-full transition-transform duration-300 ${
+            type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+        }`;
+        toast.innerHTML = `
+            <div class="flex items-center">
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'} mr-2"></i>
+                <span>${message}</span>
+            </div>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => {
+            toast.classList.remove('translate-x-full');
+        }, 100);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.add('translate-x-full');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 5000);
+    }
+});
 </script>
 
 </body>
