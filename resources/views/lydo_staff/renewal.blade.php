@@ -125,6 +125,10 @@
                     </option>
                 @endforeach
             </select>
+
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                Filter
+            </button>
         </form>
             <div class="flex gap-2">
                 <div onclick="showTable()" class="tab active" id="tab-renewal">
@@ -976,71 +980,7 @@ function closeEmailModal() {
 }
 </script>
 
-<script>
-// Real-time filtering
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    const barangaySelect = document.getElementById('barangaySelect');
 
-    function filterTables() {
-        const searchValue = searchInput.value.toLowerCase();
-        const barangayValue = barangaySelect.value;
-
-        // Filter tableView (5 columns)
-        filterTable('tableView', searchValue, barangayValue, 5);
-
-        // Filter listView (6 columns)
-        filterTable('listView', searchValue, barangayValue, 6);
-    }
-
-    function filterTable(tableId, searchValue, barangayValue, colspan) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        if (!tbody) return;
-
-        const rows = tbody.querySelectorAll('tr');
-        let visibleCount = 0;
-
-        rows.forEach(row => {
-            const nameCell = row.cells[1]; // Name column
-            const barangayCell = row.cells[2]; // Barangay column
-
-            if (nameCell && barangayCell) {
-                const name = nameCell.textContent.toLowerCase();
-                const barangay = barangayCell.textContent;
-
-                const nameMatch = name.includes(searchValue);
-                const barangayMatch = !barangayValue || barangay === barangayValue;
-
-                if (nameMatch && barangayMatch) {
-                    row.style.display = '';
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none';
-                }
-            }
-        });
-
-        // Handle no results
-        let noResultRow = tbody.querySelector('.no-result-row');
-        if (visibleCount === 0) {
-            if (!noResultRow) {
-                noResultRow = document.createElement('tr');
-                noResultRow.className = 'no-result-row';
-                noResultRow.innerHTML = `<td colspan="${colspan}" class="text-center py-4 border border-gray-200 text-gray-500">0 result</td>`;
-                tbody.appendChild(noResultRow);
-            }
-            noResultRow.style.display = '';
-        } else {
-            if (noResultRow) {
-                noResultRow.style.display = 'none';
-            }
-        }
-    }
-
-    searchInput.addEventListener('input', filterTables);
-    barangaySelect.addEventListener('change', filterTables);
-});
-</script>
 
 </body>
 </html>
